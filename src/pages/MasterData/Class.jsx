@@ -8,7 +8,7 @@ import {
   FiEye,
   FiTrash2,
 } from "react-icons/fi";
-import "./Branch.css";
+import "./Class.css";
 
 const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
 const tabs = [{ label: "Overview" }, { label: "History" }];
@@ -214,7 +214,7 @@ const ClassPage = () => {
   if (mode === "create") {
     return (
       <div
-        className="branch-container"
+        className="class-container"
         style={{ background: "#fafbfc", minHeight: "100vh" }}
       >
         {/* Breadcrumb */}
@@ -258,7 +258,7 @@ const ClassPage = () => {
               <div style={{ flex: 1, minWidth: 220 }}>
                 <div style={{ marginBottom: 12 }}>
                   <input
-                    className="search-input"
+                    className="class-search-input"
                     style={{ width: "100%" }}
                     placeholder="Class Name"
                     value={form.name}
@@ -270,7 +270,7 @@ const ClassPage = () => {
               <div style={{ flex: 1, minWidth: 220 }}>
                 <div style={{ marginBottom: 12 }}>
                   <input
-                    className="search-input"
+                    className="class-search-input"
                     style={{ width: "100%" }}
                     placeholder="School Name"
                     value={form.school}
@@ -331,7 +331,7 @@ const ClassPage = () => {
   if (mode === "edit" && selectedClass) {
     return (
       <div
-        className="branch-container"
+        className="class-container"
         style={{ background: "#fafbfc", minHeight: "100vh" }}
       >
         {/* Breadcrumb */}
@@ -375,7 +375,7 @@ const ClassPage = () => {
               <div style={{ flex: 1, minWidth: 220 }}>
                 <div style={{ marginBottom: 12 }}>
                   <input
-                    className="search-input"
+                    className="class-search-input"
                     style={{ width: "100%" }}
                     placeholder="Class Name"
                     value={form.name}
@@ -385,7 +385,7 @@ const ClassPage = () => {
                 </div>
                 <div style={{ marginBottom: 12 }}>
                   <input
-                    className="search-input"
+                    className="class-search-input"
                     style={{ width: "100%" }}
                     placeholder="School Name"
                     value={form.school}
@@ -397,7 +397,7 @@ const ClassPage = () => {
               <div style={{ flex: 1, minWidth: 220 }}>
                 <div style={{ marginBottom: 12 }}>
                   <input
-                    className="search-input"
+                    className="class-search-input"
                     style={{ width: "100%" }}
                     placeholder="Class Code"
                     value={form.code || ""}
@@ -406,7 +406,7 @@ const ClassPage = () => {
                 </div>
                 <div style={{ marginBottom: 12 }}>
                   <input
-                    className="search-input"
+                    className="class-search-input"
                     style={{ width: "100%" }}
                     placeholder="School Code"
                     value={form.schoolCode || ""}
@@ -466,7 +466,7 @@ const ClassPage = () => {
   if (mode === "overview" && selectedClass) {
     return (
       <div
-        className="branch-container"
+        className="class-container"
         style={{ background: "#f7f7f7", minHeight: "100vh" }}
       >
         {/* Breadcrumb */}
@@ -625,10 +625,10 @@ const ClassPage = () => {
 
   // LIST MODE
   return (
-    <div className="branch-container">
-      <div className="branch-header">
+    <div className="class-container">
+      <div className="class-header">
         <select
-          className="dropdown"
+          className="class-dropdown"
           value={pageSize}
           onChange={(e) => {
             setPageSize(Number(e.target.value));
@@ -644,24 +644,27 @@ const ClassPage = () => {
         <input
           type="text"
           placeholder="Search"
-          className="search-input"
+          className="class-search-input"
           value={searchTerm}
           onChange={(e) => {
             setSearchTerm(e.target.value);
             setPage(1);
           }}
         />
-        <div className="actions">
-          <button className="create-btn" onClick={() => setMode("create")}>
+        <div className="class-actions">
+          <button
+            className="class-create-btn"
+            onClick={() => setMode("create")}
+          >
             + Create
           </button>
-          <button className="icon-btn">
+          <button className="class-icon-btn">
             <FiDownload />
           </button>
-          <button className="icon-btn">
+          <button className="class-icon-btn">
             <FiMaximize2 />
           </button>
-          <button className="icon-btn">
+          <button className="class-icon-btn">
             <FiFilter />
           </button>
         </div>
@@ -676,77 +679,79 @@ const ClassPage = () => {
           Loading classes...
         </div>
       ) : (
-        <table className="branch-table">
-          <thead>
-            <tr>
-              <th>Class</th>
-              <th>School</th>
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {paginated.map((cls) => (
-              <tr key={cls.id}>
-                <td>
-                  <div className="branch-name">{cls.name}</div>
-                  <div className="branch-code">{cls.code}</div>
-                </td>
-                <td>
-                  <div className="branch-name">{cls.school}</div>
-                  <div className="branch-code">{cls.schoolCode}</div>
-                </td>
-                <td>
-                  <label className="switch">
-                    <input
-                      type="checkbox"
-                      checked={cls.status}
-                      onChange={() => toggleStatus(cls.id)}
-                    />
-                    <span className="slider round"></span>
-                  </label>
-                </td>
-                <td style={{ display: "flex", gap: 8 }}>
-                  <button
-                    className="edit-btn"
-                    title="Overview"
-                    onClick={() => {
-                      setSelectedId(cls.id);
-                      setMode("overview");
-                    }}
-                  >
-                    <FiEye size={16} />
-                  </button>
-                  <button
-                    className="edit-btn"
-                    title="Edit"
-                    onClick={() => {
-                      setSelectedId(cls.id);
-                      setMode("edit");
-                    }}
-                  >
-                    <FiEdit size={16} />
-                  </button>
-                  <button
-                    className="edit-btn"
-                    title="Delete"
-                    onClick={() => setDeleteConfirmId(cls.id)}
-                    style={{ color: "#e74c3c" }}
-                  >
-                    <FiTrash2 size={16} style={{ color: "#e74c3c" }} />
-                  </button>
-                </td>
+        <div className="class-table-scroll">
+          <table className="class-table">
+            <thead>
+              <tr>
+                <th>Class</th>
+                <th>School</th>
+                <th>Status</th>
+                <th>Action</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {paginated.map((cls) => (
+                <tr key={cls.id}>
+                  <td>
+                    <div className="class-name">{cls.name}</div>
+                    <div className="class-code">{cls.code}</div>
+                  </td>
+                  <td>
+                    <div className="class-name">{cls.school}</div>
+                    <div className="class-code">{cls.schoolCode}</div>
+                  </td>
+                  <td>
+                    <label className="class-switch">
+                      <input
+                        type="checkbox"
+                        checked={cls.status}
+                        onChange={() => toggleStatus(cls.id)}
+                      />
+                      <span className="class-slider round"></span>
+                    </label>
+                  </td>
+                  <td style={{ display: "flex", gap: 8 }}>
+                    <button
+                      className="class-edit-btn"
+                      title="Overview"
+                      onClick={() => {
+                        setSelectedId(cls.id);
+                        setMode("overview");
+                      }}
+                    >
+                      <FiEye size={16} />
+                    </button>
+                    <button
+                      className="class-edit-btn"
+                      title="Edit"
+                      onClick={() => {
+                        setSelectedId(cls.id);
+                        setMode("edit");
+                      }}
+                    >
+                      <FiEdit size={16} />
+                    </button>
+                    <button
+                      className="class-edit-btn"
+                      title="Delete"
+                      onClick={() => setDeleteConfirmId(cls.id)}
+                      style={{ color: "#e74c3c" }}
+                    >
+                      <FiTrash2 size={16} style={{ color: "#e74c3c" }} />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
-      <div className="branch-footer">
+      <div className="class-footer">
         <div className="footer-text">
           Showing {total === 0 ? 0 : startIdx + 1} to {endIdx} of {total}{" "}
           entries
         </div>
-        <div className="pagination">
+        <div className="class-pagination">
           <button disabled={page === 1} onClick={() => setPage(page - 1)}>
             &lt;
           </button>
@@ -769,8 +774,8 @@ const ClassPage = () => {
       </div>
       {/* Delete Confirmation Modal */}
       {deleteConfirmId && (
-        <div className="modal-overlay">
-          <div className="modal">
+        <div className="class-modal-overlay">
+          <div className="class-modal">
             <div>Are you sure you want to delete this class?</div>
             <div className="modal-actions">
               <button
