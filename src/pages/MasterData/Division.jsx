@@ -7,7 +7,7 @@ import {
   FiTrash2,
   FiEye,
 } from "react-icons/fi";
-import "./Branch.css";
+import "./Division.css";
 
 const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
 const defaultForm = { name: "", class: "", school: "", code: "", status: true };
@@ -420,10 +420,10 @@ const Division = () => {
 
   // --- LIST VIEW ---
   return (
-    <div className="branch-container">
-      <div className="branch-header">
+    <div className="division-container">
+      <div className="division-header">
         <select
-          className="dropdown"
+          className="division-dropdown"
           value={pageSize}
           onChange={(e) => {
             setPageSize(Number(e.target.value));
@@ -439,16 +439,16 @@ const Division = () => {
         <input
           type="text"
           placeholder="Search"
-          className="search-input"
+          className="division-search-input"
           value={searchTerm}
           onChange={(e) => {
             setSearchTerm(e.target.value);
             setPage(1);
           }}
         />
-        <div className="actions">
+        <div className="division-actions">
           <button
-            className="create-btn"
+            className="division-create-btn"
             onClick={() => {
               setMode("form");
               setIsEdit(false);
@@ -458,13 +458,13 @@ const Division = () => {
           >
             + Create
           </button>
-          <button className="icon-btn">
+          <button className="division-icon-btn">
             <FiDownload />
           </button>
-          <button className="icon-btn">
+          <button className="division-icon-btn">
             <FiMaximize2 />
           </button>
-          <button className="icon-btn">
+          <button className="division-icon-btn">
             <FiFilter />
           </button>
         </div>
@@ -479,73 +479,75 @@ const Division = () => {
           Loading divisions...
         </div>
       ) : (
-        <table className="branch-table">
-          <thead>
-            <tr>
-              <th>Division Name</th>
-              <th>Class</th>
-              <th>School</th>
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {paginated.map((div) => (
-              <tr key={div.id}>
-                <td>
-                  <div className="branch-name">{div.name}</div>
-                  <div className="branch-code">{div.code}</div>
-                </td>
-                <td>
-                  <div className="branch-name">{div.class}</div>
-                </td>
-                <td>
-                  <div className="branch-name">{div.school}</div>
-                </td>
-                <td>
-                  <label className="switch">
-                    <input
-                      type="checkbox"
-                      checked={div.status}
-                      onChange={() => toggleStatus(div.id)}
-                    />
-                    <span className="slider round"></span>
-                  </label>
-                </td>
-                <td style={{ display: "flex", gap: 8 }}>
-                  <button
-                    className="edit-btn"
-                    title="Edit"
-                    onClick={() => handleEdit(div)}
-                  >
-                    <FiEdit size={16} />
-                  </button>
-                  <button
-                    className="edit-btn"
-                    title="Overview"
-                    onClick={() => handleOverview(div)}
-                  >
-                    <FiEye size={16} />
-                  </button>
-                  <button
-                    className="edit-btn"
-                    title="Delete"
-                    onClick={() => setDeleteConfirmId(div.id)}
-                  >
-                    <FiTrash2 size={16} style={{ color: "#e74c3c" }} />
-                  </button>
-                </td>
+        <div className="division-table-scroll">
+          <table className="division-table">
+            <thead>
+              <tr>
+                <th>Division Name</th>
+                <th>Class</th>
+                <th>School</th>
+                <th>Status</th>
+                <th>Action</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {paginated.map((div) => (
+                <tr key={div.id}>
+                  <td>
+                    <div className="division-name">{div.name}</div>
+                    <div className="division-code">{div.code}</div>
+                  </td>
+                  <td>
+                    <div className="division-name">{div.class}</div>
+                  </td>
+                  <td>
+                    <div className="division-name">{div.school}</div>
+                  </td>
+                  <td>
+                    <label className="division-switch">
+                      <input
+                        type="checkbox"
+                        checked={div.status}
+                        onChange={() => toggleStatus(div.id)}
+                      />
+                      <span className="division-slider round"></span>
+                    </label>
+                  </td>
+                  <td style={{ display: "flex", gap: 8 }}>
+                    <button
+                      className="division-edit-btn"
+                      title="Edit"
+                      onClick={() => handleEdit(div)}
+                    >
+                      <FiEdit size={16} />
+                    </button>
+                    <button
+                      className="division-edit-btn"
+                      title="Overview"
+                      onClick={() => handleOverview(div)}
+                    >
+                      <FiEye size={16} />
+                    </button>
+                    <button
+                      className="division-edit-btn"
+                      title="Delete"
+                      onClick={() => setDeleteConfirmId(div.id)}
+                    >
+                      <FiTrash2 size={16} style={{ color: "#e74c3c" }} />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
-      <div className="branch-footer">
+      <div className="division-footer">
         <div className="footer-text">
           Showing {total === 0 ? 0 : startIdx + 1} to {endIdx} of {total}{" "}
           entries
         </div>
-        <div className="pagination">
+        <div className="division-pagination">
           <button disabled={page === 1} onClick={() => setPage(page - 1)}>
             &lt;
           </button>
@@ -568,8 +570,8 @@ const Division = () => {
       </div>
       {/* Delete Confirmation Modal */}
       {deleteConfirmId && (
-        <div className="modal-overlay">
-          <div className="modal">
+        <div className="division-modal-overlay">
+          <div className="division-modal">
             <div>Are you sure you want to delete this division?</div>
             <div className="modal-actions">
               <button
