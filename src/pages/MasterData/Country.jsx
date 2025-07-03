@@ -118,17 +118,19 @@ const Country = () => {
               }
               required
             />
-            <div className="status-toggle">
+            {/* Add status toggle to modal */}
+            <div className="modal-status-toggle">
               <label>
-                Status:
                 <input
                   type="checkbox"
                   checked={form.status}
                   onChange={(e) =>
                     setForm({ ...form, status: e.target.checked })
                   }
-                  className="status-checkbox"
                 />
+                <span style={{ marginLeft: 8 }}>
+                  {form.status ? "Active" : "Inactive"}
+                </span>
               </label>
             </div>
             <div className="modal-actions">
@@ -257,9 +259,7 @@ const Country = () => {
 
       <div className="pagination">
         <span>
-          {`Showing ${
-            totalEntries === 0 ? 0 : (page - 1) * pageSize + 1
-          } to ${
+          {`Showing ${totalEntries === 0 ? 0 : (page - 1) * pageSize + 1} to ${
             page * pageSize > totalEntries ? totalEntries : page * pageSize
           } of ${totalEntries} entries`}
         </span>
