@@ -408,6 +408,7 @@ const Institute = () => {
           <span>Overview</span>
         </div>
         <div
+          className="institute-overview-header"
           style={{
             background: "#fff",
             borderRadius: 14,
@@ -446,6 +447,7 @@ const Institute = () => {
               {inst.name}
             </div>
             <div
+              className="institute-overview-contact"
               style={{
                 display: "flex",
                 alignItems: "center",
@@ -485,6 +487,7 @@ const Institute = () => {
           </button>
         </div>
         <div
+          className="institute-overview-details"
           style={{
             background: "#fff",
             borderRadius: 12,
@@ -502,7 +505,10 @@ const Institute = () => {
           >
             Details
           </div>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 0 }}>
+          <div
+            className="institute-overview-details-row"
+            style={{ display: "flex", flexWrap: "wrap", gap: 0 }}
+          >
             <div style={{ flex: 1, minWidth: 260 }}>
               <div style={{ marginBottom: 12, color: "#888", fontSize: 15 }}>
                 Institute Name{" "}
@@ -623,80 +629,84 @@ const Institute = () => {
           </button>
         </div>
       </div>
-      <table className="institute-table">
-        <thead>
-          <tr>
-            <th>Institute Name</th>
-            <th>Email ID</th>
-            <th>Phone Number</th>
-            <th>Address</th>
-            <th>Status</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {paginated.map((inst) => (
-            <tr key={inst.id}>
-              <td>
-                <div className="inst-name">{inst.name}</div>
-                <div className="inst-id">{inst.id}</div>
-              </td>
-              <td>
-                <div>{inst.email}</div>
-                <div className="inst-id">{inst.email}</div>
-              </td>
-              <td>
-                <div>{inst.phoneNumber || inst.phone}</div>
-                <div className="inst-id">{inst.phoneNumber || inst.phone}</div>
-              </td>
-              <td style={{ whiteSpace: "pre-line" }}>
-                {[
-                  inst.addressLine1,
-                  inst.addressLine2,
-                  inst.city,
-                  inst.state,
-                  inst.pinCode,
-                ]
-                  .filter(Boolean)
-                  .join(", ")}
-              </td>
-              <td>
-                <label className="switch">
-                  <input
-                    type="checkbox"
-                    checked={inst.status}
-                    onChange={() => toggleStatus(inst.id)}
-                  />
-                  <span className="slider round"></span>
-                </label>
-              </td>
-              <td style={{ display: "flex", gap: 8 }}>
-                <button
-                  className="edit-btn"
-                  title="Edit"
-                  onClick={() => handleEdit(inst)}
-                >
-                  <FiEdit size={16} />
-                </button>
-                <button
-                  className="edit-btn"
-                  title="Overview"
-                  onClick={() => handleOverview(inst)}
-                >
-                  <FiEye size={16} />
-                </button>
-                <button
-                  className="edit-btn"
-                  title="Delete"
-                  onClick={() => setDeleteConfirmId(inst.id)}
-                >
-                  <FiTrash2 size={16} style={{ color: "#e74c3c" }} />
-                </button>
-              </td>
+      <div className="institute-table-scroll">
+        <table className="institute-table">
+          <thead>
+            <tr>
+              <th>Institute Name</th>
+              <th>Email ID</th>
+              <th>Phone Number</th>
+              <th>Address</th>
+              <th>Status</th>
+              <th>Action</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {paginated.map((inst) => (
+              <tr key={inst.id}>
+                <td>
+                  <div className="inst-name">{inst.name}</div>
+                  <div className="inst-id">{inst.id}</div>
+                </td>
+                <td>
+                  <div>{inst.email}</div>
+                  <div className="inst-id">{inst.email}</div>
+                </td>
+                <td>
+                  <div>{inst.phoneNumber || inst.phone}</div>
+                  <div className="inst-id">
+                    {inst.phoneNumber || inst.phone}
+                  </div>
+                </td>
+                <td style={{ whiteSpace: "pre-line" }}>
+                  {[
+                    inst.addressLine1,
+                    inst.addressLine2,
+                    inst.city,
+                    inst.state,
+                    inst.pinCode,
+                  ]
+                    .filter(Boolean)
+                    .join(", ")}
+                </td>
+                <td>
+                  <label className="switch">
+                    <input
+                      type="checkbox"
+                      checked={inst.status}
+                      onChange={() => toggleStatus(inst.id)}
+                    />
+                    <span className="slider round"></span>
+                  </label>
+                </td>
+                <td style={{ display: "flex", gap: 8 }}>
+                  <button
+                    className="edit-btn"
+                    title="Edit"
+                    onClick={() => handleEdit(inst)}
+                  >
+                    <FiEdit size={16} />
+                  </button>
+                  <button
+                    className="edit-btn"
+                    title="Overview"
+                    onClick={() => handleOverview(inst)}
+                  >
+                    <FiEye size={16} />
+                  </button>
+                  <button
+                    className="edit-btn"
+                    title="Delete"
+                    onClick={() => setDeleteConfirmId(inst.id)}
+                  >
+                    <FiTrash2 size={16} style={{ color: "#e74c3c" }} />
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
       <div className="institute-footer">
         <div className="footer-text">
           Showing {total === 0 ? 0 : startIdx + 1} to {endIdx} of {total}{" "}
