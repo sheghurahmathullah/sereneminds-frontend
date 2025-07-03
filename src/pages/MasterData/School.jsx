@@ -11,7 +11,7 @@ import {
   FiTrash2,
   FiEye,
 } from "react-icons/fi";
-import "./Branch.css";
+import "./School.css";
 
 const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
 
@@ -237,7 +237,7 @@ const School = () => {
   if (viewMode === "form") {
     return (
       <div
-        className="branch-container"
+        className="school-container"
         style={{ background: "#fafbfc", minHeight: "100vh" }}
       >
         <div
@@ -562,7 +562,7 @@ const School = () => {
     const s = selectedSchool;
     return (
       <div
-        className="branch-container"
+        className="school-container"
         style={{ background: "#f7f7f7", minHeight: "100vh" }}
       >
         <div
@@ -790,8 +790,8 @@ const School = () => {
 
   // --- LIST VIEW ---
   return (
-    <div className="branch-container">
-      <div className="branch-header">
+    <div className="school-container">
+      <div className="school-header">
         <select
           className="dropdown"
           value={pageSize}
@@ -849,74 +849,76 @@ const School = () => {
           Loading schools...
         </div>
       ) : (
-        <table className="branch-table">
-          <thead>
-            <tr>
-              <th>School Name</th>
-              <th>Institute</th>
-              <th>Branch</th>
-              <th>School Type</th>
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {paginated.map((school) => (
-              <tr key={school.id}>
-                <td>
-                  <div className="branch-name">{school.name}</div>
-                  <div className="branch-code">{school.code}</div>
-                </td>
-                <td>
-                  <div className="institute-name">{school.institute}</div>
-                  <div className="institute-code">{school.instituteCode}</div>
-                </td>
-                <td>
-                  <div className="branch-name">{school.branch}</div>
-                  <div className="branch-code">{school.branchCode}</div>
-                </td>
-                <td>
-                  <div className="branch-name">{school.type}</div>
-                </td>
-                <td>
-                  <label className="switch">
-                    <input
-                      type="checkbox"
-                      checked={school.status}
-                      onChange={() => toggleStatus(school.id)}
-                    />
-                    <span className="slider round"></span>
-                  </label>
-                </td>
-                <td style={{ display: "flex", gap: 8 }}>
-                  <button
-                    className="edit-btn"
-                    title="Overview"
-                    onClick={() => handleOverview(school)}
-                  >
-                    <FiEye size={16} />
-                  </button>
-                  <button
-                    className="edit-btn"
-                    title="Edit"
-                    onClick={() => handleEdit(school)}
-                  >
-                    <FiEdit size={16} />
-                  </button>
-                  <button
-                    className="edit-btn"
-                    title="Delete"
-                    onClick={() => setDeleteConfirmId(school.id)}
-                  >
-                    <FiTrash2 size={16} style={{ color: "#e74c3c" }} />
-                  </button>
-                </td>
+        <div className="school-table-scroll">
+          <table className="school-table">
+            <thead>
+              <tr>
+                <th>School Name</th>
+                <th>Institute</th>
+                <th>Branch</th>
+                <th>School Type</th>
+                <th>Status</th>
+                <th>Action</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {paginated.map((school) => (
+                <tr key={school.id}>
+                  <td>
+                    <div className="branch-name">{school.name}</div>
+                    <div className="branch-code">{school.code}</div>
+                  </td>
+                  <td>
+                    <div className="institute-name">{school.institute}</div>
+                    <div className="institute-code">{school.instituteCode}</div>
+                  </td>
+                  <td>
+                    <div className="branch-name">{school.branch}</div>
+                    <div className="branch-code">{school.branchCode}</div>
+                  </td>
+                  <td>
+                    <div className="branch-name">{school.type}</div>
+                  </td>
+                  <td>
+                    <label className="switch">
+                      <input
+                        type="checkbox"
+                        checked={school.status}
+                        onChange={() => toggleStatus(school.id)}
+                      />
+                      <span className="slider round"></span>
+                    </label>
+                  </td>
+                  <td style={{ display: "flex", gap: 8 }}>
+                    <button
+                      className="edit-btn"
+                      title="Overview"
+                      onClick={() => handleOverview(school)}
+                    >
+                      <FiEye size={16} />
+                    </button>
+                    <button
+                      className="edit-btn"
+                      title="Edit"
+                      onClick={() => handleEdit(school)}
+                    >
+                      <FiEdit size={16} />
+                    </button>
+                    <button
+                      className="edit-btn"
+                      title="Delete"
+                      onClick={() => setDeleteConfirmId(school.id)}
+                    >
+                      <FiTrash2 size={16} style={{ color: "#e74c3c" }} />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
-      <div className="branch-footer">
+      <div className="school-footer">
         <div className="footer-text">
           Showing {total === 0 ? 0 : startIdx + 1} to {endIdx} of {total}{" "}
           entries
