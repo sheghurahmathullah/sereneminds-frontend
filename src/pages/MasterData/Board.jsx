@@ -8,7 +8,7 @@ import {
   FiTrash2,
   FiEye,
 } from "react-icons/fi";
-import "./Branch.css";
+import "./Board.css";
 
 const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
 
@@ -212,7 +212,7 @@ const Board = () => {
   if (mode === "create") {
     return (
       <div
-        className="branch-container"
+        className="board-container"
         style={{ background: "#fafbfc", minHeight: "100vh" }}
       >
         {/* Breadcrumb */}
@@ -343,7 +343,7 @@ const Board = () => {
   if (mode === "edit" && selectedBoard) {
     return (
       <div
-        className="branch-container"
+        className="board-container"
         style={{ background: "#fafbfc", minHeight: "100vh" }}
       >
         {/* Breadcrumb */}
@@ -483,7 +483,7 @@ const Board = () => {
   if (mode === "overview" && selectedBoard) {
     return (
       <div
-        className="branch-container"
+        className="board-container"
         style={{ background: "#f7f7f7", minHeight: "100vh" }}
       >
         {/* Breadcrumb */}
@@ -642,8 +642,8 @@ const Board = () => {
 
   // LIST MODE
   return (
-    <div className="branch-container">
-      <div className="branch-header">
+    <div className="board-container">
+      <div className="board-header">
         <select
           className="dropdown"
           value={pageSize}
@@ -693,74 +693,76 @@ const Board = () => {
           Loading boards...
         </div>
       ) : (
-        <table className="branch-table">
-          <thead>
-            <tr>
-              <th>Board Name</th>
-              <th>Board Type</th>
-              <th>Email ID</th>
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {paginated.map((board) => (
-              <tr key={board.id}>
-                <td>
-                  <div className="branch-name">{board.name}</div>
-                  <div className="branch-code">{board.code}</div>
-                </td>
-                <td>
-                  <div className="branch-name">{board.type}</div>
-                </td>
-                <td>
-                  <div className="branch-name">{board.email}</div>
-                </td>
-                <td>
-                  <label className="switch">
-                    <input
-                      type="checkbox"
-                      checked={board.status}
-                      onChange={() => toggleStatus(board.id)}
-                    />
-                    <span className="slider round"></span>
-                  </label>
-                </td>
-                <td style={{ display: "flex", gap: 8 }}>
-                  <button
-                    className="edit-btn"
-                    title="Overview"
-                    onClick={() => {
-                      setSelectedId(board.id);
-                      setMode("overview");
-                    }}
-                  >
-                    <FiEye size={16} />
-                  </button>
-                  <button
-                    className="edit-btn"
-                    title="Edit"
-                    onClick={() => {
-                      setSelectedId(board.id);
-                      setMode("edit");
-                    }}
-                  >
-                    <FiEdit size={16} />
-                  </button>
-                  <button
-                    className="edit-btn"
-                    title="Delete"
-                    onClick={() => setDeleteConfirmId(board.id)}
-                  >
-                    <FiTrash2 size={16} style={{ color: "#e74c3c" }} />
-                  </button>
-                </td>
+        <div className="board-table-scroll">
+          <table className="board-table">
+            <thead>
+              <tr>
+                <th>Board Name</th>
+                <th>Board Type</th>
+                <th>Email ID</th>
+                <th>Status</th>
+                <th>Action</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {paginated.map((board) => (
+                <tr key={board.id}>
+                  <td>
+                    <div className="branch-name">{board.name}</div>
+                    <div className="branch-code">{board.code}</div>
+                  </td>
+                  <td>
+                    <div className="branch-name">{board.type}</div>
+                  </td>
+                  <td>
+                    <div className="branch-name">{board.email}</div>
+                  </td>
+                  <td>
+                    <label className="switch">
+                      <input
+                        type="checkbox"
+                        checked={board.status}
+                        onChange={() => toggleStatus(board.id)}
+                      />
+                      <span className="slider round"></span>
+                    </label>
+                  </td>
+                  <td style={{ display: "flex", gap: 8 }}>
+                    <button
+                      className="edit-btn"
+                      title="Overview"
+                      onClick={() => {
+                        setSelectedId(board.id);
+                        setMode("overview");
+                      }}
+                    >
+                      <FiEye size={16} />
+                    </button>
+                    <button
+                      className="edit-btn"
+                      title="Edit"
+                      onClick={() => {
+                        setSelectedId(board.id);
+                        setMode("edit");
+                      }}
+                    >
+                      <FiEdit size={16} />
+                    </button>
+                    <button
+                      className="edit-btn"
+                      title="Delete"
+                      onClick={() => setDeleteConfirmId(board.id)}
+                    >
+                      <FiTrash2 size={16} style={{ color: "#e74c3c" }} />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
-      <div className="branch-footer">
+      <div className="board-footer">
         <div className="footer-text">
           Showing {total === 0 ? 0 : startIdx + 1} to {endIdx} of {total}{" "}
           entries
