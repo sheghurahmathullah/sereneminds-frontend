@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Topbar from "./components/Topbar.jsx";
 import Sidebar from "./components/Sidebar.jsx";
+import MobileSidebar from "./components/MobileSidebar.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import Reports from "./pages/Reports.jsx";
 import Graph from "./pages/Graph.jsx";
@@ -57,6 +58,8 @@ function AppContent() {
     "/reset-password",
   ];
 
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   // Redirect to dashboard if user is already authenticated and trying to access auth pages
   if (isAuthenticated && authRoutes.includes(location.pathname)) {
     return <Navigate to="/dashboard" replace />;
@@ -76,10 +79,18 @@ function AppContent() {
 
   return (
     <ProtectedRoute>
-      <div style={{ display: "flex" }}>
-        <Sidebar />
+      <div style={{ display: "flex", position: "relative" }}>
+        {/* Desktop Sidebar */}
+        <div className="sidebar-desktop">
+          <Sidebar />
+        </div>
+        {/* Mobile Sidebar (only on mobile) */}
+        <MobileSidebar
+          isOpen={sidebarOpen}
+          onClose={() => setSidebarOpen(false)}
+        />
         <div style={{ flex: 1 }}>
-          <Topbar />
+          <Topbar onMenuClick={() => setSidebarOpen(true)} />
           <Routes>
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route path="/dashboard" element={<Dashboard />} />

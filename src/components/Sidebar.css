@@ -199,3 +199,104 @@
   font-weight: 600;
   letter-spacing: 0.5px;
 }
+
+/* Overlay for mobile sidebar */
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 110;
+  display: none;
+}
+
+/* Mobile sidebar styles */
+.sidebar.mobile {
+  position: fixed;
+  top: 0;
+  left: -100%;
+  width: 80vw;
+  min-width: 220px;
+  max-width: 320px;
+  height: 100vh;
+  background: #fff;
+  color: #222;
+  z-index: 120;
+  box-shadow: 2px 0 16px rgba(0, 0, 0, 0.15);
+  transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  padding: 24px 16px 24px 16px;
+  overflow-y: auto;
+}
+.sidebar.mobile.open {
+  left: 0;
+}
+.sidebar-close-btn {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: #888;
+  cursor: pointer;
+  z-index: 130;
+  display: none;
+}
+
+/* Hide desktop sidebar on mobile, show mobile sidebar */
+@media (max-width: 900px) {
+  .sidebar-desktop {
+    display: none;
+  }
+  .sidebar-mobile {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 120;
+  }
+  .sidebar-overlay {
+    display: block;
+  }
+  .sidebar-close-btn {
+    display: block;
+  }
+}
+
+/* Hide mobile sidebar on desktop */
+.sidebar-mobile {
+  display: none;
+}
+
+.mobile-sidebar-drawer {
+  position: fixed;
+  top: 0;
+  left: -100%;
+  width: 80vw;
+  min-width: 220px;
+  max-width: 320px;
+  height: 100vh;
+  background: #fff;
+  color: #222;
+  z-index: 120;
+  box-shadow: 2px 0 16px rgba(0, 0, 0, 0.15);
+  transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  padding: 24px 16px 24px 16px;
+  overflow-y: auto;
+}
+.mobile-sidebar-drawer.open {
+  left: 0;
+}
+@media (min-width: 901px) {
+  .mobile-sidebar-drawer {
+    display: none !important;
+  }
+}

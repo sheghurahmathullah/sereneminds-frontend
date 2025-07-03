@@ -339,3 +339,106 @@ input:checked + .slider:before {
   font-style: italic;
   padding: 40px 16px;
 }
+
+@media (max-width: 600px) {
+  .city-container {
+    padding: 0.5rem;
+    min-height: unset;
+  }
+  .city-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+  .dropdown,
+  .search-input {
+    width: 100%;
+    font-size: 15px;
+    margin-bottom: 0.5rem;
+  }
+  .actions {
+    flex-wrap: nowrap;
+    flex-direction: row;
+    gap: 6px;
+    justify-content: flex-start;
+    overflow-x: auto;
+    width: 100%;
+  }
+  .create-btn,
+  .icon-btn {
+    width: auto;
+    min-width: 44px;
+    font-size: 15px;
+    padding: 10px 12px;
+    flex-shrink: 0;
+  }
+  .city-table {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    border-radius: 8px;
+    font-size: 14px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: #1ecab8 #f9fafb;
+  }
+  .city-table::-webkit-scrollbar {
+    height: 8px;
+    background: #f9fafb;
+  }
+  .city-table::-webkit-scrollbar-thumb {
+    background: #1ecab8;
+    border-radius: 4px;
+  }
+  .city-table thead,
+  .city-table tbody,
+  .city-table tr {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+  }
+  .city-table th,
+  .city-table td {
+    padding: 0.7rem 0.5rem;
+    font-size: 14px;
+    word-break: break-word;
+  }
+  .modal {
+    width: 98vw;
+    min-width: unset;
+    padding: 0;
+    border-radius: 10px;
+  }
+  .modal-title {
+    font-size: 18px;
+    padding: 18px 10px 10px 10px;
+  }
+  .modal-input {
+    font-size: 14px;
+    padding: 10px 10px;
+    margin: 0 10px;
+    width: calc(100% - 20px);
+  }
+  .modal-actions {
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px 10px 14px 10px;
+  }
+  .modal-cancel,
+  .modal-submit {
+    width: 100%;
+    font-size: 15px;
+    padding: 10px 0;
+  }
+  .pagination {
+    flex-direction: column;
+    gap: 6px;
+    font-size: 14px;
+  }
+  .pages button {
+    min-width: 32px;
+    font-size: 14px;
+    padding: 4px 0;
+  }
+}

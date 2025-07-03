@@ -10,7 +10,7 @@ import { BsBarChart, BsGraphUp } from "react-icons/bs"; // Add BsGraphUp
 import { RiBuildingLine } from "react-icons/ri";
 import { IoRemoveCircleOutline } from "react-icons/io5";
 
-const Sidebar = () => {
+const Sidebar = ({ isOpen, onClose }) => {
   const location = useLocation();
   const [openMaster, setOpenMaster] = useState(true);
 
@@ -38,22 +38,37 @@ const Sidebar = () => {
   ];
 
   return (
-    <div className="sidebar enhanced-sidebar">
+    <div
+      className={
+        `sidebar enhanced-sidebar` +
+        (isOpen !== undefined ? " mobile" : "") +
+        (isOpen ? " open" : "")
+      }
+    >
+      {isOpen !== undefined && (
+        <button
+          className="sidebar-close-btn"
+          onClick={onClose}
+          aria-label="Close Sidebar"
+        >
+          &times;
+        </button>
+      )}
       <div className="sidebar-header">
         <img src="/logo.png" alt="Serene Minds Logo" className="sidebar-logo" />
       </div>
 
       <ul className="sidebar-list">
-        <li className={isActive("/") ? "active" : ""}>
+        <li className={isActive("/") ? "active" : ""} onClick={onClose}>
           <FiHome className="icon" />
           <Link to="/">Dashboard</Link>
         </li>
-        <li className={isActive("/reports") ? "active" : ""}>
+        <li className={isActive("/reports") ? "active" : ""} onClick={onClose}>
           <BsBarChart className="icon" />
           <Link to="/reports">Reports</Link>
         </li>
-        <li className={isActive("/graph") ? "active" : ""}>
-          <BsGraphUp className="icon" /> {/* Changed to BsGraphUp */}
+        <li className={isActive("/graph") ? "active" : ""} onClick={onClose}>
+          <BsGraphUp className="icon" />
           <Link to="/graph">Graph</Link>
         </li>
       </ul>
@@ -87,6 +102,7 @@ const Sidebar = () => {
                   ? "active"
                   : ""
               }
+              onClick={onClose}
             >
               <IoRemoveCircleOutline className="icon sub-menu-icon" />
               <Link to={`/master/${item.toLowerCase().replace(" ", "")}`}>

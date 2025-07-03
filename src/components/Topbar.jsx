@@ -11,7 +11,7 @@ import {
   FiChevronDown,
 } from "react-icons/fi";
 
-const Topbar = () => {
+const Topbar = ({ onMenuClick }) => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const [showDropdown, setShowDropdown] = useState(false);
@@ -27,7 +27,21 @@ const Topbar = () => {
 
   return (
     <div className="topbar">
-      <div className="topbar-search">
+      <button
+        className="topbar-menu-btn"
+        onClick={onMenuClick}
+        aria-label="Open Sidebar"
+      >
+        <span className="topbar-menu-icon">&#9776;</span>
+      </button>
+      <div className="topbar-logo-mobile">
+        <img
+          src="/logo.png"
+          alt="Serene Minds Logo"
+          className="topbar-logo-img"
+        />
+      </div>
+      <div className="topbar-search topbar-hide-mobile">
         <FiSearch className="search-icon" />
         <input className="search-input" type="text" placeholder="Search" />
         <button className="filter-btn">
@@ -35,22 +49,20 @@ const Topbar = () => {
         </button>
       </div>
       <div className="topbar-right">
-        <span className="lang">English</span>
-        <span className="notif">
+        <span className="lang topbar-hide-mobile">English</span>
+        <span className="notif topbar-hide-mobile">
           <FiBell />
         </span>
         <div className="user-info" onClick={toggleDropdown}>
-          <span className="user-name">{user?.name || "User"}</span>
-          <span className="user-role">{user?.role || "User"}</span>
           <span className="user-avatar">
             <FiUser />
           </span>
-          <FiChevronDown
-            className={`dropdown-arrow ${showDropdown ? "rotated" : ""}`}
-          />
-
           {showDropdown && (
             <div className="user-dropdown">
+              <div className="user-dropdown-header">
+                <span className="user-name">{user?.name || "User"}</span>
+                <span className="user-role">{user?.role || "User"}</span>
+              </div>
               <div className="dropdown-item" onClick={handleLogout}>
                 <FiLogOut />
                 <span>Logout</span>
