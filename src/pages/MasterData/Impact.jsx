@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import "./Branch.css";
+import "./Impact.css";
 import { FiMoreVertical, FiEdit, FiTrash2, FiEye } from "react-icons/fi";
 
 const IMPACT_VALUES = [1, 2, 3, 4, 5];
@@ -180,8 +180,8 @@ const Impact = () => {
 
   if (overviewImpact) {
     return (
-      <div className="modal-overlay">
-        <div className="modal">
+      <div className="impact-modal-overlay">
+        <div className="impact-modal">
           <h3
             style={{
               marginBottom: 24,
@@ -213,10 +213,10 @@ const Impact = () => {
   }
 
   return (
-    <div className="branch-container">
-      <div className="branch-header">
+    <div className="impact-container">
+      <div className="impact-header">
         <select
-          className="dropdown"
+          className="impact-dropdown"
           value={pageSize}
           onChange={(e) => {
             setPageSize(Number(e.target.value));
@@ -232,15 +232,15 @@ const Impact = () => {
         <input
           type="text"
           placeholder="Search"
-          className="search-input"
+          className="impact-search-input"
           value={searchTerm}
           onChange={(e) => {
             setSearchTerm(e.target.value);
             setPage(1);
           }}
         />
-        <div className="actions">
-          <button className="create-btn" onClick={openCreate}>
+        <div className="impact-actions">
+          <button className="impact-create-btn" onClick={openCreate}>
             + Create
           </button>
         </div>
@@ -255,60 +255,65 @@ const Impact = () => {
           Loading impacts...
         </div>
       ) : (
-        <table className="branch-table">
-          <thead>
-            <tr>
-              <th>Impact Value</th>
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {paginated.map((i) => (
-              <tr key={i.id}>
-                <td>
-                  <div className="branch-name">Impact Value {i.value}</div>
-                </td>
-                <td>
-                  <label className="switch">
-                    <input
-                      type="checkbox"
-                      checked={i.status}
-                      onChange={() => toggleStatus(i.id)}
-                    />
-                    <span className="slider round"></span>
-                  </label>
-                </td>
-                <td style={{ display: "flex", gap: 8 }}>
-                  <button className="edit-btn" onClick={() => openEdit(i.id)}>
-                    <FiEdit size={16} />
-                  </button>
-                  <button
-                    className="edit-btn"
-                    title="Overview"
-                    onClick={() => handleOverview(i)}
-                  >
-                    <FiEye size={16} />
-                  </button>
-                  <button
-                    className="edit-btn"
-                    title="Delete"
-                    onClick={() => setDeleteConfirmId(i.id)}
-                  >
-                    <FiTrash2 size={16} style={{ color: "#e74c3c" }} />
-                  </button>
-                </td>
+        <div className="impact-table-scroll">
+          <table className="impact-table">
+            <thead>
+              <tr>
+                <th>Impact Value</th>
+                <th>Status</th>
+                <th>Action</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {paginated.map((i) => (
+                <tr key={i.id}>
+                  <td>
+                    <div className="impact-name">Impact Value {i.value}</div>
+                  </td>
+                  <td>
+                    <label className="impact-switch">
+                      <input
+                        type="checkbox"
+                        checked={i.status}
+                        onChange={() => toggleStatus(i.id)}
+                      />
+                      <span className="impact-slider round"></span>
+                    </label>
+                  </td>
+                  <td style={{ display: "flex", gap: 8 }}>
+                    <button
+                      className="impact-edit-btn"
+                      onClick={() => openEdit(i.id)}
+                    >
+                      <FiEdit size={16} />
+                    </button>
+                    <button
+                      className="impact-edit-btn"
+                      title="Overview"
+                      onClick={() => handleOverview(i)}
+                    >
+                      <FiEye size={16} />
+                    </button>
+                    <button
+                      className="impact-edit-btn"
+                      title="Delete"
+                      onClick={() => setDeleteConfirmId(i.id)}
+                    >
+                      <FiTrash2 size={16} style={{ color: "#e74c3c" }} />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
-      <div className="branch-footer">
+      <div className="impact-footer">
         <div className="footer-text">
           Showing {total === 0 ? 0 : startIdx + 1} to {endIdx} of {total}{" "}
           entries
         </div>
-        <div className="pagination">
+        <div className="impact-pagination">
           <button disabled={page === 1} onClick={() => setPage(page - 1)}>
             &lt;
           </button>
@@ -330,8 +335,8 @@ const Impact = () => {
         </div>
       </div>
       {showModal && (
-        <div className="modal-overlay">
-          <div className="modal">
+        <div className="impact-modal-overlay">
+          <div className="impact-modal">
             <h3
               style={{
                 marginBottom: 24,
@@ -355,7 +360,7 @@ const Impact = () => {
                   Impact Value
                 </label>
                 <select
-                  className="branch-input"
+                  className="impact-input"
                   value={modalForm.value}
                   name="value"
                   onChange={handleModalChange}

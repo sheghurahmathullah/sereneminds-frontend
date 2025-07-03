@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import "./Branch.css";
+import "./Pleasantness.css";
 import { FiMoreVertical, FiEdit, FiTrash2, FiEye } from "react-icons/fi";
 
 const PLEASANTNESS_VALUES = [1, 2, 3, 4, 5];
@@ -187,8 +187,8 @@ const Pleasantness = () => {
 
   if (overviewPleasantness) {
     return (
-      <div className="modal-overlay">
-        <div className="modal">
+      <div className="pleasantness-modal-overlay">
+        <div className="pleasantness-modal">
           <h3
             style={{
               marginBottom: 24,
@@ -220,10 +220,10 @@ const Pleasantness = () => {
   }
 
   return (
-    <div className="branch-container">
-      <div className="branch-header">
+    <div className="pleasantness-container">
+      <div className="pleasantness-header">
         <select
-          className="dropdown"
+          className="pleasantness-dropdown"
           value={pageSize}
           onChange={(e) => {
             setPageSize(Number(e.target.value));
@@ -239,15 +239,15 @@ const Pleasantness = () => {
         <input
           type="text"
           placeholder="Search"
-          className="search-input"
+          className="pleasantness-search-input"
           value={searchTerm}
           onChange={(e) => {
             setSearchTerm(e.target.value);
             setPage(1);
           }}
         />
-        <div className="actions">
-          <button className="create-btn" onClick={openCreate}>
+        <div className="pleasantness-actions">
+          <button className="pleasantness-create-btn" onClick={openCreate}>
             + Create
           </button>
         </div>
@@ -262,60 +262,65 @@ const Pleasantness = () => {
           Loading pleasantness data...
         </div>
       ) : (
-        <table className="branch-table">
-          <thead>
-            <tr>
-              <th>Pleasantness Value</th>
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {paginated.map((p) => (
-              <tr key={p.id}>
-                <td>
-                  <div className="branch-name">Value {p.value}</div>
-                </td>
-                <td>
-                  <label className="switch">
-                    <input
-                      type="checkbox"
-                      checked={p.status}
-                      onChange={() => toggleStatus(p.id)}
-                    />
-                    <span className="slider round"></span>
-                  </label>
-                </td>
-                <td style={{ display: "flex", gap: 8 }}>
-                  <button className="edit-btn" onClick={() => openEdit(p.id)}>
-                    <FiEdit size={16} />
-                  </button>
-                  <button
-                    className="edit-btn"
-                    title="Overview"
-                    onClick={() => handleOverview(p)}
-                  >
-                    <FiEye size={16} />
-                  </button>
-                  <button
-                    className="edit-btn"
-                    title="Delete"
-                    onClick={() => setDeleteConfirmId(p.id)}
-                  >
-                    <FiTrash2 size={16} style={{ color: "#e74c3c" }} />
-                  </button>
-                </td>
+        <div className="pleasantness-table-scroll">
+          <table className="pleasantness-table">
+            <thead>
+              <tr>
+                <th>Pleasantness Value</th>
+                <th>Status</th>
+                <th>Action</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {paginated.map((p) => (
+                <tr key={p.id}>
+                  <td>
+                    <div className="pleasantness-name">Value {p.value}</div>
+                  </td>
+                  <td>
+                    <label className="pleasantness-switch">
+                      <input
+                        type="checkbox"
+                        checked={p.status}
+                        onChange={() => toggleStatus(p.id)}
+                      />
+                      <span className="pleasantness-slider round"></span>
+                    </label>
+                  </td>
+                  <td style={{ display: "flex", gap: 8 }}>
+                    <button
+                      className="pleasantness-edit-btn"
+                      onClick={() => openEdit(p.id)}
+                    >
+                      <FiEdit size={16} />
+                    </button>
+                    <button
+                      className="pleasantness-edit-btn"
+                      title="Overview"
+                      onClick={() => handleOverview(p)}
+                    >
+                      <FiEye size={16} />
+                    </button>
+                    <button
+                      className="pleasantness-edit-btn"
+                      title="Delete"
+                      onClick={() => setDeleteConfirmId(p.id)}
+                    >
+                      <FiTrash2 size={16} style={{ color: "#e74c3c" }} />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
-      <div className="branch-footer">
+      <div className="pleasantness-footer">
         <div className="footer-text">
           Showing {total === 0 ? 0 : startIdx + 1} to {endIdx} of {total}{" "}
           entries
         </div>
-        <div className="pagination">
+        <div className="pleasantness-pagination">
           <button disabled={page === 1} onClick={() => setPage(page - 1)}>
             &lt;
           </button>
@@ -337,8 +342,8 @@ const Pleasantness = () => {
         </div>
       </div>
       {showModal && (
-        <div className="modal-overlay">
-          <div className="modal">
+        <div className="pleasantness-modal-overlay">
+          <div className="pleasantness-modal">
             <h3
               style={{
                 marginBottom: 24,
@@ -362,7 +367,7 @@ const Pleasantness = () => {
                   Pleasantness Value
                 </label>
                 <select
-                  className="branch-input"
+                  className="pleasantness-input"
                   value={modalForm.value}
                   name="value"
                   onChange={handleModalChange}
@@ -402,8 +407,8 @@ const Pleasantness = () => {
       )}
       {/* Delete Confirmation Modal */}
       {deleteConfirmId && (
-        <div className="modal-overlay">
-          <div className="modal">
+        <div className="pleasantness-modal-overlay">
+          <div className="pleasantness-modal">
             <div>Are you sure you want to delete this pleasantness?</div>
             <div className="modal-actions">
               <button

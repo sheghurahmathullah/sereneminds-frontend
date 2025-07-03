@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import "./Branch.css";
+import "./Zone.css";
 import { FiMoreVertical, FiEdit, FiTrash2, FiEye } from "react-icons/fi";
 
 const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
@@ -201,8 +201,8 @@ const Zone = () => {
 
   if (overviewZone) {
     return (
-      <div className="modal-overlay">
-        <div className="modal">
+      <div className="zone-modal-overlay">
+        <div className="zone-modal">
           <h3
             style={{
               marginBottom: 24,
@@ -241,10 +241,10 @@ const Zone = () => {
   }
 
   return (
-    <div className="branch-container">
-      <div className="branch-header">
+    <div className="zone-container">
+      <div className="zone-header">
         <select
-          className="dropdown"
+          className="zone-dropdown"
           value={pageSize}
           onChange={(e) => {
             setPageSize(Number(e.target.value));
@@ -260,15 +260,15 @@ const Zone = () => {
         <input
           type="text"
           placeholder="Search"
-          className="search-input"
+          className="zone-search-input"
           value={searchTerm}
           onChange={(e) => {
             setSearchTerm(e.target.value);
             setPage(1);
           }}
         />
-        <div className="actions">
-          <button className="create-btn" onClick={openCreate}>
+        <div className="zone-actions">
+          <button className="zone-create-btn" onClick={openCreate}>
             + Create
           </button>
         </div>
@@ -283,77 +283,82 @@ const Zone = () => {
           Loading zones...
         </div>
       ) : (
-        <table className="branch-table">
-          <thead>
-            <tr>
-              <th>Zone Name</th>
-              <th>Emotion</th>
-              <th>Zone Description</th>
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {paginated.map((z) => {
-              const emotion = z.emotion; // Emotion data comes from API
-              return (
-                <tr key={z.id}>
-                  <td>
-                    <div className="branch-name">{z.name}</div>
-                    <div className="branch-code">{z.code}</div>
-                  </td>
-                  <td>
-                    <div className="branch-name">
-                      {emotion ? emotion.name : ""}
-                    </div>
-                    <div className="branch-code">
-                      {emotion ? emotion.code : ""}
-                    </div>
-                  </td>
-                  <td style={{ fontWeight: 500, fontSize: 15 }}>
-                    {z.description}
-                  </td>
-                  <td>
-                    <label className="switch">
-                      <input
-                        type="checkbox"
-                        checked={z.status}
-                        onChange={() => toggleStatus(z.id)}
-                      />
-                      <span className="slider round"></span>
-                    </label>
-                  </td>
-                  <td style={{ display: "flex", gap: 8 }}>
-                    <button className="edit-btn" onClick={() => openEdit(z.id)}>
-                      <FiEdit size={16} />
-                    </button>
-                    <button
-                      className="edit-btn"
-                      title="Overview"
-                      onClick={() => handleOverview(z)}
-                    >
-                      <FiEye size={16} />
-                    </button>
-                    <button
-                      className="edit-btn"
-                      title="Delete"
-                      onClick={() => setDeleteConfirmId(z.id)}
-                    >
-                      <FiTrash2 size={16} style={{ color: "#e74c3c" }} />
-                    </button>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+        <div className="zone-table-scroll">
+          <table className="zone-table">
+            <thead>
+              <tr>
+                <th>Zone Name</th>
+                <th>Emotion</th>
+                <th>Zone Description</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {paginated.map((z) => {
+                const emotion = z.emotion; // Emotion data comes from API
+                return (
+                  <tr key={z.id}>
+                    <td>
+                      <div className="zone-name">{z.name}</div>
+                      <div className="zone-code">{z.code}</div>
+                    </td>
+                    <td>
+                      <div className="zone-name">
+                        {emotion ? emotion.name : ""}
+                      </div>
+                      <div className="zone-code">
+                        {emotion ? emotion.code : ""}
+                      </div>
+                    </td>
+                    <td style={{ fontWeight: 500, fontSize: 15 }}>
+                      {z.description}
+                    </td>
+                    <td>
+                      <label className="zone-switch">
+                        <input
+                          type="checkbox"
+                          checked={z.status}
+                          onChange={() => toggleStatus(z.id)}
+                        />
+                        <span className="zone-slider round"></span>
+                      </label>
+                    </td>
+                    <td style={{ display: "flex", gap: 8 }}>
+                      <button
+                        className="zone-edit-btn"
+                        onClick={() => openEdit(z.id)}
+                      >
+                        <FiEdit size={16} />
+                      </button>
+                      <button
+                        className="zone-edit-btn"
+                        title="Overview"
+                        onClick={() => handleOverview(z)}
+                      >
+                        <FiEye size={16} />
+                      </button>
+                      <button
+                        className="zone-edit-btn"
+                        title="Delete"
+                        onClick={() => setDeleteConfirmId(z.id)}
+                      >
+                        <FiTrash2 size={16} style={{ color: "#e74c3c" }} />
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       )}
-      <div className="branch-footer">
+      <div className="zone-footer">
         <div className="footer-text">
           Showing {total === 0 ? 0 : startIdx + 1} to {endIdx} of {total}{" "}
           entries
         </div>
-        <div className="pagination">
+        <div className="zone-pagination">
           <button disabled={page === 1} onClick={() => setPage(page - 1)}>
             &lt;
           </button>
@@ -375,8 +380,8 @@ const Zone = () => {
         </div>
       </div>
       {showModal && (
-        <div className="modal-overlay">
-          <div className="modal">
+        <div className="zone-modal-overlay">
+          <div className="zone-modal">
             <h3
               style={{
                 marginBottom: 24,
@@ -401,7 +406,7 @@ const Zone = () => {
                     Zone Code
                   </label>
                   <input
-                    className="branch-input readonly"
+                    className="zone-input readonly"
                     value={modalForm.code}
                     name="code"
                     readOnly
@@ -420,7 +425,7 @@ const Zone = () => {
                   Zone Name
                 </label>
                 <input
-                  className="branch-input"
+                  className="zone-input"
                   value={modalForm.name}
                   name="name"
                   onChange={handleModalChange}
@@ -440,7 +445,7 @@ const Zone = () => {
                   Zone Description
                 </label>
                 <input
-                  className="branch-input"
+                  className="zone-input"
                   value={modalForm.description}
                   name="description"
                   onChange={handleModalChange}
@@ -459,7 +464,7 @@ const Zone = () => {
                   Emotion Name
                 </label>
                 <select
-                  className="branch-input"
+                  className="zone-input"
                   value={modalForm.emotionId}
                   name="emotionId"
                   onChange={handleModalChange}
@@ -510,8 +515,8 @@ const Zone = () => {
       )}
       {/* Delete Confirmation Modal */}
       {deleteConfirmId && (
-        <div className="modal-overlay">
-          <div className="modal">
+        <div className="zone-modal-overlay">
+          <div className="zone-modal">
             <div>Are you sure you want to delete this zone?</div>
             <div className="modal-actions">
               <button

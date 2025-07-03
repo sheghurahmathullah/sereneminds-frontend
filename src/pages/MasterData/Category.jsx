@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import "./Branch.css";
+import "./Category.css";
 import { FiMoreVertical, FiEdit, FiTrash2, FiEye } from "react-icons/fi";
 
 const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
@@ -188,8 +188,8 @@ const Category = () => {
 
   if (overviewCategory) {
     return (
-      <div className="modal-overlay">
-        <div className="modal">
+      <div className="category-modal-overlay">
+        <div className="category-modal">
           <h3
             style={{
               marginBottom: 24,
@@ -224,10 +224,10 @@ const Category = () => {
   }
 
   return (
-    <div className="branch-container">
-      <div className="branch-header">
+    <div className="category-container">
+      <div className="category-header">
         <select
-          className="dropdown"
+          className="category-dropdown"
           value={pageSize}
           onChange={(e) => {
             setPageSize(Number(e.target.value));
@@ -243,15 +243,15 @@ const Category = () => {
         <input
           type="text"
           placeholder="Search"
-          className="search-input"
+          className="category-search-input"
           value={searchTerm}
           onChange={(e) => {
             setSearchTerm(e.target.value);
             setPage(1);
           }}
         />
-        <div className="actions">
-          <button className="create-btn" onClick={openCreate}>
+        <div className="category-actions">
+          <button className="category-create-btn" onClick={openCreate}>
             + Create
           </button>
         </div>
@@ -266,61 +266,66 @@ const Category = () => {
           Loading categories...
         </div>
       ) : (
-        <table className="branch-table">
-          <thead>
-            <tr>
-              <th>Category Name</th>
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {paginated.map((c) => (
-              <tr key={c.id}>
-                <td>
-                  <div className="branch-name">{c.name}</div>
-                  <div className="branch-code">{c.code}</div>
-                </td>
-                <td>
-                  <label className="switch">
-                    <input
-                      type="checkbox"
-                      checked={c.status}
-                      onChange={() => toggleStatus(c.id)}
-                    />
-                    <span className="slider round"></span>
-                  </label>
-                </td>
-                <td style={{ display: "flex", gap: 8 }}>
-                  <button className="edit-btn" onClick={() => openEdit(c.id)}>
-                    <FiEdit size={16} />
-                  </button>
-                  <button
-                    className="edit-btn"
-                    title="Overview"
-                    onClick={() => handleOverview(c)}
-                  >
-                    <FiEye size={16} />
-                  </button>
-                  <button
-                    className="edit-btn"
-                    title="Delete"
-                    onClick={() => setDeleteConfirmId(c.id)}
-                  >
-                    <FiTrash2 size={16} style={{ color: "#e74c3c" }} />
-                  </button>
-                </td>
+        <div className="category-table-scroll">
+          <table className="category-table">
+            <thead>
+              <tr>
+                <th>Category Name</th>
+                <th>Status</th>
+                <th>Action</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {paginated.map((c) => (
+                <tr key={c.id}>
+                  <td>
+                    <div className="category-name">{c.name}</div>
+                    <div className="category-code">{c.code}</div>
+                  </td>
+                  <td>
+                    <label className="category-switch">
+                      <input
+                        type="checkbox"
+                        checked={c.status}
+                        onChange={() => toggleStatus(c.id)}
+                      />
+                      <span className="category-slider round"></span>
+                    </label>
+                  </td>
+                  <td style={{ display: "flex", gap: 8 }}>
+                    <button
+                      className="category-edit-btn"
+                      onClick={() => openEdit(c.id)}
+                    >
+                      <FiEdit size={16} />
+                    </button>
+                    <button
+                      className="category-edit-btn"
+                      title="Overview"
+                      onClick={() => handleOverview(c)}
+                    >
+                      <FiEye size={16} />
+                    </button>
+                    <button
+                      className="category-edit-btn"
+                      title="Delete"
+                      onClick={() => setDeleteConfirmId(c.id)}
+                    >
+                      <FiTrash2 size={16} style={{ color: "#e74c3c" }} />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
-      <div className="branch-footer">
+      <div className="category-footer">
         <div className="footer-text">
           Showing {total === 0 ? 0 : startIdx + 1} to {endIdx} of {total}{" "}
           entries
         </div>
-        <div className="pagination">
+        <div className="category-pagination">
           <button disabled={page === 1} onClick={() => setPage(page - 1)}>
             &lt;
           </button>
@@ -342,8 +347,8 @@ const Category = () => {
         </div>
       </div>
       {showModal && (
-        <div className="modal-overlay">
-          <div className="modal">
+        <div className="category-modal-overlay">
+          <div className="category-modal">
             <h3
               style={{
                 marginBottom: 24,
@@ -368,7 +373,7 @@ const Category = () => {
                     Category Code
                   </label>
                   <input
-                    className="branch-input readonly"
+                    className="category-input readonly"
                     value={modalForm.code}
                     name="code"
                     readOnly
@@ -387,7 +392,7 @@ const Category = () => {
                   Category Name
                 </label>
                 <input
-                  className="branch-input"
+                  className="category-input"
                   value={modalForm.name}
                   name="name"
                   onChange={handleModalChange}
@@ -421,8 +426,8 @@ const Category = () => {
       )}
       {/* Delete Confirmation Modal */}
       {deleteConfirmId && (
-        <div className="modal-overlay">
-          <div className="modal">
+        <div className="category-modal-overlay">
+          <div className="category-modal">
             <div>Are you sure you want to delete this category?</div>
             <div className="modal-actions">
               <button

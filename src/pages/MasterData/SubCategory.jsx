@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import "./Branch.css";
+import "./SubCategory.css";
 import { FiMoreVertical, FiEdit, FiTrash2, FiEye } from "react-icons/fi";
 
 const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
@@ -194,8 +194,8 @@ const SubCategory = () => {
       (c) => c.id === overviewSubCategory.categoryId
     );
     return (
-      <div className="modal-overlay">
-        <div className="modal">
+      <div className="subcategory-modal-overlay">
+        <div className="subcategory-modal">
           <h3
             style={{
               marginBottom: 24,
@@ -233,10 +233,10 @@ const SubCategory = () => {
   }
 
   return (
-    <div className="branch-container">
-      <div className="branch-header">
+    <div className="subcategory-container">
+      <div className="subcategory-header">
         <select
-          className="dropdown"
+          className="subcategory-dropdown"
           value={pageSize}
           onChange={(e) => {
             setPageSize(Number(e.target.value));
@@ -252,15 +252,15 @@ const SubCategory = () => {
         <input
           type="text"
           placeholder="Search"
-          className="search-input"
+          className="subcategory-search-input"
           value={searchTerm}
           onChange={(e) => {
             setSearchTerm(e.target.value);
             setPage(1);
           }}
         />
-        <div className="actions">
-          <button className="create-btn" onClick={openCreate}>
+        <div className="subcategory-actions">
+          <button className="subcategory-create-btn" onClick={openCreate}>
             + Create
           </button>
         </div>
@@ -275,73 +275,78 @@ const SubCategory = () => {
           Loading subcategories...
         </div>
       ) : (
-        <table className="branch-table">
-          <thead>
-            <tr>
-              <th>Sub Category Name</th>
-              <th>Category</th>
-              <th>Status</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {paginated.map((s) => {
-              const category = categories.find((c) => c.id === s.categoryId);
-              return (
-                <tr key={s.id}>
-                  <td>
-                    <div className="branch-name">{s.name}</div>
-                    <div className="branch-code">{s.code}</div>
-                  </td>
-                  <td>
-                    <div className="branch-name">
-                      {category ? category.name : ""}
-                    </div>
-                    <div className="branch-code">
-                      {category ? category.code : ""}
-                    </div>
-                  </td>
-                  <td>
-                    <label className="switch">
-                      <input
-                        type="checkbox"
-                        checked={s.status}
-                        onChange={() => toggleStatus(s.id)}
-                      />
-                      <span className="slider round"></span>
-                    </label>
-                  </td>
-                  <td style={{ display: "flex", gap: 8 }}>
-                    <button className="edit-btn" onClick={() => openEdit(s.id)}>
-                      <FiEdit size={16} />
-                    </button>
-                    <button
-                      className="edit-btn"
-                      title="Overview"
-                      onClick={() => handleOverview(s)}
-                    >
-                      <FiEye size={16} />
-                    </button>
-                    <button
-                      className="edit-btn"
-                      title="Delete"
-                      onClick={() => setDeleteConfirmId(s.id)}
-                    >
-                      <FiTrash2 size={16} style={{ color: "#e74c3c" }} />
-                    </button>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+        <div className="subcategory-table-scroll">
+          <table className="subcategory-table">
+            <thead>
+              <tr>
+                <th>Sub Category Name</th>
+                <th>Category</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {paginated.map((s) => {
+                const category = categories.find((c) => c.id === s.categoryId);
+                return (
+                  <tr key={s.id}>
+                    <td>
+                      <div className="subcategory-name">{s.name}</div>
+                      <div className="subcategory-code">{s.code}</div>
+                    </td>
+                    <td>
+                      <div className="subcategory-name">
+                        {category ? category.name : ""}
+                      </div>
+                      <div className="subcategory-code">
+                        {category ? category.code : ""}
+                      </div>
+                    </td>
+                    <td>
+                      <label className="subcategory-switch">
+                        <input
+                          type="checkbox"
+                          checked={s.status}
+                          onChange={() => toggleStatus(s.id)}
+                        />
+                        <span className="subcategory-slider round"></span>
+                      </label>
+                    </td>
+                    <td style={{ display: "flex", gap: 8 }}>
+                      <button
+                        className="subcategory-edit-btn"
+                        onClick={() => openEdit(s.id)}
+                      >
+                        <FiEdit size={16} />
+                      </button>
+                      <button
+                        className="subcategory-edit-btn"
+                        title="Overview"
+                        onClick={() => handleOverview(s)}
+                      >
+                        <FiEye size={16} />
+                      </button>
+                      <button
+                        className="subcategory-edit-btn"
+                        title="Delete"
+                        onClick={() => setDeleteConfirmId(s.id)}
+                      >
+                        <FiTrash2 size={16} style={{ color: "#e74c3c" }} />
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       )}
-      <div className="branch-footer">
+      <div className="subcategory-footer">
         <div className="footer-text">
           Showing {total === 0 ? 0 : startIdx + 1} to {endIdx} of {total}{" "}
           entries
         </div>
-        <div className="pagination">
+        <div className="subcategory-pagination">
           <button disabled={page === 1} onClick={() => setPage(page - 1)}>
             &lt;
           </button>
@@ -363,8 +368,8 @@ const SubCategory = () => {
         </div>
       </div>
       {showModal && (
-        <div className="modal-overlay">
-          <div className="modal">
+        <div className="subcategory-modal-overlay">
+          <div className="subcategory-modal">
             <h3
               style={{
                 marginBottom: 24,
@@ -389,7 +394,7 @@ const SubCategory = () => {
                     Sub Category Code
                   </label>
                   <input
-                    className="branch-input readonly"
+                    className="subcategory-input readonly"
                     value={modalForm.code}
                     name="code"
                     readOnly
@@ -408,7 +413,7 @@ const SubCategory = () => {
                   Sub Category Name
                 </label>
                 <input
-                  className="branch-input"
+                  className="subcategory-input"
                   value={modalForm.name}
                   name="name"
                   onChange={handleModalChange}
@@ -429,7 +434,7 @@ const SubCategory = () => {
                   Category Name
                 </label>
                 <select
-                  className="branch-input"
+                  className="subcategory-input"
                   value={modalForm.categoryId}
                   name="categoryId"
                   onChange={handleModalChange}
@@ -468,8 +473,8 @@ const SubCategory = () => {
       )}
       {/* Delete Confirmation Modal */}
       {deleteConfirmId && (
-        <div className="modal-overlay">
-          <div className="modal">
+        <div className="subcategory-modal-overlay">
+          <div className="subcategory-modal">
             <div>Are you sure you want to delete this subcategory?</div>
             <div className="modal-actions">
               <button
