@@ -326,6 +326,7 @@ const BranchOverview = ({ branch, onEdit, onBack }) => {
         ))}
       </div>
       <div
+        className="branch-overview-details"
         style={{
           background: "#fff",
           borderRadius: 12,
@@ -343,7 +344,10 @@ const BranchOverview = ({ branch, onEdit, onBack }) => {
         >
           Details
         </div>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 0 }}>
+        <div
+          className="branch-overview-details-row"
+          style={{ display: "flex", flexWrap: "wrap", gap: 0 }}
+        >
           <div style={{ flex: 1, minWidth: 260 }}>
             <div style={{ marginBottom: 12, color: "#888", fontSize: 15 }}>
               Branch Name{" "}
@@ -640,80 +644,82 @@ const Branch = () => {
           </button>
         </div>
       </div>
-      <table className="branch-table">
-        <thead>
-          <tr>
-            <th>Branch Name</th>
-            <th>Institute</th>
-            <th>Phone Number</th>
-            <th>Address</th>
-            <th>Status</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {paginated.map((branch) => (
-            <tr key={branch.id}>
-              <td>
-                <div className="branch-name">{branch.name}</div>
-                <div className="branch-code">{branch.code}</div>
-              </td>
-              <td>
-                <div className="institute-name">{branch.institute}</div>
-                <div className="institute-code">{branch.instituteCode}</div>
-              </td>
-              <td>
-                <div>{branch.phone}</div>
-                <div className="branch-code">{branch.phone}</div>
-              </td>
-              <td style={{ whiteSpace: "pre-line" }}>
-                {[
-                  branch.address1,
-                  branch.address2,
-                  branch.city,
-                  branch.state,
-                  branch.pincode,
-                ]
-                  .filter(Boolean)
-                  .join(", ")}
-              </td>
-              <td>
-                <label className="switch">
-                  <input
-                    type="checkbox"
-                    checked={branch.status}
-                    onChange={() => toggleStatus(branch.id)}
-                  />
-                  <span className="slider round"></span>
-                </label>
-              </td>
-              <td style={{ display: "flex", gap: 8 }}>
-                <button
-                  className="edit-btn"
-                  title="Edit"
-                  onClick={() => handleEdit(branch)}
-                >
-                  <FiEdit size={16} />
-                </button>
-                <button
-                  className="edit-btn"
-                  title="Overview"
-                  onClick={() => handleOverview(branch)}
-                >
-                  <FiEye size={16} />
-                </button>
-                <button
-                  className="edit-btn"
-                  title="Delete"
-                  onClick={() => setDeleteConfirmId(branch.id)}
-                >
-                  <FiTrash2 size={16} style={{ color: "#e74c3c" }} />
-                </button>
-              </td>
+      <div className="branch-table-scroll">
+        <table className="branch-table">
+          <thead>
+            <tr>
+              <th>Branch Name</th>
+              <th>Institute</th>
+              <th>Phone Number</th>
+              <th>Address</th>
+              <th>Status</th>
+              <th>Action</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {paginated.map((branch) => (
+              <tr key={branch.id}>
+                <td>
+                  <div className="branch-name">{branch.name}</div>
+                  <div className="branch-code">{branch.code}</div>
+                </td>
+                <td>
+                  <div className="institute-name">{branch.institute}</div>
+                  <div className="institute-code">{branch.instituteCode}</div>
+                </td>
+                <td>
+                  <div>{branch.phone}</div>
+                  <div className="branch-code">{branch.phone}</div>
+                </td>
+                <td style={{ whiteSpace: "pre-line" }}>
+                  {[
+                    branch.address1,
+                    branch.address2,
+                    branch.city,
+                    branch.state,
+                    branch.pincode,
+                  ]
+                    .filter(Boolean)
+                    .join(", ")}
+                </td>
+                <td>
+                  <label className="switch">
+                    <input
+                      type="checkbox"
+                      checked={branch.status}
+                      onChange={() => toggleStatus(branch.id)}
+                    />
+                    <span className="slider round"></span>
+                  </label>
+                </td>
+                <td style={{ display: "flex", gap: 8 }}>
+                  <button
+                    className="edit-btn"
+                    title="Edit"
+                    onClick={() => handleEdit(branch)}
+                  >
+                    <FiEdit size={16} />
+                  </button>
+                  <button
+                    className="edit-btn"
+                    title="Overview"
+                    onClick={() => handleOverview(branch)}
+                  >
+                    <FiEye size={16} />
+                  </button>
+                  <button
+                    className="edit-btn"
+                    title="Delete"
+                    onClick={() => setDeleteConfirmId(branch.id)}
+                  >
+                    <FiTrash2 size={16} style={{ color: "#e74c3c" }} />
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
       <div className="branch-footer">
         <div className="footer-text">
           Showing {total === 0 ? 0 : startIdx + 1} to {endIdx} of {total}{" "}
