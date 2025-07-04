@@ -82,12 +82,12 @@ const City = () => {
   }, []);
 
   const handleCreateOrUpdate = async () => {
-    // Find backend state and country by name
+    // Find backend state and country by id from form
     const backendState = states.find(
-      (s) => s.name === selectedStateName // selectedStateName from the react-country-state-city selection
+      (s) => String(s.id) === String(form.stateId)
     );
     const backendCountry = countries.find(
-      (c) => c.countryName === selectedCountryName // selectedCountryName from the react-country-state-city selection
+      (c) => String(c.id) === String(form.countryId)
     );
 
     if (!backendState || !backendCountry) {
@@ -96,7 +96,7 @@ const City = () => {
     }
 
     const payload = {
-      cityName: selectedCityName, // from react-country-state-city
+      cityName: form.cityName,
       stateId: backendState.id,
       countryId: backendCountry.id,
     };
