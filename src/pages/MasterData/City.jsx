@@ -8,6 +8,12 @@ import {
   FiFilter,
   FiTrash2,
 } from "react-icons/fi";
+import {
+  CountrySelect,
+  StateSelect,
+  CitySelect,
+} from "react-country-state-city";
+import "react-country-state-city/dist/react-country-state-city.css";
 
 const API_URL = "https://sereneminds-backend.onrender.com/api/cities";
 const STATE_API_URL = "https://sereneminds-backend.onrender.com/api/states";
@@ -30,6 +36,13 @@ const City = () => {
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  // Autosuggest input states
+  const [countryInput, setCountryInput] = useState("");
+  const [stateInput, setStateInput] = useState("");
+  const [cityInput, setCityInput] = useState("");
+  const [showCountrySuggestions, setShowCountrySuggestions] = useState(false);
+  const [showStateSuggestions, setShowStateSuggestions] = useState(false);
+  const [showCitySuggestions, setShowCitySuggestions] = useState(false);
 
   const fetchCities = async () => {
     setLoading(true);
@@ -148,6 +161,29 @@ const City = () => {
     page * pageSize
   );
 
+  // Find selected country/state objects
+  const selectedCountry = countries.find(
+    (c) => String(c.id) === String(form.countryId)
+  );
+  const selectedState = states.find(
+    (s) => String(s.id) === String(form.stateId)
+  );
+
+  // Filtered suggestions
+  const filteredCountries = countries.filter((country) =>
+    country.countryName.toLowerCase().includes(countryInput.toLowerCase())
+  );
+  const filteredStates = states
+    .filter((state) => String(state.countryId) === String(form.countryId))
+    .filter((state) =>
+      state.name.toLowerCase().includes(stateInput.toLowerCase())
+    );
+  const filteredCitySuggestions = cities
+    .filter((city) => String(city.stateId) === String(form.stateId))
+    .filter((city) =>
+      city.cityName.toLowerCase().includes(cityInput.toLowerCase())
+    );
+
   return (
     <div className="city-container">
       {showModal && (
@@ -156,49 +192,45 @@ const City = () => {
             <h3 className="modal-title">
               {editingId !== null ? "Edit City" : "Add New City"}
             </h3>
-            {/* Country dropdown first */}
-            <select
+            {/* CountrySelect from react-country-state-city */}
+            <CountrySelect
               className="modal-input"
               value={form.countryId}
-              onChange={(e) =>
-                setForm({ ...form, countryId: e.target.value, stateId: "" })
-              }
+              onChange={(country) => {
+                setForm({
+                  ...form,
+                  countryId: country.id,
+                  stateId: "",
+                  cityName: "",
+                });
+              }}
+              placeholder="Select Country"
               required
-            >
-              <option value="">Select Country</option>
-              {countries.map((country) => (
-                <option key={country.id} value={country.id}>
-                  {country.countryName}
-                </option>
-              ))}
-            </select>
-            {/* State dropdown second, filtered by selected country */}
-            <select
+            />
+            {/* StateSelect from react-country-state-city */}
+            <StateSelect
               className="modal-input"
+              countryid={form.countryId}
               value={form.stateId}
-              onChange={(e) => setForm({ ...form, stateId: e.target.value })}
+              onChange={(state) => {
+                setForm({ ...form, stateId: state.id, cityName: "" });
+              }}
+              placeholder="Select State"
               required
               disabled={!form.countryId}
-            >
-              <option value="">Select State</option>
-              {states
-                .filter(
-                  (state) => String(state.countryId) === String(form.countryId)
-                )
-                .map((state) => (
-                  <option key={state.id} value={state.id}>
-                    {state.name}
-                  </option>
-                ))}
-            </select>
-            {/* City name input third */}
-            <input
-              type="text"
+            />
+            {/* CitySelect from react-country-state-city */}
+            <CitySelect
               className="modal-input"
-              placeholder="City Name"
+              countryid={form.countryId}
+              stateid={form.stateId}
               value={form.cityName}
-              onChange={(e) => setForm({ ...form, cityName: e.target.value })}
+              onChange={(city) => {
+                setForm({ ...form, cityName: city.name });
+              }}
+              placeholder="Select City"
               required
+              disabled={!form.stateId}
             />
             <div className="modal-actions">
               <button
