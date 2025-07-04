@@ -82,23 +82,11 @@ const City = () => {
   }, []);
 
   const handleCreateOrUpdate = async () => {
-    // Find backend state and country by id from form
-    const backendState = states.find(
-      (s) => String(s.id) === String(form.stateId)
-    );
-    const backendCountry = countries.find(
-      (c) => String(c.id) === String(form.countryId)
-    );
-
-    if (!backendState || !backendCountry) {
-      setError("Selected country or state is not available in the system.");
-      return;
-    }
-
+    // Use the selected values from the dropdowns directly
     const payload = {
       cityName: form.cityName,
-      stateId: backendState.id,
-      countryId: backendCountry.id,
+      stateId: form.stateId,
+      countryId: form.countryId,
     };
 
     console.log("Submitting payload:", payload);
@@ -306,7 +294,7 @@ const City = () => {
           </button>
         </div>
       </div>
-{/*  */}
+      {/*  */}
       {error && <div className="error-message">{error}</div>}
       {loading ? (
         <div>Loading...</div>
