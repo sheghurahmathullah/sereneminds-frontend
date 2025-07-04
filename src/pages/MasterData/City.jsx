@@ -306,7 +306,7 @@ const City = () => {
           </button>
         </div>
       </div>
-
+{/*  */}
       {error && <div className="error-message">{error}</div>}
       {loading ? (
         <div>Loading...</div>
