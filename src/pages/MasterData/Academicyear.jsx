@@ -21,7 +21,9 @@ const Academicyear = () => {
   const fetchAcademicYears = async () => {
     try {
       setLoading(true);
-      const response = await fetch("http://localhost:5000/api/academicyears");
+      const response = await fetch(
+        "https://sereneminds-backend.onrender.com/api/academicyears"
+      );
       if (!response.ok) {
         throw new Error("Failed to fetch academic years");
       }
@@ -43,7 +45,7 @@ const Academicyear = () => {
   const toggleStatus = async (id) => {
     try {
       const response = await fetch(
-        `http://localhost:5000/api/academicyears/${id}/toggle-status`,
+        `https://sereneminds-backend.onrender.com/api/academicyears/${id}/toggle-status`,
         {
           method: "PATCH",
           headers: {
@@ -84,7 +86,7 @@ const Academicyear = () => {
       if (editingId) {
         // Update existing academic year
         const response = await fetch(
-          `http://localhost:5000/api/academicyears/${editingId}`,
+          `https://sereneminds-backend.onrender.com/api/academicyears/${editingId}`,
           {
             method: "PUT",
             headers: {
@@ -103,7 +105,7 @@ const Academicyear = () => {
       } else {
         // Create new academic year
         const response = await fetch(
-          "http://localhost:5000/api/academicyears",
+          "https://sereneminds-backend.onrender.com/api/academicyears",
           {
             method: "POST",
             headers: {
@@ -139,7 +141,7 @@ const Academicyear = () => {
     try {
       setLoading(true);
       const response = await fetch(
-        `http://localhost:5000/api/academicyears/${id}`,
+        `https://sereneminds-backend.onrender.com/api/academicyears/${id}`,
         {
           method: "DELETE",
         }

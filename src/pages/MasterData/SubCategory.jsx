@@ -26,7 +26,9 @@ const SubCategory = () => {
   // Fetch categories and subcategories from API
   const fetchCategories = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/categories");
+      const response = await fetch(
+        "https://sereneminds-backend.onrender.com/api/categories"
+      );
       if (!response.ok) throw new Error("Failed to fetch categories");
       const data = await response.json();
       setCategories(data);
@@ -38,7 +40,9 @@ const SubCategory = () => {
   const fetchSubCategories = async () => {
     try {
       setLoading(true);
-      const response = await fetch("http://localhost:5000/api/subcategories");
+      const response = await fetch(
+        "https://sereneminds-backend.onrender.com/api/subcategories"
+      );
       if (!response.ok) throw new Error("Failed to fetch subcategories");
       const data = await response.json();
       setSubCategories(data);
@@ -57,7 +61,7 @@ const SubCategory = () => {
   const toggleStatus = async (id) => {
     try {
       const response = await fetch(
-        `http://localhost:5000/api/subcategories/${id}/toggle-status`,
+        `https://sereneminds-backend.onrender.com/api/subcategories/${id}/toggle-status`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
@@ -101,7 +105,7 @@ const SubCategory = () => {
       setLoading(true);
       if (modalType === "edit" && editingId) {
         const response = await fetch(
-          `http://localhost:5000/api/subcategories/${editingId}`,
+          `https://sereneminds-backend.onrender.com/api/subcategories/${editingId}`,
           {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
@@ -118,7 +122,7 @@ const SubCategory = () => {
         );
       } else {
         const response = await fetch(
-          "http://localhost:5000/api/subcategories",
+          "https://sereneminds-backend.onrender.com/api/subcategories",
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -165,7 +169,7 @@ const SubCategory = () => {
     try {
       setLoading(true);
       const response = await fetch(
-        `http://localhost:5000/api/subcategories/${id}`,
+        `https://sereneminds-backend.onrender.com/api/subcategories/${id}`,
         {
           method: "DELETE",
         }

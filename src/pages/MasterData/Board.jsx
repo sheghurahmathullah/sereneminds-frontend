@@ -37,7 +37,9 @@ const Board = () => {
   const fetchBoards = async () => {
     try {
       setLoading(true);
-      const response = await fetch("http://localhost:5000/api/boards");
+      const response = await fetch(
+        "https://sereneminds-backend.onrender.com/api/boards"
+      );
       if (!response.ok) {
         throw new Error("Failed to fetch boards");
       }
@@ -77,7 +79,7 @@ const Board = () => {
   const toggleStatus = async (id) => {
     try {
       const response = await fetch(
-        `http://localhost:5000/api/boards/${id}/toggle-status`,
+        `https://sereneminds-backend.onrender.com/api/boards/${id}/toggle-status`,
         {
           method: "PATCH",
           headers: {
@@ -107,13 +109,16 @@ const Board = () => {
     e.preventDefault();
     try {
       setLoading(true);
-      const response = await fetch("http://localhost:5000/api/boards", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(form),
-      });
+      const response = await fetch(
+        "https://sereneminds-backend.onrender.com/api/boards",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(form),
+        }
+      );
       if (!response.ok) {
         throw new Error("Failed to create board");
       }
@@ -135,7 +140,7 @@ const Board = () => {
     try {
       setLoading(true);
       const response = await fetch(
-        `http://localhost:5000/api/boards/${selectedId}`,
+        `https://sereneminds-backend.onrender.com/api/boards/${selectedId}`,
         {
           method: "PUT",
           headers: {
@@ -188,9 +193,12 @@ const Board = () => {
     setLoading(true);
     setError("");
     try {
-      const response = await fetch(`http://localhost:5000/api/boards/${id}`, {
-        method: "DELETE",
-      });
+      const response = await fetch(
+        `https://sereneminds-backend.onrender.com/api/boards/${id}`,
+        {
+          method: "DELETE",
+        }
+      );
       if (!response.ok) throw new Error("Failed to delete board");
       setBoards((prev) => prev.filter((board) => board.id !== id));
       setDeleteConfirmId(null);

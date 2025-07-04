@@ -23,7 +23,9 @@ const Emotion = () => {
   const fetchEmotions = async () => {
     try {
       setLoading(true);
-      const response = await fetch("http://localhost:5000/api/emotions");
+      const response = await fetch(
+        "https://sereneminds-backend.onrender.com/api/emotions"
+      );
       if (!response.ok) {
         throw new Error("Failed to fetch emotions");
       }
@@ -45,7 +47,7 @@ const Emotion = () => {
   const toggleStatus = async (id) => {
     try {
       const response = await fetch(
-        `http://localhost:5000/api/emotions/${id}/toggle-status`,
+        `https://sereneminds-backend.onrender.com/api/emotions/${id}/toggle-status`,
         {
           method: "PATCH",
           headers: {
@@ -100,7 +102,7 @@ const Emotion = () => {
       if (modalType === "edit" && editingId) {
         // Update existing emotion
         const response = await fetch(
-          `http://localhost:5000/api/emotions/${editingId}`,
+          `https://sereneminds-backend.onrender.com/api/emotions/${editingId}`,
           {
             method: "PUT",
             headers: {
@@ -121,17 +123,22 @@ const Emotion = () => {
         );
       } else {
         // Create new emotion
-        const response = await fetch("http://localhost:5000/api/emotions", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            name: modalForm.name,
-            code: (Math.floor(Math.random() * 90000000) + 10000000).toString(),
-            score: Number(modalForm.score),
-          }),
-        });
+        const response = await fetch(
+          "https://sereneminds-backend.onrender.com/api/emotions",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              name: modalForm.name,
+              code: (
+                Math.floor(Math.random() * 90000000) + 10000000
+              ).toString(),
+              score: Number(modalForm.score),
+            }),
+          }
+        );
         if (!response.ok) {
           throw new Error("Failed to create emotion");
         }
@@ -168,9 +175,12 @@ const Emotion = () => {
   const handleDelete = async (id) => {
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:5000/api/emotions/${id}`, {
-        method: "DELETE",
-      });
+      const response = await fetch(
+        `https://sereneminds-backend.onrender.com/api/emotions/${id}`,
+        {
+          method: "DELETE",
+        }
+      );
       if (!response.ok) {
         throw new Error("Failed to delete emotion");
       }

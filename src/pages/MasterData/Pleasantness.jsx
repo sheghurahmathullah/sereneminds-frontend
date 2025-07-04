@@ -24,7 +24,9 @@ const Pleasantness = () => {
   const fetchPleasantness = async () => {
     try {
       setLoading(true);
-      const response = await fetch("http://localhost:5000/api/pleasantnesses");
+      const response = await fetch(
+        "https://sereneminds-backend.onrender.com/api/pleasantnesses"
+      );
       if (!response.ok) {
         throw new Error("Failed to fetch pleasantness data");
       }
@@ -46,7 +48,7 @@ const Pleasantness = () => {
   const toggleStatus = async (id) => {
     try {
       const response = await fetch(
-        `http://localhost:5000/api/pleasantnesses/${id}/toggle-status`,
+        `https://sereneminds-backend.onrender.com/api/pleasantnesses/${id}/toggle-status`,
         {
           method: "PATCH",
           headers: {
@@ -94,7 +96,7 @@ const Pleasantness = () => {
       setLoading(true);
       if (modalType === "edit" && editingId) {
         const response = await fetch(
-          `http://localhost:5000/api/pleasantnesses/${editingId}`,
+          `https://sereneminds-backend.onrender.com/api/pleasantnesses/${editingId}`,
           {
             method: "PUT",
             headers: {
@@ -112,7 +114,7 @@ const Pleasantness = () => {
         );
       } else {
         const response = await fetch(
-          "http://localhost:5000/api/pleasantnesses",
+          "https://sereneminds-backend.onrender.com/api/pleasantnesses",
           {
             method: "POST",
             headers: {
@@ -160,7 +162,7 @@ const Pleasantness = () => {
     try {
       setLoading(true);
       const response = await fetch(
-        `http://localhost:5000/api/pleasantnesses/${id}`,
+        `https://sereneminds-backend.onrender.com/api/pleasantnesses/${id}`,
         {
           method: "DELETE",
         }

@@ -22,7 +22,9 @@ const Category = () => {
   const fetchCategories = async () => {
     try {
       setLoading(true);
-      const response = await fetch("http://localhost:5000/api/categories");
+      const response = await fetch(
+        "https://sereneminds-backend.onrender.com/api/categories"
+      );
       if (!response.ok) {
         throw new Error("Failed to fetch categories");
       }
@@ -44,7 +46,7 @@ const Category = () => {
   const toggleStatus = async (id) => {
     try {
       const response = await fetch(
-        `http://localhost:5000/api/categories/${id}/toggle-status`,
+        `https://sereneminds-backend.onrender.com/api/categories/${id}/toggle-status`,
         {
           method: "PATCH",
           headers: {
@@ -97,7 +99,7 @@ const Category = () => {
       setLoading(true);
       if (modalType === "edit" && editingId) {
         const response = await fetch(
-          `http://localhost:5000/api/categories/${editingId}`,
+          `https://sereneminds-backend.onrender.com/api/categories/${editingId}`,
           {
             method: "PUT",
             headers: {
@@ -114,16 +116,21 @@ const Category = () => {
           prev.map((c) => (c.id === editingId ? updatedCategory : c))
         );
       } else {
-        const response = await fetch("http://localhost:5000/api/categories", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            name: modalForm.name,
-            code: (Math.floor(Math.random() * 90000000) + 10000000).toString(),
-          }),
-        });
+        const response = await fetch(
+          "https://sereneminds-backend.onrender.com/api/categories",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              name: modalForm.name,
+              code: (
+                Math.floor(Math.random() * 90000000) + 10000000
+              ).toString(),
+            }),
+          }
+        );
         if (!response.ok) {
           throw new Error("Failed to create category");
         }
@@ -161,7 +168,7 @@ const Category = () => {
     try {
       setLoading(true);
       const response = await fetch(
-        `http://localhost:5000/api/categories/${id}`,
+        `https://sereneminds-backend.onrender.com/api/categories/${id}`,
         {
           method: "DELETE",
         }

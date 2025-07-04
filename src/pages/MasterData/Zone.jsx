@@ -28,7 +28,9 @@ const Zone = () => {
   const fetchZones = async () => {
     try {
       setLoading(true);
-      const response = await fetch("http://localhost:5000/api/zones");
+      const response = await fetch(
+        "https://sereneminds-backend.onrender.com/api/zones"
+      );
       if (!response.ok) {
         throw new Error("Failed to fetch zones");
       }
@@ -45,7 +47,9 @@ const Zone = () => {
   // Fetch emotions from API
   const fetchEmotions = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/emotions");
+      const response = await fetch(
+        "https://sereneminds-backend.onrender.com/api/emotions"
+      );
       if (!response.ok) {
         throw new Error("Failed to fetch emotions");
       }
@@ -65,7 +69,7 @@ const Zone = () => {
   const toggleStatus = async (id) => {
     try {
       const response = await fetch(
-        `http://localhost:5000/api/zones/${id}/toggle-status`,
+        `https://sereneminds-backend.onrender.com/api/zones/${id}/toggle-status`,
         {
           method: "PATCH",
           headers: {
@@ -118,8 +122,8 @@ const Zone = () => {
       setLoading(true);
       const url =
         modalType === "edit"
-          ? `http://localhost:5000/api/zones/${editingId}`
-          : "http://localhost:5000/api/zones";
+          ? `https://sereneminds-backend.onrender.com/api/zones/${editingId}`
+          : "https://sereneminds-backend.onrender.com/api/zones";
 
       const method = modalType === "edit" ? "PUT" : "POST";
 
@@ -177,9 +181,12 @@ const Zone = () => {
   const handleDelete = async (id) => {
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:5000/api/zones/${id}`, {
-        method: "DELETE",
-      });
+      const response = await fetch(
+        `https://sereneminds-backend.onrender.com/api/zones/${id}`,
+        {
+          method: "DELETE",
+        }
+      );
       if (!response.ok) {
         throw new Error("Failed to delete zone");
       }

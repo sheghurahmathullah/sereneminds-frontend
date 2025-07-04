@@ -87,7 +87,9 @@ const School = () => {
   const fetchSchools = async () => {
     try {
       setLoading(true);
-      const response = await fetch("http://localhost:5000/api/schools");
+      const response = await fetch(
+        "https://sereneminds-backend.onrender.com/api/schools"
+      );
       if (!response.ok) {
         throw new Error("Failed to fetch schools");
       }
@@ -114,7 +116,7 @@ const School = () => {
     );
     try {
       const response = await fetch(
-        `http://localhost:5000/api/schools/${id}/toggle-status`,
+        `https://sereneminds-backend.onrender.com/api/schools/${id}/toggle-status`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
@@ -157,22 +159,28 @@ const School = () => {
     try {
       let response, newSchool;
       if (isEdit && editId) {
-        response = await fetch(`http://localhost:5000/api/schools/${editId}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(form),
-        });
+        response = await fetch(
+          `https://sereneminds-backend.onrender.com/api/schools/${editId}`,
+          {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(form),
+          }
+        );
         if (!response.ok) throw new Error("Failed to update school");
         newSchool = await response.json();
         setSchools((prev) =>
           prev.map((school) => (school.id === editId ? newSchool : school))
         );
       } else {
-        response = await fetch("http://localhost:5000/api/schools", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(form),
-        });
+        response = await fetch(
+          "https://sereneminds-backend.onrender.com/api/schools",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(form),
+          }
+        );
         if (!response.ok) throw new Error("Failed to create school");
         newSchool = await response.json();
         setSchools((prev) => [newSchool, ...prev]);
@@ -207,9 +215,12 @@ const School = () => {
     setLoading(true);
     setError("");
     try {
-      const response = await fetch(`http://localhost:5000/api/schools/${id}`, {
-        method: "DELETE",
-      });
+      const response = await fetch(
+        `https://sereneminds-backend.onrender.com/api/schools/${id}`,
+        {
+          method: "DELETE",
+        }
+      );
       if (!response.ok) throw new Error("Failed to delete school");
       setSchools((prev) => prev.filter((school) => school.id !== id));
       setDeleteConfirmId(null);

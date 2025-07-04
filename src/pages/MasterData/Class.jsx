@@ -35,7 +35,9 @@ const ClassPage = () => {
   const fetchClasses = async () => {
     try {
       setLoading(true);
-      const response = await fetch("http://localhost:5000/api/classes");
+      const response = await fetch(
+        "https://sereneminds-backend.onrender.com/api/classes"
+      );
       if (!response.ok) {
         throw new Error("Failed to fetch classes");
       }
@@ -73,7 +75,7 @@ const ClassPage = () => {
   const toggleStatus = async (id) => {
     try {
       const response = await fetch(
-        `http://localhost:5000/api/classes/${id}/toggle-status`,
+        `https://sereneminds-backend.onrender.com/api/classes/${id}/toggle-status`,
         {
           method: "PATCH",
           headers: {
@@ -114,13 +116,16 @@ const ClassPage = () => {
         schoolCode,
         status: true,
       };
-      const response = await fetch("http://localhost:5000/api/classes", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(classData),
-      });
+      const response = await fetch(
+        "https://sereneminds-backend.onrender.com/api/classes",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(classData),
+        }
+      );
       if (!response.ok) {
         throw new Error("Failed to create class");
       }
@@ -143,7 +148,7 @@ const ClassPage = () => {
       setLoading(true);
       setError("");
       const response = await fetch(
-        `http://localhost:5000/api/classes/${selectedId}`,
+        `https://sereneminds-backend.onrender.com/api/classes/${selectedId}`,
         {
           method: "PUT",
           headers: {
@@ -195,9 +200,12 @@ const ClassPage = () => {
     setLoading(true);
     setError("");
     try {
-      const response = await fetch(`http://localhost:5000/api/classes/${id}`, {
-        method: "DELETE",
-      });
+      const response = await fetch(
+        `https://sereneminds-backend.onrender.com/api/classes/${id}`,
+        {
+          method: "DELETE",
+        }
+      );
       if (!response.ok) {
         throw new Error("Failed to delete class");
       }

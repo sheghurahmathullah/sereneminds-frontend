@@ -9,9 +9,10 @@ import {
   FiTrash2,
 } from "react-icons/fi";
 
-const API_URL = "http://localhost:5000/api/cities";
-const STATE_API_URL = "http://localhost:5000/api/states";
-const COUNTRY_API_URL = "http://localhost:5000/api/countries";
+const API_URL = "https://sereneminds-backend.onrender.com/api/cities";
+const STATE_API_URL = "https://sereneminds-backend.onrender.com/api/states";
+const COUNTRY_API_URL =
+  "https://sereneminds-backend.onrender.com/api/countries";
 
 const City = () => {
   const [cities, setCities] = useState([]);

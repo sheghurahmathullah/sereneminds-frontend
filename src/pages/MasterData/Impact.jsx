@@ -24,7 +24,9 @@ const Impact = () => {
   const fetchImpacts = async () => {
     try {
       setLoading(true);
-      const response = await fetch("http://localhost:5000/api/impacts");
+      const response = await fetch(
+        "https://sereneminds-backend.onrender.com/api/impacts"
+      );
       if (!response.ok) {
         throw new Error("Failed to fetch impacts");
       }
@@ -46,7 +48,7 @@ const Impact = () => {
   const toggleStatus = async (id) => {
     try {
       const response = await fetch(
-        `http://localhost:5000/api/impacts/${id}/toggle-status`,
+        `https://sereneminds-backend.onrender.com/api/impacts/${id}/toggle-status`,
         {
           method: "PATCH",
           headers: {
@@ -94,7 +96,7 @@ const Impact = () => {
       setLoading(true);
       if (modalType === "edit" && editingId) {
         const response = await fetch(
-          `http://localhost:5000/api/impacts/${editingId}`,
+          `https://sereneminds-backend.onrender.com/api/impacts/${editingId}`,
           {
             method: "PUT",
             headers: {
@@ -111,15 +113,18 @@ const Impact = () => {
           prev.map((i) => (i.id === editingId ? updatedImpact : i))
         );
       } else {
-        const response = await fetch("http://localhost:5000/api/impacts", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            value: Number(modalForm.value),
-          }),
-        });
+        const response = await fetch(
+          "https://sereneminds-backend.onrender.com/api/impacts",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              value: Number(modalForm.value),
+            }),
+          }
+        );
         if (!response.ok) {
           throw new Error("Failed to create impact");
         }
@@ -156,9 +161,12 @@ const Impact = () => {
   const handleDelete = async (id) => {
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:5000/api/impacts/${id}`, {
-        method: "DELETE",
-      });
+      const response = await fetch(
+        `https://sereneminds-backend.onrender.com/api/impacts/${id}`,
+        {
+          method: "DELETE",
+        }
+      );
       if (!response.ok) {
         throw new Error("Failed to delete impact");
       }

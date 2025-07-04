@@ -9,7 +9,7 @@ import {
   FiTrash2,
 } from "react-icons/fi";
 
-const API_URL = "http://localhost:5000/api/countries";
+const API_URL = "https://sereneminds-backend.onrender.com/api/countries";
 
 const Country = () => {
   const [countries, setCountries] = useState([]);

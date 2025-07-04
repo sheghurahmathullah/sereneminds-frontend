@@ -32,7 +32,9 @@ const Division = () => {
   const fetchDivisions = async () => {
     try {
       setLoading(true);
-      const response = await fetch("http://localhost:5000/api/divisions");
+      const response = await fetch(
+        "https://sereneminds-backend.onrender.com/api/divisions"
+      );
       if (!response.ok) throw new Error("Failed to fetch divisions");
       const data = await response.json();
       setDivisions(data);
@@ -54,7 +56,7 @@ const Division = () => {
   const toggleStatus = async (id) => {
     try {
       const response = await fetch(
-        `http://localhost:5000/api/divisions/${id}/toggle-status`,
+        `https://sereneminds-backend.onrender.com/api/divisions/${id}/toggle-status`,
         { method: "PATCH", headers: { "Content-Type": "application/json" } }
       );
       if (!response.ok) throw new Error("Failed to toggle status");
@@ -102,7 +104,7 @@ const Division = () => {
       if (isEdit && editId) {
         // Edit
         const response = await fetch(
-          `http://localhost:5000/api/divisions/${editId}`,
+          `https://sereneminds-backend.onrender.com/api/divisions/${editId}`,
           {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
@@ -116,14 +118,17 @@ const Division = () => {
         );
       } else {
         // Create
-        const response = await fetch("http://localhost:5000/api/divisions", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            ...form,
-            code: Math.floor(Math.random() * 100000000).toString(),
-          }),
-        });
+        const response = await fetch(
+          "https://sereneminds-backend.onrender.com/api/divisions",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              ...form,
+              code: Math.floor(Math.random() * 100000000).toString(),
+            }),
+          }
+        );
         if (!response.ok) throw new Error("Failed to create division");
         const newDivision = await response.json();
         setDivisions((prev) => [newDivision, ...prev]);
@@ -164,7 +169,7 @@ const Division = () => {
     try {
       setLoading(true);
       const response = await fetch(
-        `http://localhost:5000/api/divisions/${id}`,
+        `https://sereneminds-backend.onrender.com/api/divisions/${id}`,
         { method: "DELETE" }
       );
       if (!response.ok) throw new Error("Failed to delete division");
