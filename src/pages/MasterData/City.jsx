@@ -8,12 +8,6 @@ import {
   FiFilter,
   FiTrash2,
 } from "react-icons/fi";
-import {
-  CountrySelect,
-  StateSelect,
-  CitySelect,
-} from "react-country-state-city";
-import "react-country-state-city/dist/react-country-state-city.css";
 
 const API_URL = "https://sereneminds-backend.onrender.com/api/cities";
 const STATE_API_URL = "https://sereneminds-backend.onrender.com/api/states";
@@ -36,13 +30,6 @@ const City = () => {
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  // Autosuggest input states
-  const [countryInput, setCountryInput] = useState("");
-  const [stateInput, setStateInput] = useState("");
-  const [cityInput, setCityInput] = useState("");
-  const [showCountrySuggestions, setShowCountrySuggestions] = useState(false);
-  const [showStateSuggestions, setShowStateSuggestions] = useState(false);
-  const [showCitySuggestions, setShowCitySuggestions] = useState(false);
 
   const fetchCities = async () => {
     setLoading(true);
@@ -82,25 +69,16 @@ const City = () => {
   }, []);
 
   const handleCreateOrUpdate = async () => {
-    // Find backend state and country by id from form
-    const backendState = states.find(
-      (s) => String(s.id) === String(form.stateId)
-    );
-    const backendCountry = countries.find(
-      (c) => String(c.id) === String(form.countryId)
-    );
-
-    if (!backendState || !backendCountry) {
-      setError("Selected country or state is not available in the system.");
+    if (!form.cityName || !form.stateId || !form.countryId) {
+      setError("All fields are required");
       return;
     }
-
+    // Ensure IDs are integers
     const payload = {
-      cityName: form.cityName,
-      stateId: backendState.id,
-      countryId: backendCountry.id,
+      ...form,
+      stateId: parseInt(form.stateId, 10),
+      countryId: parseInt(form.countryId, 10),
     };
-
     console.log("Submitting payload:", payload);
     try {
       if (editingId !== null) {
@@ -170,29 +148,6 @@ const City = () => {
     page * pageSize
   );
 
-  // Find selected country/state objects
-  const selectedCountry = countries.find(
-    (c) => String(c.id) === String(form.countryId)
-  );
-  const selectedState = states.find(
-    (s) => String(s.id) === String(form.stateId)
-  );
-
-  // Filtered suggestions
-  const filteredCountries = countries.filter((country) =>
-    country.countryName.toLowerCase().includes(countryInput.toLowerCase())
-  );
-  const filteredStates = states
-    .filter((state) => String(state.countryId) === String(form.countryId))
-    .filter((state) =>
-      state.name.toLowerCase().includes(stateInput.toLowerCase())
-    );
-  const filteredCitySuggestions = cities
-    .filter((city) => String(city.stateId) === String(form.stateId))
-    .filter((city) =>
-      city.cityName.toLowerCase().includes(cityInput.toLowerCase())
-    );
-
   return (
     <div className="city-container">
       {showModal && (
@@ -201,45 +156,49 @@ const City = () => {
             <h3 className="modal-title">
               {editingId !== null ? "Edit City" : "Add New City"}
             </h3>
-            {/* CountrySelect from react-country-state-city */}
-            <CountrySelect
+            {/* Country dropdown first */}
+            <select
               className="modal-input"
               value={form.countryId}
-              onChange={(country) => {
-                setForm({
-                  ...form,
-                  countryId: country.id,
-                  stateId: "",
-                  cityName: "",
-                });
-              }}
-              placeholder="Select Country"
+              onChange={(e) =>
+                setForm({ ...form, countryId: e.target.value, stateId: "" })
+              }
               required
-            />
-            {/* StateSelect from react-country-state-city */}
-            <StateSelect
+            >
+              <option value="">Select Country</option>
+              {countries.map((country) => (
+                <option key={country.id} value={country.id}>
+                  {country.countryName}
+                </option>
+              ))}
+            </select>
+            {/* State dropdown second, filtered by selected country */}
+            <select
               className="modal-input"
-              countryid={form.countryId}
               value={form.stateId}
-              onChange={(state) => {
-                setForm({ ...form, stateId: state.id, cityName: "" });
-              }}
-              placeholder="Select State"
+              onChange={(e) => setForm({ ...form, stateId: e.target.value })}
               required
               disabled={!form.countryId}
-            />
-            {/* CitySelect from react-country-state-city */}
-            <CitySelect
+            >
+              <option value="">Select State</option>
+              {states
+                .filter(
+                  (state) => String(state.countryId) === String(form.countryId)
+                )
+                .map((state) => (
+                  <option key={state.id} value={state.id}>
+                    {state.name}
+                  </option>
+                ))}
+            </select>
+            {/* City name input third */}
+            <input
+              type="text"
               className="modal-input"
-              countryid={form.countryId}
-              stateid={form.stateId}
+              placeholder="City Name"
               value={form.cityName}
-              onChange={(city) => {
-                setForm({ ...form, cityName: city.name });
-              }}
-              placeholder="Select City"
+              onChange={(e) => setForm({ ...form, cityName: e.target.value })}
               required
-              disabled={!form.stateId}
             />
             <div className="modal-actions">
               <button
@@ -306,7 +265,7 @@ const City = () => {
           </button>
         </div>
       </div>
-{/*  */}
+
       {error && <div className="error-message">{error}</div>}
       {loading ? (
         <div>Loading...</div>
