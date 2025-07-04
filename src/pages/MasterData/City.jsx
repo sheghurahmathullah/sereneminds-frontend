@@ -82,16 +82,25 @@ const City = () => {
   }, []);
 
   const handleCreateOrUpdate = async () => {
-    if (!form.cityName || !form.stateId || !form.countryId) {
-      setError("All fields are required");
+    // Find backend state and country by name
+    const backendState = states.find(
+      (s) => s.name === selectedStateName // selectedStateName from the react-country-state-city selection
+    );
+    const backendCountry = countries.find(
+      (c) => c.countryName === selectedCountryName // selectedCountryName from the react-country-state-city selection
+    );
+
+    if (!backendState || !backendCountry) {
+      setError("Selected country or state is not available in the system.");
       return;
     }
-    // Ensure IDs are integers
+
     const payload = {
-      ...form,
-      stateId: parseInt(form.stateId, 10),
-      countryId: parseInt(form.countryId, 10),
+      cityName: selectedCityName, // from react-country-state-city
+      stateId: backendState.id,
+      countryId: backendCountry.id,
     };
+
     console.log("Submitting payload:", payload);
     try {
       if (editingId !== null) {
