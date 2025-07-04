@@ -290,6 +290,35 @@ input:checked + .slider:before {
   box-shadow: 0 2px 4px rgba(30, 202, 184, 0.2);
 }
 
+.modal-status-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 24px 0 24px;
+}
+
+.modal-status-label {
+  font-size: 15px;
+  font-weight: 500;
+  color: #495057;
+  min-width: 60px;
+}
+
+.modal-status-select {
+  padding: 8px 14px;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  font-size: 15px;
+  background: #fafbfc;
+  transition: border-color 0.2s;
+}
+
+.modal-status-select:focus {
+  outline: none;
+  border-color: #1ecab8;
+  background: #fff;
+}
+
 @keyframes fadeInOverlay {
   from {
     opacity: 0;

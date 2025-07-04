@@ -108,51 +108,53 @@ const State = () => {
 
   return (
     <div className="state-container">
-      {showModal && (
-        <div className="modal-overlay">
-          <div className="modal">
-            <h3 className="modal-title">
-              {editingId !== null ? "Edit State" : "Add New State"}
-            </h3>
-            <input
-              type="text"
-              className="modal-input"
-              placeholder="State Name"
-              value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
-              required
-            />
-            <select
-              className="modal-input"
-              value={form.countryId}
-              onChange={(e) => setForm({ ...form, countryId: e.target.value })}
-              required
-            >
-              <option value="">Select Country</option>
-              {countries.map((country) => (
-                <option key={country.id} value={country.id}>
-                  {country.countryName}
-                </option>
-              ))}
-            </select>
-            <div className="modal-actions">
-              <button
-                className="modal-cancel"
-                onClick={() => {
-                  setShowModal(false);
-                  setForm({ name: "", countryId: "" });
-                  setEditingId(null);
-                }}
-              >
-                Cancel
-              </button>
-              <button className="modal-submit" onClick={handleCreateOrUpdate}>
-                {editingId !== null ? "Update" : "Submit"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+    {showModal && (
+  <div className="modal-overlay">
+    <div className="modal">
+      <h3 className="modal-title">
+        {editingId !== null ? "Edit State" : "Add New State"}
+      </h3>
+      {/* Country dropdown first */}
+      <select
+        className="modal-input"
+        value={form.countryId}
+        onChange={(e) => setForm({ ...form, countryId: e.target.value })}
+        required
+      >
+        <option value="">Select Country</option>
+        {countries.map((country) => (
+          <option key={country.id} value={country.id}>
+            {country.countryName}
+          </option>
+        ))}
+      </select>
+      {/* State name input second */}
+      <input
+        type="text"
+        className="modal-input"
+        placeholder="State Name"
+        value={form.name}
+        onChange={(e) => setForm({ ...form, name: e.target.value })}
+        required
+      />
+      <div className="modal-actions">
+        <button
+          className="modal-cancel"
+          onClick={() => {
+            setShowModal(false);
+            setForm({ name: "", countryId: "" });
+            setEditingId(null);
+          }}
+        >
+          Cancel
+        </button>
+        <button className="modal-submit" onClick={handleCreateOrUpdate}>
+          {editingId !== null ? "Update" : "Submit"}
+        </button>
+      </div>
+    </div>
+  </div>
+)}
 
       <div className="state-controls">
         <select className="dropdown">

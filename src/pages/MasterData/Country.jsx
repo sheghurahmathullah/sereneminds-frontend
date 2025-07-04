@@ -118,20 +118,22 @@ const Country = () => {
               }
               required
             />
-            {/* Add status toggle to modal */}
-            <div className="modal-status-toggle">
-              <label>
-                <input
-                  type="checkbox"
-                  checked={form.status}
-                  onChange={(e) =>
-                    setForm({ ...form, status: e.target.checked })
-                  }
-                />
-                <span style={{ marginLeft: 8 }}>
-                  {form.status ? "Active" : "Inactive"}
-                </span>
+            {/* Status dropdown with label */}
+            <div className="modal-status-group">
+              <label htmlFor="status-select" className="modal-status-label">
+                Status
               </label>
+              <select
+                id="status-select"
+                className="modal-status-select"
+                value={form.status ? "active" : "inactive"}
+                onChange={(e) =>
+                  setForm({ ...form, status: e.target.value === "active" })
+                }
+              >
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+              </select>
             </div>
             <div className="modal-actions">
               <button

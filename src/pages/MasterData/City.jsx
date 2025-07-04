@@ -156,31 +156,13 @@ const City = () => {
             <h3 className="modal-title">
               {editingId !== null ? "Edit City" : "Add New City"}
             </h3>
-            <input
-              type="text"
-              className="modal-input"
-              placeholder="City Name"
-              value={form.cityName}
-              onChange={(e) => setForm({ ...form, cityName: e.target.value })}
-              required
-            />
-            <select
-              className="modal-input"
-              value={form.stateId}
-              onChange={(e) => setForm({ ...form, stateId: e.target.value })}
-              required
-            >
-              <option value="">Select State</option>
-              {states.map((state) => (
-                <option key={state.id} value={state.id}>
-                  {state.name}
-                </option>
-              ))}
-            </select>
+            {/* Country dropdown first */}
             <select
               className="modal-input"
               value={form.countryId}
-              onChange={(e) => setForm({ ...form, countryId: e.target.value })}
+              onChange={(e) =>
+                setForm({ ...form, countryId: e.target.value, stateId: "" })
+              }
               required
             >
               <option value="">Select Country</option>
@@ -190,6 +172,34 @@ const City = () => {
                 </option>
               ))}
             </select>
+            {/* State dropdown second, filtered by selected country */}
+            <select
+              className="modal-input"
+              value={form.stateId}
+              onChange={(e) => setForm({ ...form, stateId: e.target.value })}
+              required
+              disabled={!form.countryId}
+            >
+              <option value="">Select State</option>
+              {states
+                .filter(
+                  (state) => String(state.countryId) === String(form.countryId)
+                )
+                .map((state) => (
+                  <option key={state.id} value={state.id}>
+                    {state.name}
+                  </option>
+                ))}
+            </select>
+            {/* City name input third */}
+            <input
+              type="text"
+              className="modal-input"
+              placeholder="City Name"
+              value={form.cityName}
+              onChange={(e) => setForm({ ...form, cityName: e.target.value })}
+              required
+            />
             <div className="modal-actions">
               <button
                 className="modal-cancel"
