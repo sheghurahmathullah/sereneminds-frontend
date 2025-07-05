@@ -109,20 +109,6 @@ const BranchForm = ({
             />
           </div>
           <div className="branch-form-input">
-            <label>City</label>
-            <select
-              value={form.city}
-              onChange={(e) => onChange("city", e.target.value)}
-              required
-            >
-              <option value="" disabled>
-                Select City
-              </option>
-              <option>Chennai</option>
-              <option>Coimbatore</option>
-            </select>
-          </div>
-          <div className="branch-form-input">
             <label>State</label>
             <select
               value={form.state}
@@ -134,6 +120,20 @@ const BranchForm = ({
               </option>
               <option>Tamil Nadu</option>
               <option>Kerala</option>
+            </select>
+          </div>
+          <div className="branch-form-input">
+            <label>City</label>
+            <select
+              value={form.city}
+              onChange={(e) => onChange("city", e.target.value)}
+              required
+            >
+              <option value="" disabled>
+                Select City
+              </option>
+              <option>Chennai</option>
+              <option>Coimbatore</option>
             </select>
           </div>
           <div className="branch-form-input">

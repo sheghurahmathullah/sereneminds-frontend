@@ -299,6 +299,19 @@ const Institute = () => {
                   />
                 </div>
                 <div className="field">
+                  <label>State</label>
+                  <select
+                    className="institute-input"
+                    value={form.state}
+                    onChange={(e) => handleChange("state", e.target.value)}
+                  >
+                    <option value="">Select</option>
+                    <option value="Tamil Nadu">Tamil Nadu</option>
+                    <option value="Kerala">Kerala</option>
+                    <option value="Karnataka">Karnataka</option>
+                  </select>
+                </div>
+                <div className="field">
                   <label>City</label>
                   <select
                     className="institute-input"
@@ -310,19 +323,6 @@ const Institute = () => {
                     <option value="Madurai">Madurai</option>
                     <option value="Coimbatore">Coimbatore</option>
                     <option value="Vellore">Vellore</option>
-                  </select>
-                </div>
-                <div className="field">
-                  <label>State</label>
-                  <select
-                    className="institute-input"
-                    value={form.state}
-                    onChange={(e) => handleChange("state", e.target.value)}
-                  >
-                    <option value="">Select</option>
-                    <option value="Tamil Nadu">Tamil Nadu</option>
-                    <option value="Kerala">Kerala</option>
-                    <option value="Karnataka">Karnataka</option>
                   </select>
                 </div>
               </div>
