@@ -25,7 +25,7 @@ const Pleasantness = () => {
     try {
       setLoading(true);
       const response = await fetch(
-        "https://sereneminds-backend.onrender.com/api/pleasantnesses"
+        "http://localhost:5000/api/pleasantnesses"
       );
       if (!response.ok) {
         throw new Error("Failed to fetch pleasantness data");
@@ -48,7 +48,7 @@ const Pleasantness = () => {
   const toggleStatus = async (id) => {
     try {
       const response = await fetch(
-        `https://sereneminds-backend.onrender.com/api/pleasantnesses/${id}/toggle-status`,
+        `http://localhost:5000/api/pleasantnesses/${id}/toggle-status`,
         {
           method: "PATCH",
           headers: {
@@ -96,7 +96,7 @@ const Pleasantness = () => {
       setLoading(true);
       if (modalType === "edit" && editingId) {
         const response = await fetch(
-          `https://sereneminds-backend.onrender.com/api/pleasantnesses/${editingId}`,
+          `http://localhost:5000/api/pleasantnesses/${editingId}`,
           {
             method: "PUT",
             headers: {
@@ -109,12 +109,13 @@ const Pleasantness = () => {
           throw new Error("Failed to update pleasantness");
         }
         const updatedPleasantness = await response.json();
-        setPleasantness((prev) =>
-          prev.map((p) => (p.id === editingId ? updatedPleasantness : p))
-        );
+      //   setPleasantness((prev) =>
+      //     prev.map((p) => (p.id === editingId ? updatedPleasantness : p))
+      // );
+      fetchPleasantness();
       } else {
         const response = await fetch(
-          "https://sereneminds-backend.onrender.com/api/pleasantnesses",
+          "http://localhost:5000/api/pleasantnesses",
           {
             method: "POST",
             headers: {
@@ -129,7 +130,8 @@ const Pleasantness = () => {
           throw new Error("Failed to create pleasantness");
         }
         const newPleasantness = await response.json();
-        setPleasantness([newPleasantness, ...pleasantness]);
+        // setPleasantness([newPleasantness, ...pleasantness]);
+        fetchPleasantness();
       }
       setShowModal(false);
       setModalForm({ value: "" });
@@ -162,7 +164,7 @@ const Pleasantness = () => {
     try {
       setLoading(true);
       const response = await fetch(
-        `https://sereneminds-backend.onrender.com/api/pleasantnesses/${id}`,
+        `http://localhost:5000/api/pleasantnesses/${id}`,
         {
           method: "DELETE",
         }
@@ -172,8 +174,11 @@ const Pleasantness = () => {
       }
       setPleasantness((prev) => prev.filter((p) => p.id !== id));
       setDeleteConfirmId(null);
-      if (overviewPleasantness && overviewPleasantness.id === id)
-        setOverviewPleasantness(null);
+        fetchPleasantness();
+      
+      // if (overviewPleasantness && overviewPleasantness.id === id)
+      //   setOverviewPleasantness(null);
+
     } catch (err) {
       setError(err.message);
       console.error("Error deleting pleasantness:", err);

@@ -7,12 +7,13 @@ const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
 
 const Emotion = () => {
   const [emotions, setEmotions] = useState([]);
+  const [modalForm, setModalForm] = useState({ code: "", name: "", score: "" });
+
   const [searchTerm, setSearchTerm] = useState("");
   const [pageSize, setPageSize] = useState(10);
   const [page, setPage] = useState(1);
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState("create"); // 'create' or 'edit'
-  const [modalForm, setModalForm] = useState({ code: "", name: "", score: "" });
   const [editingId, setEditingId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -24,7 +25,7 @@ const Emotion = () => {
     try {
       setLoading(true);
       const response = await fetch(
-        "https://sereneminds-backend.onrender.com/api/emotions"
+        "http://localhost:5000/api/emotions"
       );
       if (!response.ok) {
         throw new Error("Failed to fetch emotions");
@@ -47,7 +48,7 @@ const Emotion = () => {
   const toggleStatus = async (id) => {
     try {
       const response = await fetch(
-        `https://sereneminds-backend.onrender.com/api/emotions/${id}/toggle-status`,
+        `http://localhost:5000/api/emotions/${id}/toggle-status`,
         {
           method: "PATCH",
           headers: {
@@ -58,10 +59,7 @@ const Emotion = () => {
       if (!response.ok) {
         throw new Error("Failed to toggle status");
       }
-      const updatedEmotion = await response.json();
-      setEmotions((prev) =>
-        prev.map((e) => (e.id === id ? updatedEmotion : e))
-      );
+      fetchEmotions();
     } catch (err) {
       setError(err.message);
       console.error("Error toggling status:", err);
@@ -102,7 +100,7 @@ const Emotion = () => {
       if (modalType === "edit" && editingId) {
         // Update existing emotion
         const response = await fetch(
-          `https://sereneminds-backend.onrender.com/api/emotions/${editingId}`,
+          `http://localhost:5000/api/emotions/${editingId}`,
           {
             method: "PUT",
             headers: {
@@ -117,14 +115,13 @@ const Emotion = () => {
         if (!response.ok) {
           throw new Error("Failed to update emotion");
         }
-        const updatedEmotion = await response.json();
-        setEmotions((prev) =>
-          prev.map((e) => (e.id === editingId ? updatedEmotion : e))
-        );
+
+        fetchEmotions();
+       
       } else {
         // Create new emotion
         const response = await fetch(
-          "https://sereneminds-backend.onrender.com/api/emotions",
+          "http://localhost:5000/api/emotions",
           {
             method: "POST",
             headers: {
@@ -148,6 +145,7 @@ const Emotion = () => {
       setShowModal(false);
       setModalForm({ code: "", name: "", score: "" });
       setEditingId(null);
+      fetchEmotions();
     } catch (err) {
       setError(err.message);
       console.error("Error saving emotion:", err);
@@ -176,7 +174,7 @@ const Emotion = () => {
     try {
       setLoading(true);
       const response = await fetch(
-        `https://sereneminds-backend.onrender.com/api/emotions/${id}`,
+        `http://localhost:5000/api/emotions/${id}`,
         {
           method: "DELETE",
         }
@@ -187,7 +185,8 @@ const Emotion = () => {
       setEmotions((prev) => prev.filter((e) => e.id !== id));
       setDeleteConfirmId(null);
       if (overviewEmotion && overviewEmotion.id === id)
-        setOverviewEmotion(null);
+      setOverviewEmotion(null);
+      fetchEmotions();
     } catch (err) {
       setError(err.message);
       console.error("Error deleting emotion:", err);

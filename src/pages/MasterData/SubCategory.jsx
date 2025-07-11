@@ -27,7 +27,7 @@ const SubCategory = () => {
   const fetchCategories = async () => {
     try {
       const response = await fetch(
-        "https://sereneminds-backend.onrender.com/api/categories"
+        "http://localhost:5000/api/categories"
       );
       if (!response.ok) throw new Error("Failed to fetch categories");
       const data = await response.json();
@@ -41,7 +41,7 @@ const SubCategory = () => {
     try {
       setLoading(true);
       const response = await fetch(
-        "https://sereneminds-backend.onrender.com/api/subcategories"
+        "http://localhost:5000/api/subcategories"
       );
       if (!response.ok) throw new Error("Failed to fetch subcategories");
       const data = await response.json();
@@ -61,7 +61,7 @@ const SubCategory = () => {
   const toggleStatus = async (id) => {
     try {
       const response = await fetch(
-        `https://sereneminds-backend.onrender.com/api/subcategories/${id}/toggle-status`,
+        `http://localhost:5000/api/subcategories/${id}/toggle-status`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
@@ -105,7 +105,7 @@ const SubCategory = () => {
       setLoading(true);
       if (modalType === "edit" && editingId) {
         const response = await fetch(
-          `https://sereneminds-backend.onrender.com/api/subcategories/${editingId}`,
+          `http://localhost:5000/api/subcategories/${editingId}`,
           {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
@@ -122,7 +122,7 @@ const SubCategory = () => {
         );
       } else {
         const response = await fetch(
-          "https://sereneminds-backend.onrender.com/api/subcategories",
+          "http://localhost:5000/api/subcategories",
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -137,8 +137,9 @@ const SubCategory = () => {
         );
         if (!response.ok) throw new Error("Failed to create subcategory");
         const created = await response.json();
-        setSubCategories([created, ...subCategories]);
+        // setSubCategories([created, ...subCategories]);
       }
+      fetchSubCategories();
       setShowModal(false);
       setModalForm({ code: "", name: "", categoryId: "" });
       setEditingId(null);
@@ -169,7 +170,7 @@ const SubCategory = () => {
     try {
       setLoading(true);
       const response = await fetch(
-        `https://sereneminds-backend.onrender.com/api/subcategories/${id}`,
+        `http://localhost:5000/api/subcategories/${id}`,
         {
           method: "DELETE",
         }
@@ -177,10 +178,12 @@ const SubCategory = () => {
       if (!response.ok) {
         throw new Error("Failed to delete subcategory");
       }
-      setSubCategories((prev) => prev.filter((s) => s.id !== id));
+      // setSubCategories((prev) => prev.filter((s) => s.id !== id));
       setDeleteConfirmId(null);
-      if (overviewSubCategory && overviewSubCategory.id === id)
-        setOverviewSubCategory(null);
+      // if (overviewSubCategory && overviewSubCategory.id === id)
+      //   setOverviewSubCategory(null);
+
+      fetchSubCategories();
     } catch (err) {
       setError(err.message);
     } finally {

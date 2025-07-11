@@ -23,7 +23,7 @@ const Category = () => {
     try {
       setLoading(true);
       const response = await fetch(
-        "https://sereneminds-backend.onrender.com/api/categories"
+        "http://localhost:5000/api/categories"
       );
       if (!response.ok) {
         throw new Error("Failed to fetch categories");
@@ -46,7 +46,7 @@ const Category = () => {
   const toggleStatus = async (id) => {
     try {
       const response = await fetch(
-        `https://sereneminds-backend.onrender.com/api/categories/${id}/toggle-status`,
+        `http://localhost:5000/api/categories/${id}/toggle-status`,
         {
           method: "PATCH",
           headers: {
@@ -99,7 +99,7 @@ const Category = () => {
       setLoading(true);
       if (modalType === "edit" && editingId) {
         const response = await fetch(
-          `https://sereneminds-backend.onrender.com/api/categories/${editingId}`,
+          `http://localhost:5000/api/categories/${editingId}`,
           {
             method: "PUT",
             headers: {
@@ -117,7 +117,7 @@ const Category = () => {
         );
       } else {
         const response = await fetch(
-          "https://sereneminds-backend.onrender.com/api/categories",
+          "http://localhost:5000/api/categories",
           {
             method: "POST",
             headers: {
@@ -135,8 +135,8 @@ const Category = () => {
           throw new Error("Failed to create category");
         }
         const newCategory = await response.json();
-        setCategories([newCategory, ...categories]);
       }
+      fetchCategories();
       setShowModal(false);
       setModalForm({ code: "", name: "" });
       setEditingId(null);
@@ -168,7 +168,7 @@ const Category = () => {
     try {
       setLoading(true);
       const response = await fetch(
-        `https://sereneminds-backend.onrender.com/api/categories/${id}`,
+        `http://localhost:5000/api/categories/${id}`,
         {
           method: "DELETE",
         }

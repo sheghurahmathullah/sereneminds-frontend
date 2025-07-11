@@ -25,7 +25,7 @@ const Impact = () => {
     try {
       setLoading(true);
       const response = await fetch(
-        "https://sereneminds-backend.onrender.com/api/impacts"
+        "http://localhost:5000/api/impacts"
       );
       if (!response.ok) {
         throw new Error("Failed to fetch impacts");
@@ -48,7 +48,7 @@ const Impact = () => {
   const toggleStatus = async (id) => {
     try {
       const response = await fetch(
-        `https://sereneminds-backend.onrender.com/api/impacts/${id}/toggle-status`,
+        `http://localhost:5000/api/impacts/${id}/toggle-status`,
         {
           method: "PATCH",
           headers: {
@@ -96,7 +96,7 @@ const Impact = () => {
       setLoading(true);
       if (modalType === "edit" && editingId) {
         const response = await fetch(
-          `https://sereneminds-backend.onrender.com/api/impacts/${editingId}`,
+          `http://localhost:5000/api/impacts/${editingId}`,
           {
             method: "PUT",
             headers: {
@@ -109,12 +109,13 @@ const Impact = () => {
           throw new Error("Failed to update impact");
         }
         const updatedImpact = await response.json();
-        setImpacts((prev) =>
-          prev.map((i) => (i.id === editingId ? updatedImpact : i))
-        );
+        // setImpacts((prev) =>
+        //   prev.map((i) => (i.id === editingId ? updatedImpact : i))
+        // );
+
       } else {
         const response = await fetch(
-          "https://sereneminds-backend.onrender.com/api/impacts",
+          "http://localhost:5000/api/impacts",
           {
             method: "POST",
             headers: {
@@ -129,8 +130,10 @@ const Impact = () => {
           throw new Error("Failed to create impact");
         }
         const newImpact = await response.json();
-        setImpacts([newImpact, ...impacts]);
+        // setImpacts([newImpact, ...impacts]);
       }
+
+      fetchImpacts();
       setShowModal(false);
       setModalForm({ value: "" });
       setEditingId(null);
@@ -162,7 +165,7 @@ const Impact = () => {
     try {
       setLoading(true);
       const response = await fetch(
-        `https://sereneminds-backend.onrender.com/api/impacts/${id}`,
+        `http://localhost:5000/api/impacts/${id}`,
         {
           method: "DELETE",
         }
@@ -170,9 +173,12 @@ const Impact = () => {
       if (!response.ok) {
         throw new Error("Failed to delete impact");
       }
-      setImpacts((prev) => prev.filter((i) => i.id !== id));
+
+      fetchImpacts();
+      // setImpacts((prev) => prev.filter((i) => i.id !== id));
       setDeleteConfirmId(null);
       if (overviewImpact && overviewImpact.id === id) setOverviewImpact(null);
+
     } catch (err) {
       setError(err.message);
       console.error("Error deleting impact:", err);
@@ -305,7 +311,10 @@ const Impact = () => {
                     <button
                       className="impact-edit-btn"
                       title="Delete"
-                      onClick={() => setDeleteConfirmId(i.id)}
+                      onClick={() => { 
+                        setDeleteConfirmId(i.id) 
+                        handleDelete(i.id);
+                      }}
                     >
                       <FiTrash2 size={16} style={{ color: "#e74c3c" }} />
                     </button>

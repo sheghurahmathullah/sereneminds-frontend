@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./Zone.css";
 import { FiMoreVertical, FiEdit, FiTrash2, FiEye } from "react-icons/fi";
+import axios from "axios";
 
 const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
 
@@ -28,14 +29,15 @@ const Zone = () => {
   const fetchZones = async () => {
     try {
       setLoading(true);
-      const response = await fetch(
-        "https://sereneminds-backend.onrender.com/api/zones"
+      const response = await axios.get(
+        "http://localhost:5000/api/zones"
       );
-      if (!response.ok) {
+      if (!response.status) {
         throw new Error("Failed to fetch zones");
       }
-      const data = await response.json();
+      const data = await response.data;
       setZones(data);
+
     } catch (err) {
       setError(err.message);
       console.error("Error fetching zones:", err);
@@ -47,14 +49,16 @@ const Zone = () => {
   // Fetch emotions from API
   const fetchEmotions = async () => {
     try {
-      const response = await fetch(
-        "https://sereneminds-backend.onrender.com/api/emotions"
+      const response = await axios.get(
+        "http://localhost:5000/api/emotions"
       );
-      if (!response.ok) {
+
+      if (!response.status) {
         throw new Error("Failed to fetch emotions");
       }
-      const data = await response.json();
+      const data = await response.data;
       setEmotions(data);
+
     } catch (err) {
       console.error("Error fetching emotions:", err);
     }
@@ -68,22 +72,15 @@ const Zone = () => {
 
   const toggleStatus = async (id) => {
     try {
-      const response = await fetch(
-        `https://sereneminds-backend.onrender.com/api/zones/${id}/toggle-status`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      if (!response.ok) {
+      const response = await axios.patch(
+        `http://localhost:5000/api/zones/${id}/toggle-status`);
+      
+        if (!response.status) {
         throw new Error("Failed to toggle status");
       }
-      const updatedZone = await response.json();
-      setZones((prev) =>
-        prev.map((zone) => (zone.id === id ? updatedZone : zone))
-      );
+
+      fetchEmotions();
+
     } catch (err) {
       setError(err.message);
       console.error("Error toggling status:", err);
@@ -120,43 +117,43 @@ const Zone = () => {
 
     try {
       setLoading(true);
-      const url =
-        modalType === "edit"
-          ? `https://sereneminds-backend.onrender.com/api/zones/${editingId}`
-          : "https://sereneminds-backend.onrender.com/api/zones";
 
-      const method = modalType === "edit" ? "PUT" : "POST";
-
-      const response = await fetch(url, {
-        method,
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
+      if(editingId){
+        const res = await axios.put(`http://localhost:5000/api/zones/${editingId}`, {
           name: modalForm.name,
           description: modalForm.description,
           emotionId: Number(modalForm.emotionId),
-        }),
+        });
+
+        if (!res.status) {
+        throw new Error(`Failed to update zone`);
+      }
+        fetchZones();
+      }else {
+
+        
+      const res = await axios.post ("http://localhost:5000/api/zones", {
+          name: modalForm.name,
+          description: modalForm.description,
+          emotionId: Number(modalForm.emotionId),
       });
+      
+      
+      console.log(res.data)
+      fetchZones();
 
-      if (!response.ok) {
-        throw new Error(`Failed to ${modalType} zone`);
+      if (!res.status) {
+        throw new Error(`Failed to create zone`);
       }
-
-      const result = await response.json();
-
-      if (modalType === "edit") {
-        setZones((prev) => prev.map((z) => (z.id === editingId ? result : z)));
-      } else {
-        setZones([result, ...zones]);
       }
-
+        
+      
       setShowModal(false);
       setModalForm({ code: "", name: "", description: "", emotionId: "" });
       setEditingId(null);
     } catch (err) {
       setError(err.message);
-      console.error(`Error ${modalType}ing zone:`, err);
+      console.error(`Error creating a zone:`, err);
     } finally {
       setLoading(false);
     }
@@ -182,7 +179,7 @@ const Zone = () => {
     try {
       setLoading(true);
       const response = await fetch(
-        `https://sereneminds-backend.onrender.com/api/zones/${id}`,
+        `http://localhost:5000/api/zones/${id}`,
         {
           method: "DELETE",
         }
@@ -190,7 +187,8 @@ const Zone = () => {
       if (!response.ok) {
         throw new Error("Failed to delete zone");
       }
-      setZones((prev) => prev.filter((z) => z.id !== id));
+
+      fetchZones();
       setDeleteConfirmId(null);
       if (overviewZone && overviewZone.id === id) setOverviewZone(null);
     } catch (err) {
