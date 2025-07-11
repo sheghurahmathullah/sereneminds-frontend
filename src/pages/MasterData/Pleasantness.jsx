@@ -11,6 +11,7 @@ const Pleasantness = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [pageSize, setPageSize] = useState(10);
   const [page, setPage] = useState(1);
+  
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState("create"); // 'create' or 'edit'
   const [modalForm, setModalForm] = useState({ value: "" });

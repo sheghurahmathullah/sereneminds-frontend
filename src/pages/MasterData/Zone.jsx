@@ -79,7 +79,11 @@ const Zone = () => {
         throw new Error("Failed to toggle status");
       }
 
-      fetchEmotions();
+      // fetchZones();
+      const data = await response.data;
+      setZones((prev) => // for updating the state
+        prev.map((p) => (p.id === id ? data : p))
+      );
 
     } catch (err) {
       setError(err.message);

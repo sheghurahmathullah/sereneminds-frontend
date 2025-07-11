@@ -60,13 +60,17 @@ const Division = () => {
       const response = await axios.patch(
         `http://localhost:5000/api/divisions/${id}/toggle-status`);
       
-        if (!response.status) throw new Error("Failed to toggle status");
-      const updatedDivision = await response.data;
+      if (!response.status) throw new Error("Failed to toggle status");
+      const data = await response.data;
+      setDivisions((prev) =>  
+        prev.map((imp ) => (imp.id === id) ? data : imp) 
+      );
+
+
     } catch (err) {
       setError(err.message);
     }
 
-    fetchDivisions();
     setMode("list");
   };
 

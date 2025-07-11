@@ -32,6 +32,7 @@ const Emotion = () => {
       }
       const data = await response.json();
       setEmotions(data);
+      console.log(data);
     } catch (err) {
       setError(err.message);
       console.error("Error fetching emotions:", err);
@@ -59,7 +60,10 @@ const Emotion = () => {
       if (!response.ok) {
         throw new Error("Failed to toggle status");
       }
+      const data = response.data;
+
       fetchEmotions();
+
     } catch (err) {
       setError(err.message);
       console.error("Error toggling status:", err);
@@ -161,7 +165,7 @@ const Emotion = () => {
   };
 
   const filteredEmotions = emotions.filter((e) =>
-    e.name.toLowerCase().includes(searchTerm.toLowerCase())
+    e?.name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
   const total = filteredEmotions.length;
   const totalPages = Math.ceil(total / pageSize);

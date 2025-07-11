@@ -83,7 +83,11 @@ const ClassPage = () => {
       if (!response.status) {
         throw new Error("Failed to toggle status");
       }
-      fetchClasses();
+      const data =response.data;
+      setClasses((prev) =>  
+        prev.map((imp ) => (imp.id === id) ? data : imp) 
+      );
+
     } catch (err) {
       setError(err.message);
       console.error("Error toggling status:", err);

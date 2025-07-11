@@ -86,11 +86,19 @@ const Countries = () => {
   };
 
   const toggleStatus = async (country) => {
+    console.log("Called");
     try {
-      await axios.patch(`${API_URL}/${country.id}/toggle-status`, {
+      const res = await axios.patch(`${API_URL}/${country.id}/toggle-status`, {
         status: !country.status,
       });
-      fetchCountries();
+      // fetchCountries();
+      const data = res.data;
+      console.log(data);
+
+      setCountries((prev) => // for smooth update
+        prev.map((p) => (p.id === country.id ? data : p))
+      );
+
       setError("");
     } catch (err) {
       setError("Failed to toggle status");

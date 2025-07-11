@@ -81,12 +81,19 @@ const Board = () => {
     try {
       const response = await axios.patch(
         `http://localhost:5000/api/boards/${id}/toggle-status`);
-      if (!response.status) {
+      
+        if (!response.status) {
         throw new Error("Failed to toggle status");
       }
-      const updatedBoard = await response.data;
+
+      const data = response.data;
+
+      setBoards( (prev) =>  
+        prev.map((imp ) => (imp.id === id) ? data : imp) 
+      );
+
       
-      fetchBoards();
+      // fetchBoards();
     } catch (err) {
       setError(err.message);
       console.error("Error toggling status:", err);

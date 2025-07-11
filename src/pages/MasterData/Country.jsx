@@ -96,11 +96,27 @@ const Count = () => {
   };
 
   const toggleStatus = async (country) => {
+    console.log("called")
     try {
-      await axios.patch(`${API_URL}/${country.id}/status`, {
+      const res =  await axios.patch(`${API_URL}/${country.id}/status`, {
         status: !country.status,
       });
-      fetchCountries();
+      // fetchCountries();
+      console.log(country);
+      console.log(country.id)
+      const updatedCountry = res.data;
+      console.log(updatedCountry);
+
+      setCountries((prev) => 
+        prev.map((imp ) => (imp.id === country.id) ? updatedCountry : imp) 
+      );
+
+      // setImpacts((prev) =>
+      //   prev.map((impact) => (impact.id === id ? updatedImpact : impact))
+      // );
+
+      
+
       setError("");
     } catch (err) {
       setError("Failed to toggle status");

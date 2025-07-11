@@ -136,8 +136,12 @@ const cityName = selectedCityObj ? selectedCityObj.name : "";
 
   const toggleStatus = async (id) => {
     try {
-      await axios.patch(`${API_URL}/${id}/toggle-status`);
-      fetchCities();
+     const res =  await axios.patch(`${API_URL}/${id}/toggle-status`);
+     const data = res.data;
+     
+      setCities((prev) => // for smooth update
+        prev.map((p) => (p.id === id ? data : p))
+      );
       setError("");
     } catch (err) {
       setError("Failed to toggle status");

@@ -153,8 +153,15 @@ const School = () => {
     try {
       const response = await axios.patch(`http://localhost:5000/api/schools/${id}/toggle-status`);
 
+      const data = response.data;
+
+      setSchools((prev) => // for smooth update
+        prev.map((p) => (p.id === id ? data : p))
+      );
+      console.log(data);
+
       if (!response.status) throw new Error("Failed to toggle status");
-      fetchSchools(); // revert
+      // fetchSchools(); // revert
       
     } catch (err) {
       setError(err.message);
