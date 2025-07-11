@@ -1,26 +1,25 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./Country.css";
-
 import {
   FiEdit,
   FiDownload,
   FiMaximize2,
   FiFilter,
   FiTrash2,
-  FiCloudLightning,
 } from "react-icons/fi";
 
-import {Country} from 'country-state-city';
+import { Country } from "country-state-city";
+
 
 const API_URL = "http://localhost:5000/api/countries";
 
-const Count = () => {
+const Countries = () => {
 
-  const [selectedCountry, setSelectedCountry] = useState("");;
-
+    const [allCountries,setAllCountries] = useState([]);
   const [countries, setCountries] = useState([]);
   const [showModal, setShowModal] = useState(false);
+
   const [form, setForm] = useState({ countryName: "", status: false });
   const [editingId, setEditingId] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -29,35 +28,27 @@ const Count = () => {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
-
-
- 
-   const fetchAllCountries = async () => {
-      try {
-        const res = await Country.getAllCountries();
-        console.log(res);
-        setCountries(res);
-  
-      } catch (err) {
-        setError("Failed to fetch countries");
-      }
-   };
-
-
   const fetchCountries = async () => {
     setLoading(true);
     try {
-      const allCountries = await Country.getAllCountries();
-      console.log(allCountries);
       const res = await axios.get(API_URL);
       setCountries(res.data);
       setError("");
     } catch (err) {
-      console.log(err);
       setError("Failed to fetch countries");
     }
     setLoading(false);
   };
+
+
+  const fetchAllCountries = async () => {
+    try {
+        const res = Country.getAllCountries();
+        setAllCountries(res);
+    } catch (error) {
+        setError("Failed to fetch all countries");        
+    }
+  }
 
   useEffect(() => {
     fetchAllCountries();
@@ -65,7 +56,6 @@ const Count = () => {
   }, []);
 
   const handleCreateOrUpdate = async () => {
-
     if (!form.countryName) return;
     try {
       if (editingId !== null) {
@@ -73,7 +63,7 @@ const Count = () => {
       } else {
         await axios.post(API_URL, form);
       }
-      // fetchCountries();
+      fetchCountries();
       setShowModal(false);
       setForm({ countryName: "", status: false });
       setEditingId(null);
@@ -97,7 +87,7 @@ const Count = () => {
 
   const toggleStatus = async (country) => {
     try {
-      await axios.patch(`${API_URL}/${country.id}/status`, {
+      await axios.patch(`${API_URL}/${country.id}/toggle-status`, {
         status: !country.status,
       });
       fetchCountries();
@@ -116,8 +106,8 @@ const Count = () => {
     setShowModal(true);
   };
 
-  const filteredCountries = countries.filter((c) => 
-    c.countryName
+  const filteredCountries = countries.filter((c) =>
+    c.countryName.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const totalEntries = filteredCountries.length;
@@ -128,53 +118,49 @@ const Count = () => {
   );
 
   return (
-    <div className="country-container"> 
-
-
+    <div className="country-container">
       {showModal && (
         <div className="modal-overlay">
           <div className="modal">
             <h3 className="modal-title">
               {editingId !== null ? "Edit Country" : "Add New Country"}
             </h3>
-            
-              
 
-                 <select
+
+            {/* Countries dropdown*/}
+            <select
                   className="modal-input"
-                  name="country"
-                  value={form.countryId}
+                  value={form.countryName}
                   onChange={(e) => {
-                    const country = e.target.value;
-                    setForm({ ...form, country, name: "" }); // Reset state name
-  
+                    setForm({ ...form, countryName: e.target.value });
+                    // (e.target.value);
                   }}
                   required
                 >
                   <option value="">Select Country</option>
-                  {countries.map((country) => (
+                  {allCountries.map((country) => (
                     <option key={country.isoCode} value={country.name}>
-                      {country.name && country.name.trim() !== "" ? country.name : "(Unnamed Country)"}
+                      {country.name}
                     </option>
                   ))}
                 </select>
+        
 
-            {/* Status dropdown with label */}
-            <div className="modal-status-group">
-              <label htmlFor="status-select" className="modal-status-label">
-                Status
+
+
+
+            <div className="status-toggle">
+              <label>
+                Status:
+                <input
+                  type="checkbox"
+                  checked={form.status}
+                  onChange={(e) =>
+                    setForm({ ...form, status: e.target.checked })
+                  }
+                  className="status-checkbox"
+                />
               </label>
-              <select
-                id="status-select"
-                className="modal-status-select"
-                value={form.status ? "active" : "inactive"}
-                onChange={(e) =>
-                  setForm({ ...form, status: e.target.value === "active" })
-                }
-              >
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
-              </select>
             </div>
             <div className="modal-actions">
               <button
@@ -302,7 +288,9 @@ const Count = () => {
 
       <div className="pagination">
         <span>
-          {`Showing ${totalEntries === 0 ? 0 : (page - 1) * pageSize + 1} to ${
+          {`Showing ${
+            totalEntries === 0 ? 0 : (page - 1) * pageSize + 1
+          } to ${
             page * pageSize > totalEntries ? totalEntries : page * pageSize
           } of ${totalEntries} entries`}
         </span>
@@ -334,4 +322,4 @@ const Count = () => {
   );
 };
 
-export default Count;
+export default Countries;

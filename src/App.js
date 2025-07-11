@@ -8,9 +8,9 @@ import MobileSidebar from "./components/MobileSidebar.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import Reports from "./pages/Reports.jsx";
 import Graph from "./pages/Graph.jsx";
-import City from "./pages/MasterData/City.jsx";
-import State from "./pages/MasterData/State.jsx";
-import Country from "./pages/MasterData/Country.jsx";
+import Cities from "./pages/MasterData/City.jsx";
+import States from "./pages/MasterData/State.jsx";
+// import Countries from "./pages/MasterData/Country.jsx"; "./pages/MasterData/Country.jsx";
 import Institute from "./pages/MasterData/Institute.jsx";
 // import Createinstitute from "./pages/MasterData/Createinstitute.jsx";
 import Branch from "./pages/MasterData/Branch.jsx";
@@ -47,6 +47,8 @@ import Login from "./pages/Auth/Login";
 import Register from "./pages/Auth/Register";
 import ForgotPassword from "./pages/Auth/ForgotPassword";
 import ResetPassword from "./pages/Auth/ResetPassword";
+// import Count from "./pages/MasterData/Country.jsx";
+import Countries from "./pages/MasterData/Countries.jsx";
 
 function AppContent() {
   const location = useLocation();
@@ -96,9 +98,9 @@ function AppContent() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/reports" element={<Reports />} />
             <Route path="/graph" element={<Graph />} />
-            <Route path="/master/city" element={<City />} />
-            <Route path="/master/state" element={<State />} />
-            <Route path="master/country" element={<Country />} />
+            <Route path="/master/city" element={<Cities />} />
+            <Route path="/master/state" element={<States />} />
+            <Route path="master/country" element={<Countries />} />
             <Route path="master/institute" element={<Institute />} />
             {/* <Route path="/institute/create" element={<Createinstitute />} /> */}
             <Route path="master/branch" element={<Branch />} />
@@ -126,6 +128,7 @@ function AppContent() {
               path="/division/overview/:id"
               element={<DivisionOverview />}
             />
+
             <Route path="/division/create" element={<DivisionCreate />} />
             <Route path="/division/edit/:id" element={<DivisionEdit />} />
             <Route path="/master/academicyear" element={<Academicyear />} />

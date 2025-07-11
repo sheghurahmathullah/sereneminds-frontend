@@ -12,6 +12,7 @@ import {
   FiEye,
 } from "react-icons/fi";
 import "./School.css";
+import axios from "axios";
 
 const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
 
@@ -52,16 +53,16 @@ const tabs = [
 const initialFormState = {
   name: "",
   code: "",
-  institute: "",
   instituteCode: "",
-  branch: "",
+  instituteName: "",
   branchCode: "",
+  branchName: "",
   address1: "",
   address2: "",
-  city: "",
-  state: "",
-  pin: "",
-  type: "",
+  cityId: null,
+  stateId: null,
+  pincode: "",
+  schoolType: "",
   phone: "",
   email: "",
   telephone: "",
@@ -71,6 +72,7 @@ const initialFormState = {
 
 const School = () => {
   const [schools, setSchools] = useState([]);
+
   const [searchTerm, setSearchTerm] = useState("");
   const [pageSize, setPageSize] = useState(10);
   const [page, setPage] = useState(1);
@@ -83,18 +85,53 @@ const School = () => {
   const [selectedSchool, setSelectedSchool] = useState(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
 
+  const [selectedInstitute, setSelectedInstitute] = useState(null);
+  
+  const [states, setStates] =useState([]);
+  const [selectedState, setSelectedState] = useState("");
+  const [cities, setCities] = useState([]);
+  
+
+
+    const fetchStates = async () => {
+    try { 
+    const response = await axios.get("http://localhost:5000/api/states");
+    const data = await response.data;
+    console.log("Fetched states:", data);
+    setStates(data);
+    }
+    catch (error) {
+      console.error("Error fetching states:", error);
+      // setError("Failed to fetch states");
+    }
+  }
+
+
+  const fetchCities = async () => {
+    try {
+      const response = await axios.get("http://localhost:5000/api/cities");
+      const data = await response.data;
+      setCities(data);
+      console.log("Fetched cities:", data);
+    } catch (error) { 
+      console.error("Error fetching cities:", error);
+      // setError("Failed to fetch cities");
+    }
+  }
+
+
   // Fetch schools from API
   const fetchSchools = async () => {
     try {
       setLoading(true);
-      const response = await fetch(
-        "https://sereneminds-backend.onrender.com/api/schools"
-      );
-      if (!response.ok) {
-        throw new Error("Failed to fetch schools");
-      }
-      const data = await response.json();
+      const response = await axios.get("http://localhost:5000/api/schools");  
+      console.log(response.data)
+      
+      if (!response.status) throw new Error("Failed to fetch schools");
+
+      const data = await response.data;
       setSchools(data);
+
     } catch (err) {
       setError(err.message);
       console.error("Error fetching schools:", err);
@@ -103,33 +140,24 @@ const School = () => {
     }
   };
 
+ 
+
   useEffect(() => {
     fetchSchools();
+    fetchCities();
+    fetchStates();
   }, []);
 
   // Toggle status (optimistic)
   const toggleStatus = async (id) => {
-    setSchools((prev) =>
-      prev.map((school) =>
-        school.id === id ? { ...school, status: !school.status } : school
-      )
-    );
     try {
-      const response = await fetch(
-        `https://sereneminds-backend.onrender.com/api/schools/${id}/toggle-status`,
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-        }
-      );
-      if (!response.ok) throw new Error("Failed to toggle status");
-      const updatedSchool = await response.json();
-      setSchools((prev) =>
-        prev.map((school) => (school.id === id ? updatedSchool : school))
-      );
+      const response = await axios.patch(`http://localhost:5000/api/schools/${id}/toggle-status`);
+
+      if (!response.status) throw new Error("Failed to toggle status");
+      fetchSchools(); // revert
+      
     } catch (err) {
       setError(err.message);
-      fetchSchools(); // revert
     }
   };
 
@@ -137,8 +165,8 @@ const School = () => {
   const filteredSchools = schools.filter(
     (school) =>
       school.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      school.institute?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      school.branch?.toLowerCase().includes(searchTerm.toLowerCase())
+      school.instituteName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      school.branchName?.toLowerCase().includes(searchTerm.toLowerCase())
   );
   const total = filteredSchools.length;
   const totalPages = Math.ceil(total / pageSize);
@@ -146,44 +174,37 @@ const School = () => {
   const endIdx = Math.min(startIdx + pageSize, total);
   const paginated = filteredSchools.slice(startIdx, endIdx);
 
-  // Form handlers
-  const handleFormChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+
+
+  const handleFormChange = (field, value) => {
+  setForm({ ...form, [field]: value });
+}
+
+
 
   // Create or Edit
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setLoading(true);
+        
+    form.stateId = Number (form.stateId);
+    form.cityId = Number (form.cityId);
+
     try {
-      let response, newSchool;
       if (isEdit && editId) {
-        response = await fetch(
-          `https://sereneminds-backend.onrender.com/api/schools/${editId}`,
-          {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(form),
-          }
-        );
-        if (!response.ok) throw new Error("Failed to update school");
-        newSchool = await response.json();
-        setSchools((prev) =>
-          prev.map((school) => (school.id === editId ? newSchool : school))
-        );
+        const response = await axios.put(`http://localhost:5000/api/schools/${editId}`, form);       
+        if (!response.status) throw new Error("Failed to update school");
+        fetchSchools(); 
+
       } else {
-        response = await fetch(
-          "https://sereneminds-backend.onrender.com/api/schools",
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(form),
-          }
-        );
-        if (!response.ok) throw new Error("Failed to create school");
-        newSchool = await response.json();
-        setSchools((prev) => [newSchool, ...prev]);
+
+        const response = await axios.post( "http://localhost:5000/api/schools", form);
+        if (!response.status) throw new Error("Failed to create school");
+        const data = await response.data;
+        fetchSchools(); 
+
+
       }
       setForm(initialFormState);
       setIsEdit(false);
@@ -215,19 +236,18 @@ const School = () => {
     setLoading(true);
     setError("");
     try {
-      const response = await fetch(
-        `https://sereneminds-backend.onrender.com/api/schools/${id}`,
-        {
-          method: "DELETE",
-        }
-      );
-      if (!response.ok) throw new Error("Failed to delete school");
-      setSchools((prev) => prev.filter((school) => school.id !== id));
+      const response = await axios.delete(`http://localhost:5000/api/schools/${id}`);
+          setViewMode("list");
+
+
+      // if (!response.status) throw new Error("Failed to delete school");
+
       setDeleteConfirmId(null);
-      if (selectedSchool && selectedSchool.id === id) {
-        setViewMode("list");
-        setSelectedSchool(null);
-      }
+      setViewMode("list");
+      setSelectedSchool(null);
+      fetchSchools();
+      
+      
     } catch (err) {
       setError(err.message);
     } finally {
@@ -306,8 +326,8 @@ const School = () => {
                     style={inputStyle}
                     placeholder="School Name"
                     name="name"
-                    value={form.name}
-                    onChange={handleFormChange}
+                    value={form.name} 
+                    onChange={ (e) =>  handleFormChange(e.target.name, e.target.value)}
                     required
                   />
                 </div>
@@ -318,7 +338,7 @@ const School = () => {
                     placeholder="Institute Code"
                     name="instituteCode"
                     value={form.instituteCode}
-                    onChange={handleFormChange}
+                    onChange={(e)  => handleFormChange(e.target.name, e.target.value)}
                     required
                   />
                 </div>
@@ -329,7 +349,8 @@ const School = () => {
                     placeholder="Branch Code"
                     name="branchCode"
                     value={form.branchCode}
-                    onChange={handleFormChange}
+                    onChange={(e)  => handleFormChange(e.target.name, e.target.value)}
+
                     required
                   />
                 </div>
@@ -340,29 +361,40 @@ const School = () => {
                     placeholder="Address Line 1"
                     name="address1"
                     value={form.address1}
-                    onChange={handleFormChange}
+                    onChange={ (e) =>  handleFormChange(e.target.name, e.target.value)}
                     required
                   />
                 </div>
                 <div style={fieldWrapper}>
                   <label style={labelStyle}>City</label>
-                  <input
+                  <select
+                    // className="institute-input"
                     style={inputStyle}
-                    placeholder="City"
-                    name="city"
-                    value={form.city}
-                    onChange={handleFormChange}
-                    required
-                  />
+                    name="cityId"
+                    value={ Number (form.cityId)}
+                    onChange={ (e) =>  handleFormChange(e.target.name, e.target.value)}
+                    disabled={!form.stateId}
+                  >
+                    <option value="">Select</option>
+                    {cities
+                      .filter((city) => String(city.state) === String(selectedState))
+                      .map((city) => (
+                        <option key={city.id} value={city.id}>
+                          {city.city}
+                        </option>
+                      ))}
+                  </select>
+                  
                 </div>
                 <div style={fieldWrapper}>
                   <label style={labelStyle}>Pin Code</label>
                   <input
                     style={inputStyle}
                     placeholder="Pin Code"
-                    name="pin"
-                    value={form.pin}
-                    onChange={handleFormChange}
+                    name="pincode"
+                    value={form.pincode}
+                    onChange={ (e) =>  handleFormChange(e.target.name, e.target.value)}
+
                     required
                   />
                 </div>
@@ -376,31 +408,36 @@ const School = () => {
                     placeholder="School Code"
                     name="code"
                     value={form.code}
-                    onChange={handleFormChange}
+                    onChange={ (e) =>  handleFormChange(e.target.name, e.target.value)}
                     required
                   />
                 </div>
                 <div style={fieldWrapper}>
                   <label style={labelStyle}>Institute Name</label>
-                  <input
+                   <input
                     style={inputStyle}
                     placeholder="Institute Name"
-                    name="institute"
-                    value={form.institute}
-                    onChange={handleFormChange}
+                    name="instituteName"
+                    value={form.instituteName}
+                    onChange={ (e) =>  handleFormChange(e.target.name, e.target.value)}
                     required
                   />
+
+
+                  
                 </div>
                 <div style={fieldWrapper}>
                   <label style={labelStyle}>Branch Name</label>
                   <input
                     style={inputStyle}
                     placeholder="Branch Name"
-                    name="branch"
-                    value={form.branch}
-                    onChange={handleFormChange}
+                    name="branchName"
+                    value={form.branchName}
+                    onChange={ (e) =>  handleFormChange(e.target.name, e.target.value)}
+
                     required
                   />
+
                 </div>
                 <div style={fieldWrapper}>
                   <label style={labelStyle}>Address Line 2</label>
@@ -409,30 +446,48 @@ const School = () => {
                     placeholder="Address Line 2"
                     name="address2"
                     value={form.address2}
-                    onChange={handleFormChange}
+                    onChange={ (e) =>  handleFormChange(e.target.name, e.target.value)}
+
                   />
                 </div>
                 <div style={fieldWrapper}>
                   <label style={labelStyle}>State</label>
-                  <input
-                    style={inputStyle}
-                    placeholder="State"
-                    name="state"
-                    value={form.state}
-                    onChange={handleFormChange}
-                    required
-                  />
+                   <select
+                   style={inputStyle}
+                    value={Number (form.stateId)}
+                    name="stateId"
+                    onChange={(e) =>  {
+                    handleFormChange("stateId", e.target.value);
+                  const selected = states.find((state) => String(state.id) === String(e.target.value));
+                  setSelectedState(selected ? selected.state : null);
+                  console.log("Selected state:", selected ? selected.state : "");
+                    }}
+                    
+                  >
+                    <option value="">Select</option>
+                    {states.map((state) => (
+                      <option key={state.id} value={state.id}>
+                        {state.state}
+                      </option>
+                    ))}
+                  </select>
+                  
                 </div>
                 <div style={fieldWrapper}>
                   <label style={labelStyle}>School Type</label>
-                  <input
-                    style={inputStyle}
-                    placeholder="School Type"
-                    name="type"
-                    value={form.type}
-                    onChange={handleFormChange}
-                    required
-                  />
+                    <select
+                      style={inputStyle}
+                      name="schoolType"
+                      value={form.schoolType}
+                      onChange={(e) => handleFormChange(e.target.name, e.target.value)}
+                      required
+                    >
+                      <option value="">Select School Type</option>
+                      <option value="Primary">Primary</option>
+                      <option value="Secondary">Secondary</option>
+                      <option value="HigherSecondary">Higher Secondary</option>
+                    </select>
+
                 </div>
               </div>
             </div>
@@ -475,7 +530,8 @@ const School = () => {
                     placeholder="Phone Number"
                     name="phone"
                     value={form.phone}
-                    onChange={handleFormChange}
+                    onChange={ (e) =>  handleFormChange(e.target.name, e.target.value)}
+
                     required
                   />
                 </div>
@@ -486,7 +542,8 @@ const School = () => {
                     placeholder="Email ID"
                     name="email"
                     value={form.email}
-                    onChange={handleFormChange}
+                    onChange={ (e) =>  handleFormChange(e.target.name, e.target.value)}
+
                     required
                   />
                 </div>
@@ -499,7 +556,8 @@ const School = () => {
                     placeholder="Telephone Number"
                     name="telephone"
                     value={form.telephone}
-                    onChange={handleFormChange}
+                    onChange={ (e) =>  handleFormChange(e.target.name, e.target.value)}
+
                   />
                 </div>
                 <div style={fieldWrapper}>
@@ -509,7 +567,8 @@ const School = () => {
                     placeholder="Website Link"
                     name="website"
                     value={form.website}
-                    onChange={handleFormChange}
+                    onChange={ (e) =>  handleFormChange(e.target.name, e.target.value)}
+
                   />
                 </div>
               </div>
@@ -698,13 +757,13 @@ const School = () => {
               <div style={{ marginBottom: 12, color: "#888", fontSize: 15 }}>
                 Institute Name{" "}
                 <span style={{ color: "#222", fontWeight: 500 }}>
-                  : {s.institute}
+                  : {s.instituteName}
                 </span>
               </div>
               <div style={{ marginBottom: 12, color: "#888", fontSize: 15 }}>
                 Branch Name{" "}
                 <span style={{ color: "#222", fontWeight: 500 }}>
-                  : {s.branch}
+                  : {s.branchName}
                 </span>
               </div>
               <div style={{ marginBottom: 12, color: "#888", fontSize: 15 }}>
@@ -722,13 +781,13 @@ const School = () => {
               <div style={{ marginBottom: 12, color: "#888", fontSize: 15 }}>
                 City{" "}
                 <span style={{ color: "#222", fontWeight: 500 }}>
-                  : {s.city}
+                  : {s.city.city}
                 </span>
               </div>
               <div style={{ marginBottom: 12, color: "#888", fontSize: 15 }}>
                 Pin Code{" "}
                 <span style={{ color: "#222", fontWeight: 500 }}>
-                  : {s.pin}
+                  : {s.pincode}
                 </span>
               </div>
             </div>
@@ -766,7 +825,7 @@ const School = () => {
               <div style={{ marginBottom: 12, color: "#888", fontSize: 15 }}>
                 State{" "}
                 <span style={{ color: "#222", fontWeight: 500 }}>
-                  : {s.state}
+                  : {s.state.state}
                 </span>
               </div>
               <div style={{ marginBottom: 12, color: "#888", fontSize: 15 }}>
@@ -880,15 +939,15 @@ const School = () => {
                     <div className="branch-code">{school.code}</div>
                   </td>
                   <td>
-                    <div className="institute-name">{school.institute}</div>
+                    <div className="institute-name">{school.instituteName}</div>
                     <div className="institute-code">{school.instituteCode}</div>
                   </td>
                   <td>
-                    <div className="branch-name">{school.branch}</div>
+                    <div className="branch-name">{school.branchName}</div>
                     <div className="branch-code">{school.branchCode}</div>
                   </td>
                   <td>
-                    <div className="branch-name">{school.type}</div>
+                    <div className="branch-name">{school.schoolType}</div>
                   </td>
                   <td>
                     <label className="switch">

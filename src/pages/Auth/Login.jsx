@@ -166,12 +166,12 @@ const Login = () => {
           </button>
         </form>
 
-        {/* <div className="auth-footer">
+         <div className="auth-footer">
           <span>New on our platform?</span>
           <Link to="/register" className="auth-link">
             Create an account
           </Link>
-        </div> */}
+        </div> 
       </div>
     </div>
   );

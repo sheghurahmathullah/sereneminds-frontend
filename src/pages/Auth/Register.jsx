@@ -68,7 +68,7 @@ const Register = () => {
     setLoading(true);
     try {
       const response = await fetch(
-        "https://sereneminds-backend.onrender.com/api/auth/register",
+        "http://localhost:5000/api/auth/register",
         {
           method: "POST",
           headers: {

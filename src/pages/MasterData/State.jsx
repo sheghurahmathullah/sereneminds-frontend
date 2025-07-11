@@ -9,55 +9,103 @@ import {
 } from "react-icons/fi";
 import "./State.css";
 
-const API_URL = "https://sereneminds-backend.onrender.com/api/states";
-const COUNTRY_API_URL =
-  "https://sereneminds-backend.onrender.com/api/countries";
+import{Country, State} from 'country-state-city';
 
-const State = () => {
+const API_URL = "http://localhost:5000/api/states";
+
+const States = () => {
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState({ name: "", countryId: "" });
+
   const [states, setStates] = useState([]);
+  const [countryStates, setCountryStates] = useState([]);
   const [countries, setCountries] = useState([]);
+
+  
+  const [selectedCountry, setSelectedCountry] = useState("");
+  const [selectedState, setSelectedState] = useState("");
+
   const [searchTerm, setSearchTerm] = useState("");
   const [editingId, setEditingId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const fetchStates = async () => {
-    setLoading(true);
-    try {
-      const res = await axios.get(API_URL);
-      setStates(res.data);
-      setError("");
-    } catch (err) {
-      setError("Failed to fetch states");
-    }
-    setLoading(false);
-  };
-
+  const [allStates, setAllStates] = useState([]);
+  
   const fetchCountries = async () => {
     try {
-      const res = await axios.get(COUNTRY_API_URL);
-      setCountries(res.data);
+      const res = await Country.getAllCountries();
+      console.log(res);
+      setCountries(res);
+
     } catch (err) {
-      setCountries([]);
+      setError("Failed to fetch countries");
     }
   };
+
+  const fetchStates = async () => {
+  try {
+    setLoading(true);
+    const res = await axios.get(API_URL);
+    setAllStates(res.data);
+    setLoading(false);
+  } catch (error) {
+    setError("Failed to fetch states");
+    setLoading(false);
+  }
+};
 
   useEffect(() => {
     fetchStates();
     fetchCountries();
   }, []);
 
+  const handleCreate = async () => {
+    console.log(selectedCountry, selectedState);
+     const selectedCountryObj = countries.find(
+    (c) => c.isoCode === selectedCountry
+  );
+  console.log(selectedCountryObj.name);
+
+  if (!form.name || !form.name) {
+    setError("Please select both country and state.");
+    return;
+  }
+  try {
+    await axios.post(API_URL, {
+      country: selectedCountryObj.name,
+      state: selectedState,
+    });
+    fetchStates(); // Refresh the state list
+      setShowModal(false);
+    setError("");
+    // Optionally, refresh state list or close modal here
+  } catch (err) {
+    setError("Failed to send country and state.");
+  }
+};
+
   const handleCreateOrUpdate = async () => {
-    if (!form.name || !form.countryId) return;
+    // if (!form.name || !form.country) return;
+     const selectedCountryObj = countries.find(
+    (c) => c.isoCode === selectedCountry
+      );
+    
     try {
       if (editingId !== null) {
-        await axios.put(`${API_URL}/${editingId}`, form);
+        await axios.put(`${API_URL}/${editingId}`, {
+      country: selectedCountryObj.name,
+      state: selectedState,
+      });
+
       } else {
-        await axios.post(API_URL, form);
-      }
-      fetchStates();
+        await axios.post(API_URL, {
+      country: selectedCountryObj.name,
+      state: selectedState,
+      });
+    }
+
+      fetchStates(); // Refresh the state list
       setShowModal(false);
       setForm({ name: "", countryId: "" });
       setEditingId(null);
@@ -71,7 +119,7 @@ const State = () => {
     if (!window.confirm("Are you sure you want to delete this state?")) return;
     try {
       await axios.delete(`${API_URL}/${id}`);
-      fetchStates();
+      fetchStates(); // Refresh the state list
       setError("");
     } catch (err) {
       setError("Failed to delete state");
@@ -81,7 +129,7 @@ const State = () => {
   const toggleStatus = async (id) => {
     try {
       await axios.patch(`${API_URL}/${id}/toggle-status`);
-      fetchStates();
+      fetchStates(); // Refresh the state list
       setError("");
     } catch (err) {
       setError("Failed to toggle status");
@@ -90,18 +138,17 @@ const State = () => {
 
   const startEditing = (state) => {
     setForm({
-      name: state.name,
-      countryId: state.countryId,
+      state: state.name,
+      country: state.countryId,
     });
     setEditingId(state.id);
     setShowModal(true);
   };
 
-  const filteredStates = states.filter(
+  const filteredStates = allStates.filter(
     (state) =>
-      state.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (state.Country &&
-        state.Country.countryName
+      (state.country &&
+        state.state
           .toLowerCase()
           .includes(searchTerm.toLowerCase()))
   );
@@ -114,29 +161,56 @@ const State = () => {
       <h3 className="modal-title">
         {editingId !== null ? "Edit State" : "Add New State"}
       </h3>
+
       {/* Country dropdown first */}
-      <select
-        className="modal-input"
-        value={form.countryId}
-        onChange={(e) => setForm({ ...form, countryId: e.target.value })}
-        required
-      >
-        <option value="">Select Country</option>
-        {countries.map((country) => (
-          <option key={country.id} value={country.id}>
-            {country.countryName}
-          </option>
-        ))}
-      </select>
-      {/* State name input second */}
-      <input
-        type="text"
-        className="modal-input"
-        placeholder="State Name"
-        value={form.name}
-        onChange={(e) => setForm({ ...form, name: e.target.value })}
-        required
-      />
+        
+            <select
+                  className="modal-input"
+                  name="country"
+                  value={form.countryId}
+                  onChange={(e) => {
+                    const countryId = e.target.value;
+                    setSelectedCountry(countryId);
+                    setForm({ ...form, countryId, name: "" }); // Reset state name
+                    setSelectedState(""); // Reset selectedState as well
+                    if (countryId) {
+                      const states = State.getStatesOfCountry(countryId);
+                      setCountryStates(states);
+                    } else {
+                      setCountryStates([]);
+                    }
+                  }}
+                  required
+                >
+                  <option value="">Select Country</option>
+                  {countries.map((country) => (
+                    <option key={country.isoCode} value={country.isoCode}>
+                      {country.name && country.name.trim() !== "" ? country.name : "(Unnamed Country)"}
+                    </option>
+                  ))}
+                </select>
+                {/* States rendered based on selected country */}
+                <select
+                  className="modal-input"
+                  value={form.name}
+                  onChange={(e) => {
+                    setForm({ ...form, name: e.target.value });
+                    setSelectedState(e.target.value);
+                  }}
+                  required
+                  disabled={countryStates.length === 0}
+                >
+                  <option value="">Select State</option>
+                  {countryStates.map((state) => (
+                    <option key={state.isoCode} value={state.name}>
+                      {state.name}
+                    </option>
+                  ))}
+                </select>
+     
+
+      
+
       <div className="modal-actions">
         <button
           className="modal-cancel"
@@ -203,7 +277,7 @@ const State = () => {
           <thead>
             <tr>
               <th>State Name</th>
-              <th>Country</th>
+              <th>Country Name</th>
               <th>Status</th>
               <th>Action</th>
             </tr>
@@ -212,8 +286,8 @@ const State = () => {
             {filteredStates.length > 0 ? (
               filteredStates.map((state) => (
                 <tr key={state.id}>
-                  <td className="state-name">{state.name}</td>
-                  <td className="country-name">{state.Country?.countryName}</td>
+                  <td className="state-name">{state.state}</td>
+                  <td className="country-name">{state.country}</td>
                   <td>
                     <label className="switch">
                       <input
@@ -268,4 +342,4 @@ const State = () => {
   );
 };
 
-export default State;
+export default States;

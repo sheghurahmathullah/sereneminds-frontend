@@ -9,20 +9,23 @@ import {
   FiTrash2,
 } from "react-icons/fi";
 
-const API_URL = "https://sereneminds-backend.onrender.com/api/cities";
-const STATE_API_URL = "https://sereneminds-backend.onrender.com/api/states";
-const COUNTRY_API_URL =
-  "https://sereneminds-backend.onrender.com/api/countries";
+import{Country, State, City} from 'country-state-city';
 
-const City = () => {
-  const [cities, setCities] = useState([]);
-  const [states, setStates] = useState([]);
+
+const API_URL = "http://localhost:5000/api/cities";
+const STATE_API_URL = "https://localhost:5000/api/states";
+const COUNTRY_API_URL =
+  "https://localhost:5000/api/countries";
+
+const Cities = () => {
+
   const [countries, setCountries] = useState([]);
+const [cities, setCities] = useState([]); 
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState({
-    cityName: "",
-    stateId: "",
-    countryId: "",
+    city: "",
+    state: "",
+    country: "",
   });
   const [searchTerm, setSearchTerm] = useState("");
   const [editingId, setEditingId] = useState(null);
@@ -30,12 +33,27 @@ const City = () => {
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [stateCities, setStateCities] = useState([]);
+
+   
+const [selectedCountry, setSelectedCountry] = useState("");
+const [selectedState, setSelectedState] = useState("");
+const [countryStates, setCountryStates] = useState([]);
+    
+const selectedCountryObj = countries.find(c => c.isoCode === form.countryId);
+const selectedStateObj = countryStates.find(s => s.isoCode === form.stateId);
+const selectedCityObj = stateCities.find(c => c.name === form.cityName);
+
+const countryName = selectedCountryObj ? selectedCountryObj.name : "";
+const stateName = selectedStateObj ? selectedStateObj.name : "";
+const cityName = selectedCityObj ? selectedCityObj.name : "";
+
+  
 
   const fetchCities = async () => {
     setLoading(true);
     try {
       const res = await axios.get(API_URL);
-      console.log(res.data);
       setCities(res.data);
       setError("");
     } catch (err) {
@@ -44,30 +62,26 @@ const City = () => {
     setLoading(false);
   };
 
-  const fetchStates = async () => {
-    try {
-      const res = await axios.get(STATE_API_URL);
-      setStates(res.data);
-    } catch (err) {
-      setStates([]);
-    }
-  };
+ 
 
   const fetchCountries = async () => {
-    try {
-      const res = await axios.get(COUNTRY_API_URL);
-      setCountries(res.data);
+     try {
+      const res = await Country.getAllCountries();
+      console.log(res);
+      setCountries(res);
+
     } catch (err) {
-      setCountries([]);
+      setError("Failed to fetch countries");
     }
   };
 
   useEffect(() => {
     fetchCities();
-    fetchStates();
     fetchCountries();
   }, []);
 
+
+  // Handle create 
   const handleCreateOrUpdate = async () => {
     if (!form.cityName || !form.stateId || !form.countryId) {
       setError("All fields are required");
@@ -82,13 +96,23 @@ const City = () => {
     console.log("Submitting payload:", payload);
     try {
       if (editingId !== null) {
-        await axios.put(`${API_URL}/${editingId}`, payload);
+        await axios.put(`${API_URL}/${editingId}`, {
+          country: countryName,
+          state: stateName,
+          city: cityName,
+        });
+        
       } else {
-        await axios.post(API_URL, payload);
+        console.log(countryName, stateName, cityName);
+        await axios.post(API_URL, {
+          country: countryName,
+          state: stateName,
+          city: cityName,
+        });
       }
       fetchCities();
       setShowModal(false);
-      setForm({ cityName: "", stateId: "", countryId: "" });
+      setForm({ city: "", state: "", country: "" });
       setEditingId(null);
       setError("");
     } catch (err) {
@@ -132,11 +156,11 @@ const City = () => {
 
   const filteredCities = cities.filter(
     (city) =>
-      city.cityName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      city.city.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (city.State &&
-        city.State.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (city.Country &&
-        city.Country.countryName
+        city.state.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (city.country &&
+        city.country
           .toLowerCase()
           .includes(searchTerm.toLowerCase()))
   );
@@ -157,49 +181,100 @@ const City = () => {
               {editingId !== null ? "Edit City" : "Add New City"}
             </h3>
             {/* Country dropdown first */}
-            <select
-              className="modal-input"
-              value={form.countryId}
-              onChange={(e) =>
-                setForm({ ...form, countryId: e.target.value, stateId: "" })
-              }
-              required
-            >
-              <option value="">Select Country</option>
-              {countries.map((country) => (
-                <option key={country.id} value={country.id}>
-                  {country.countryName}
-                </option>
-              ))}
-            </select>
-            {/* State dropdown second, filtered by selected country */}
-            <select
-              className="modal-input"
-              value={form.stateId}
-              onChange={(e) => setForm({ ...form, stateId: e.target.value })}
-              required
-              disabled={!form.countryId}
-            >
-              <option value="">Select State</option>
-              {states
-                .filter(
-                  (state) => String(state.countryId) === String(form.countryId)
-                )
-                .map((state) => (
-                  <option key={state.id} value={state.id}>
-                    {state.name}
-                  </option>
-                ))}
-            </select>
-            {/* City name input third */}
-            <input
-              type="text"
-              className="modal-input"
-              placeholder="City Name"
-              value={form.cityName}
-              onChange={(e) => setForm({ ...form, cityName: e.target.value })}
-              required
-            />
+             
+
+
+
+
+
+                <select
+  className="modal-input"
+  name="country"
+  value={form.countryId}
+  onChange={(e) => {
+    const countryId = e.target.value;
+    setSelectedCountry(countryId);
+    setForm({ ...form, countryId, stateId: "", cityName: "" }); // Reset state and city
+    setSelectedState("");
+    setStateCities([]);
+    if (countryId) {
+      const states = State.getStatesOfCountry(countryId);
+      setCountryStates(states);
+    } else {
+      setCountryStates([]);
+    }
+  }}
+  required
+>
+  <option value="">Select Country</option>
+  {countries.map((country) => (
+    <option key={country.isoCode} value={country.isoCode}>
+      {country.name && country.name.trim() !== "" ? country.name : "(Unnamed Country)"}
+    </option>
+  ))}
+</select>
+
+{/* State dropdown */}
+<select
+  className="modal-input"
+  name="state"
+  value={form.stateId}
+  onChange={(e) => {
+    const stateId = e.target.value;
+    setForm({ ...form, stateId, cityName: "" }); // Reset city
+    setSelectedState(stateId);
+    if (stateId) {
+      const selectedStateObj = countryStates.find(
+        (state) => state.isoCode === stateId
+      );
+      if (selectedStateObj) {
+        const cities = City.getCitiesOfState(selectedCountry, selectedStateObj.isoCode);
+        setStateCities(cities);
+      } else {
+        setStateCities([]);
+      }
+    } else {
+      setStateCities([]);
+    }
+  }}
+  required
+  disabled={countryStates.length === 0}
+>
+  <option value="">Select State</option>
+  {countryStates.map((state) => (
+    <option key={state.isoCode} value={state.isoCode}>
+      {state.name}
+    </option>
+  ))}
+</select>
+
+{/* City dropdown */}
+<select
+  className="modal-input"
+  name="city"
+  value={form.cityName}
+  onChange={(e) => setForm({ ...form, cityName: e.target.value })}
+  required
+  disabled={stateCities.length === 0}
+>
+  <option value="">Select City</option>
+  {stateCities.map((city) => (
+    <option key={city.name} value={city.name}>
+      {city.name}
+    </option>
+  ))}
+</select>
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
             <div className="modal-actions">
               <button
                 className="modal-cancel"
@@ -284,9 +359,9 @@ const City = () => {
             {paginatedCities.length > 0 ? (
               paginatedCities.map((city) => (
                 <tr key={city.id}>
-                  <td className="city-name">{city.cityName}</td>
-                  <td className="state-name">{city.State?.name}</td>
-                  <td className="country-name">{city.Country?.countryName}</td>
+                  <td className="city-name">{city.city}</td>
+                  <td className="state-name">{city.state}</td>
+                  <td className="country-name">{city.country}</td>
                   <td>
                     <label className="switch">
                       <input
@@ -362,4 +437,4 @@ const City = () => {
   );
 };
 
-export default City;
+export default Cities;

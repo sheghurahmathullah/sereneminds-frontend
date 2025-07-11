@@ -8,9 +8,11 @@ import {
   FiEye,
 } from "react-icons/fi";
 import "./Division.css";
+import axios from "axios";
 
 const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
-const defaultForm = { name: "", class: "", school: "", code: "", status: true };
+const defaultForm = { name: "", class: "", school: "", code: "", classCode: "", schoolCode :"",
+  status: true };
 
 const Division = () => {
   const [divisions, setDivisions] = useState([]);
@@ -32,11 +34,11 @@ const Division = () => {
   const fetchDivisions = async () => {
     try {
       setLoading(true);
-      const response = await fetch(
-        "https://sereneminds-backend.onrender.com/api/divisions"
+      const response = await axios.get(
+        "http://localhost:5000/api/divisions"
       );
-      if (!response.ok) throw new Error("Failed to fetch divisions");
-      const data = await response.json();
+      if (!response.status) throw new Error("Failed to fetch divisions");
+      const data = await response.data;
       setDivisions(data);
     } catch (err) {
       setError(err.message);
@@ -55,18 +57,17 @@ const Division = () => {
   // Status toggle
   const toggleStatus = async (id) => {
     try {
-      const response = await fetch(
-        `https://sereneminds-backend.onrender.com/api/divisions/${id}/toggle-status`,
-        { method: "PATCH", headers: { "Content-Type": "application/json" } }
-      );
-      if (!response.ok) throw new Error("Failed to toggle status");
-      const updatedDivision = await response.json();
-      setDivisions((prev) =>
-        prev.map((div) => (div.id === id ? updatedDivision : div))
-      );
+      const response = await axios.patch(
+        `http://localhost:5000/api/divisions/${id}/toggle-status`);
+      
+        if (!response.status) throw new Error("Failed to toggle status");
+      const updatedDivision = await response.data;
     } catch (err) {
       setError(err.message);
     }
+
+    fetchDivisions();
+    setMode("list");
   };
 
   // Filtered and paginated data
@@ -101,39 +102,17 @@ const Division = () => {
     }
     try {
       setLoading(true);
-      if (isEdit && editId) {
-        // Edit
-        const response = await fetch(
-          `https://sereneminds-backend.onrender.com/api/divisions/${editId}`,
-          {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(form),
-          }
-        );
-        if (!response.ok) throw new Error("Failed to update division");
-        const updatedDivision = await response.json();
-        setDivisions((prev) =>
-          prev.map((div) => (div.id === editId ? updatedDivision : div))
-        );
-      } else {
+
         // Create
-        const response = await fetch(
-          "https://sereneminds-backend.onrender.com/api/divisions",
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              ...form,
-              code: Math.floor(Math.random() * 100000000).toString(),
-            }),
-          }
-        );
-        if (!response.ok) throw new Error("Failed to create division");
-        const newDivision = await response.json();
-        setDivisions((prev) => [newDivision, ...prev]);
-      }
+        const response = await axios.post(
+          "http://localhost:5000/api/divisions", form);
+        if (!response.status) throw new Error("Failed to create division");
+        
+        const data = await response.data;
+
+        
       setMode("list");
+      fetchDivisions();
       setForm(defaultForm);
       setIsEdit(false);
       setEditId(null);
@@ -144,6 +123,33 @@ const Division = () => {
     }
   };
 
+  const handleFormEditSubmit =  async (e)=> {
+    e.preventDefault();
+
+
+    try {
+       const response = await axios.put(
+          `http://localhost:5000/api/divisions/${editId}`, form);
+        if (!response.status) throw new Error("Failed to update division");
+
+        const updatedDivision = await response.data;
+        console.log(updatedDivision);
+
+      setMode("list");
+      fetchDivisions();
+      setForm(defaultForm);
+      setIsEdit(false);
+      setEditId(null);
+      
+    } catch (error) {
+      setError("failed to update division");
+      
+    }
+    setLoading(false);
+
+    
+  }
+
   // Edit handler
   const handleEdit = (div) => {
     setForm({
@@ -152,10 +158,12 @@ const Division = () => {
       school: div.school || "",
       code: div.code || "",
       status: div.status,
+      schoolCode: div.schoolCode || "",
+      classCode : div.classCode || ""
     });
     setIsEdit(true);
     setEditId(div.id);
-    setMode("form");
+    setMode("edit");
   };
 
   // Overview handler
@@ -168,17 +176,14 @@ const Division = () => {
   const handleDelete = async (id) => {
     try {
       setLoading(true);
-      const response = await fetch(
-        `https://sereneminds-backend.onrender.com/api/divisions/${id}`,
-        { method: "DELETE" }
-      );
-      if (!response.ok) throw new Error("Failed to delete division");
-      setDivisions((prev) => prev.filter((div) => div.id !== id));
+      const response = await axios.delete(`http://localhost:5000/api/divisions/${id}`);
+      if (!response.status) throw new Error("Failed to delete division");
       setDeleteConfirmId(null);
-      if (selectedDivision && selectedDivision.id === id) {
+
         setMode("list");
         setSelectedDivision(null);
-      }
+        fetchDivisions();
+
     } catch (err) {
       setError(err.message);
     } finally {
@@ -271,6 +276,121 @@ const Division = () => {
       </div>
     );
   }
+
+
+  if (mode === "edit") {
+    return (
+      <div className="branch-form-container">
+        <div className="breadcrumb">
+          <span>Division</span>
+          <span style={{ color: "#888" }}>&gt;</span>
+          <span>{isEdit ? "Edit" : "Create"}</span>
+        </div>
+        <div className="branch-form-card">
+          <form onSubmit={handleFormEditSubmit} className="edit-grid">
+            <div className="field">
+              <label>Division Name</label>
+              <input
+                type="text"
+                className="branch-input"
+                placeholder="Division Name"
+                value={form.name}
+                onChange={(e) => handleChange("name", e.target.value)}
+                required
+              />
+            </div>
+            <div className="field">
+              <label>Division Code</label>
+              <input
+                type="text"
+                className="branch-input"
+                placeholder="Class Name"
+                value={form.code}
+                onChange={(e) => handleChange("code", e.target.value)}
+                required
+              />
+            </div>
+            <div className="field">
+              <label>Class Name</label>
+              <input
+                type="text"
+                className="branch-input"
+                placeholder="School Name"
+                value={form.class}
+                onChange={(e) => handleChange("class", e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="field">
+              <label>Class Code </label>
+              <input
+                type="text"
+                className="branch-input"
+                placeholder="Division Name"
+                value={form.classCode}
+                onChange={(e) => handleChange("classCode", e.target.value)}
+                required
+              />
+            </div>
+            <div className="field">
+              <label>School Name</label>
+              <input
+                type="text"
+                className="branch-input"
+                placeholder="Class Name"
+                value={form.school}
+                onChange={(e) => handleChange("school", e.target.value)}
+                required
+              />
+            </div>
+            <div className="field">
+              <label>School Code</label>
+              <input
+                type="text"
+                className="branch-input"
+                placeholder="School Name"
+                value={form.schoolCode}
+                onChange={(e) => handleChange("schoolCode", e.target.value)}
+                required
+              />
+            </div>
+
+
+
+            
+            
+            {error && (
+              <div
+                style={{ color: "red", textAlign: "center", marginBottom: 16 }}
+              >
+                {error}
+              </div>
+            )}
+            <div className="branch-form-actions">
+              <button type="submit" className="submit-btn" disabled={loading}>
+                {isEdit
+                  ? loading
+                    ? "Updating..."
+                    : "Update"
+                  : loading
+                  ? "Creating..."
+                  : "Submit"}
+              </button>
+              <button
+                type="button"
+                className="cancel-btn"
+                onClick={handleCancel}
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
 
   // --- OVERVIEW VIEW ---
   if (mode === "overview" && selectedDivision) {

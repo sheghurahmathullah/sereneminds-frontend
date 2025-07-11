@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./Institute.css";
 import {
   FiEdit,
@@ -8,61 +8,35 @@ import {
   FiTrash2,
   FiEye,
 } from "react-icons/fi";
+import axios from "axios";
+import Cities from "./City";
 
 const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
 
+
 const defaultForm = {
   name: "",
-  addressLine1: "",
-  addressLine2: "",
-  city: "",
-  state: "",
-  pinCode: "",
-  phoneNumber: "",
-  telephoneNumber: "",
-  email: "",
-  website: "",
-  image: null,
-  status: true,
+      code: null,
+      addressLine1: "",
+      addressLine2: "",
+      stateId: null,
+      cityId: null,
+      pinCode: "",
+      phoneNumber: "",
+      telephoneNumber: "",
+      email: "",
+      website: "",
+      status: false
 };
 
-const initialInstitutes = [
-  {
-    id: "INST001",
-    name: "SerenMinds Institute",
-    addressLine1: "123 Main St",
-    addressLine2: "Suite 101",
-    city: "Chennai",
-    state: "Tamil Nadu",
-    pinCode: "600001",
-    phoneNumber: "9876543210",
-    telephoneNumber: "044-1234567",
-    email: "info@serenminds.com",
-    website: "https://serenminds.com",
-    status: true,
-    image: null,
-    code: "SMI001",
-  },
-  {
-    id: "INST002",
-    name: "Mindful Academy",
-    addressLine1: "456 Park Ave",
-    addressLine2: "",
-    city: "Madurai",
-    state: "Tamil Nadu",
-    pinCode: "625001",
-    phoneNumber: "9123456780",
-    telephoneNumber: "0452-7654321",
-    email: "contact@mindfulacademy.com",
-    website: "https://mindfulacademy.com",
-    status: false,
-    image: null,
-    code: "MA002",
-  },
-];
-
 const Institute = () => {
-  const [institutes, setInstitutes] = useState(initialInstitutes);
+
+  const[states, setStates] = useState([]);
+  const [cities, setCities] = useState([]);
+
+  const [selectedState, setSelectedState] = useState("");
+
+  const [institutes, setInstitutes] = useState([]);
   const [loading] = useState(false);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -71,56 +45,143 @@ const Institute = () => {
 
   // View state: 'list', 'form', 'overview'
   const [viewMode, setViewMode] = useState("list");
-  const [form, setForm] = useState(defaultForm);
+  
   const [isEdit, setIsEdit] = useState(false);
   const [editId, setEditId] = useState(null);
   const [selectedInstitute, setSelectedInstitute] = useState(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
 
+  const [form, setForm] = useState({
+      name: "",
+      code: null,
+      addressLine1: "",
+      addressLine2: "",
+      stateId: null,
+      cityId: null,
+      pinCode: "",
+      phoneNumber: "",
+      telephoneNumber: "",
+      email: "",
+      website: "",
+      status: true
+  });
+  
+
+  const fetchStates = async () => {
+    try { 
+    const response = await axios.get("http://localhost:5000/api/states");
+    const data = await response.data;
+    console.log("Fetched states:", data);
+    setStates(data);
+    }
+    catch (error) {
+      console.error("Error fetching states:", error);
+      // setError("Failed to fetch states");
+    }
+  }
+
+  const fetchCities = async () => {
+    try {
+      const response = await axios.get("http://localhost:5000/api/cities");
+      const data = await response.data;
+      setCities(data);
+      console.log("Fetched cities:", data);
+    } catch (error) { 
+      console.error("Error fetching cities:", error);
+      // setError("Failed to fetch cities");
+    }
+  }
+
+
+  const fetchInstitutes = async () => {
+    try { 
+      const response = await axios.get("http://localhost:5000/api/institutes");
+      const data = await response.data; 
+      setInstitutes(data);
+      console.log("Fetched institutes:", data);
+    }
+    catch (error) {
+      console.error("Error fetching institutes:", error);
+    }}
+
+
+  useEffect(() => {
+  const fetchData = async () => {
+    await fetchStates();
+    await fetchCities();
+    await fetchInstitutes();
+  };
+  fetchData();
+}, []);
+
+
   // Toggle status
   const toggleStatus = (id) => {
-    setInstitutes((prev) =>
-      prev.map((inst) =>
-        inst.id === id ? { ...inst, status: !inst.status } : inst
-      )
-    );
+    // Optionally update the backend
+    axios.patch(`http://localhost:5000/api/institutes/${id}/toggle-status`, {
+      status: !institutes.find((inst) => inst.id === id).status,
+    });
+
+    fetchInstitutes(); // Refresh the list after toggling
   };
 
-  // Form handlers
+  
   const handleChange = (field, value) => {
-    setForm((prev) => ({ ...prev, [field]: value }));
-  };
+  setForm((prev) => ({ ...prev, [field]: value }));
+  // Reset city if state changes
+  if (field === "stateId") {
+    setForm((prev) => ({ ...prev, cityId: null }));
+  }
+};
+
+
 
   const handleFileChange = (e) => {
     setForm((prev) => ({ ...prev, image: e.target.files[0] }));
   };
 
-  const handleFormSubmit = (e) => {
+
+  const handleFormSubmit = async (e) => {
     e.preventDefault();
     setError(null);
+
     if (!form.name) {
       setError("Institute name is required");
       return;
     }
+
+    // let code = null;
+    // if (!isEdit) {
+    //   code = `INST${String(institutes.length + 1).padStart(3, "0")}`;
+    // }
+    
     if (isEdit && editId) {
-      setInstitutes((prev) =>
-        prev.map((inst) =>
-          inst.id === editId ? { ...inst, ...form, id: editId } : inst
-        )
-      );
+      
+      // Update existing institute
+      console.log("Updating institute with ID:", editId);
+      console.log("Form data:", form);
+      const response = await axios.put(`http://localhost:5000/api/institutes/${editId}`, form);
+
     } else {
-      // Generate a new ID
-      const newId = `INST${String(institutes.length + 1).padStart(3, "0")}`;
-      setInstitutes((prev) => [
-        {
-          ...form,
-          id: newId,
-          code: `CODE${institutes.length + 1}`,
-        },
-        ...prev,
-      ]);
+
+      // Create new institute
+      try {
+        const response = await axios.post("http://localhost:5000/api/institutes", form,  {
+          headers: {
+              "Content-Type": "application/json",
+            }}
+         );
+        const data = response.data;
+
+    } catch (err) {
+      setError("Failed to save institute");
+      console.log("error");
+      return;
+    } 
+      
     }
     setViewMode("list");
+    fetchInstitutes();
     setForm(defaultForm);
     setIsEdit(false);
     setEditId(null);
@@ -156,12 +217,15 @@ const Institute = () => {
 
   // Delete
   const handleDelete = (id) => {
-    setInstitutes((prev) => prev.filter((inst) => inst.id !== id));
-    setDeleteConfirmId(null);
-    if (selectedInstitute && selectedInstitute.id === id) {
-      setViewMode("list");
-      setSelectedInstitute(null);
-    }
+    // setInstitutes((prev) => prev.filter((inst) => inst.id !== id));
+    axios.delete(`http://localhost:5000/api/institutes/${id}`)
+    fetchInstitutes();
+
+    // if (selectedInstitute && selectedInstitute.id === id) {
+    //   setViewMode("list");
+    //   setSelectedInstitute(null);
+    // }
+
   };
 
   // Overview
@@ -186,6 +250,9 @@ const Institute = () => {
   if (error) {
     return <div className="error">Error: {error}</div>;
   }
+
+
+
 
   // --- FORM VIEW ---
   if (viewMode === "form") {
@@ -298,31 +365,44 @@ const Institute = () => {
                     }
                   />
                 </div>
+                
                 <div className="field">
                   <label>State</label>
                   <select
                     className="institute-input"
-                    value={form.state}
-                    onChange={(e) => handleChange("state", e.target.value)}
+                    value={form.stateId}
+                    onChange={(e) =>  {
+                      handleChange("stateId", e.target.value);
+                  const selected = states.find((state) => String(state.id) === String(e.target.value));
+                  setSelectedState(selected ? selected.state : null);
+                  console.log("Selected state:", selected ? selected.state : "");
+                    }}
+                    
                   >
                     <option value="">Select</option>
-                    <option value="Tamil Nadu">Tamil Nadu</option>
-                    <option value="Kerala">Kerala</option>
-                    <option value="Karnataka">Karnataka</option>
+                    {states.map((state) => (
+                      <option key={state.id} value={state.id}>
+                        {state.state}
+                      </option>
+                    ))}
                   </select>
                 </div>
                 <div className="field">
                   <label>City</label>
                   <select
                     className="institute-input"
-                    value={form.city}
-                    onChange={(e) => handleChange("city", e.target.value)}
+                    value={form.cityId}
+                    onChange={(e) => handleChange("cityId", e.target.value)}
+                    disabled={!form.stateId}
                   >
-                    <option value="">City</option>
-                    <option value="Chennai">Chennai</option>
-                    <option value="Madurai">Madurai</option>
-                    <option value="Coimbatore">Coimbatore</option>
-                    <option value="Vellore">Vellore</option>
+                    <option value="">Select</option>
+                    {cities
+                      .filter((city) => String(city.state) === String(selectedState))
+                      .map((city) => (
+                        <option key={city.id} value={city.id}>
+                          {city.city}
+                        </option>
+                      ))}
                   </select>
                 </div>
               </div>
@@ -393,6 +473,8 @@ const Institute = () => {
       </div>
     );
   }
+
+
 
   // --- OVERVIEW VIEW ---
   if (viewMode === "overview" && selectedInstitute) {
@@ -531,7 +613,7 @@ const Institute = () => {
               <div style={{ marginBottom: 12, color: "#888", fontSize: 15 }}>
                 City{" "}
                 <span style={{ color: "#222", fontWeight: 500 }}>
-                  : {inst.city}
+                  : {inst.city?.city}
                 </span>
               </div>
               <div style={{ marginBottom: 12, color: "#888", fontSize: 15 }}>
@@ -563,7 +645,7 @@ const Institute = () => {
               <div style={{ marginBottom: 12, color: "#888", fontSize: 15 }}>
                 State{" "}
                 <span style={{ color: "#222", fontWeight: 500 }}>
-                  : {inst.state}
+                  : {inst.state?.state}
                 </span>
               </div>
             </div>
@@ -662,8 +744,8 @@ const Institute = () => {
                   {[
                     inst.addressLine1,
                     inst.addressLine2,
-                    inst.city,
-                    inst.state,
+                    inst.city?.city,
+                    inst.state?.state,
                     inst.pinCode,
                   ]
                     .filter(Boolean)

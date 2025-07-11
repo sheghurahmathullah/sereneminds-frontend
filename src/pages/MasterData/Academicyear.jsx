@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./Academicyear.css";
 import { FiEdit, FiTrash2, FiEye } from "react-icons/fi";
+import axios from "axios";
 
 const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
 
@@ -21,14 +22,14 @@ const Academicyear = () => {
   const fetchAcademicYears = async () => {
     try {
       setLoading(true);
-      const response = await fetch(
-        "https://sereneminds-backend.onrender.com/api/academicyears"
+      const response = await axios.get(
+        "http://localhost:5000/api/academicyears"
       );
-      if (!response.ok) {
+      setYears(response.data);
+     
+      if (!response.status) {
         throw new Error("Failed to fetch academic years");
       }
-      const data = await response.json();
-      setYears(data);
     } catch (err) {
       setError(err.message);
       console.error("Error fetching academic years:", err);
@@ -45,7 +46,7 @@ const Academicyear = () => {
   const toggleStatus = async (id) => {
     try {
       const response = await fetch(
-        `https://sereneminds-backend.onrender.com/api/academicyears/${id}/toggle-status`,
+        `http://localhost:5000/api/academicyears/${id}/toggle-status`,
         {
           method: "PATCH",
           headers: {
@@ -81,47 +82,36 @@ const Academicyear = () => {
     e.preventDefault();
     if (modalValue.trim() === "") return;
 
+    const payload ={
+      year : modalValue
+    }
+
     try {
       setLoading(true);
       if (editingId) {
         // Update existing academic year
-        const response = await fetch(
-          `https://sereneminds-backend.onrender.com/api/academicyears/${editingId}`,
-          {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ year: modalValue }),
-          }
-        );
-        if (!response.ok) {
+        const response = await axios.put(
+          `http://localhost:5000/api/academicyears/${editingId}`, payload);
+        
+          if (!response.status) {
           throw new Error("Failed to update academic year");
         }
-        const updatedYear = await response.json();
-        setYears((prev) =>
-          prev.map((y) => (y.id === editingId ? updatedYear : y))
-        );
+
+        fetchAcademicYears();
       } else {
         // Create new academic year
-        const response = await fetch(
-          "https://sereneminds-backend.onrender.com/api/academicyears",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ year: modalValue }),
-          }
-        );
-        if (!response.ok) {
+        const response = await axios.post(
+          "http://localhost:5000/api/academicyears", payload);
+          console.log(response.data);
+        if (!response.status) {
           throw new Error("Failed to create academic year");
         }
-        const newYear = await response.json();
-        setYears([newYear, ...years]);
+
+
       }
       setShowModal(false);
       setModalValue("");
+      fetchAcademicYears();
       setEditingId(null);
     } catch (err) {
       setError(err.message);
@@ -140,18 +130,17 @@ const Academicyear = () => {
   const handleDelete = async (id) => {
     try {
       setLoading(true);
-      const response = await fetch(
-        `https://sereneminds-backend.onrender.com/api/academicyears/${id}`,
-        {
-          method: "DELETE",
-        }
+      const response = await axios.delete(
+        `http://localhost:5000/api/academicyears/${id}`,
+      
       );
-      if (!response.ok) {
+
+      if (!response.status) {
         throw new Error("Failed to delete academic year");
       }
-      setYears((prev) => prev.filter((y) => y.id !== id));
       setDeleteConfirmId(null);
-      if (overviewYear && overviewYear.id === id) setOverviewYear(null);
+      fetchAcademicYears();
+
     } catch (err) {
       setError(err.message);
       console.error("Error deleting academic year:", err);

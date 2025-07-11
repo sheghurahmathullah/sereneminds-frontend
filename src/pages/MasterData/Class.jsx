@@ -9,13 +9,16 @@ import {
   FiTrash2,
 } from "react-icons/fi";
 import "./Class.css";
+import axios from "axios";
 
 const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
 const tabs = [{ label: "Overview" }, { label: "History" }];
 
 const defaultForm = {
   name: "",
+  code: "",
   school: "",
+  schoolCode: ""
 };
 
 const ClassPage = () => {
@@ -35,14 +38,13 @@ const ClassPage = () => {
   const fetchClasses = async () => {
     try {
       setLoading(true);
-      const response = await fetch(
-        "https://sereneminds-backend.onrender.com/api/classes"
-      );
-      if (!response.ok) {
+      const response = await axios.get( "http://localhost:5000/api/classes");
+      if (!response.status) {
         throw new Error("Failed to fetch classes");
       }
-      const data = await response.json();
+      const data = await response.data;
       setClasses(data);
+      
     } catch (err) {
       setError(err.message);
       console.error("Error fetching classes:", err);
@@ -74,22 +76,14 @@ const ClassPage = () => {
 
   const toggleStatus = async (id) => {
     try {
-      const response = await fetch(
-        `https://sereneminds-backend.onrender.com/api/classes/${id}/toggle-status`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
+      const response = await axios.patch(
+        `http://localhost:5000/api/classes/${id}/toggle-status`,
+        
       );
-      if (!response.ok) {
+      if (!response.status) {
         throw new Error("Failed to toggle status");
       }
-      const updatedClass = await response.json();
-      setClasses((prev) =>
-        prev.map((cls) => (cls.id === id ? updatedClass : cls))
-      );
+      fetchClasses();
     } catch (err) {
       setError(err.message);
       console.error("Error toggling status:", err);
@@ -107,32 +101,28 @@ const ClassPage = () => {
       setLoading(true);
       setError("");
       // Generate a unique code for the class
-      const code = Math.random().toString(36).substr(2, 8).toUpperCase();
-      const schoolCode = Math.random().toString(36).substr(2, 8).toUpperCase();
+      // const code = Math.random().toString(36).substr(2, 8).toUpperCase();
+      // const schoolCode = Math.random().toString(36).substr(2, 8).toUpperCase();
       const classData = {
         name: form.name,
-        code,
+        code: "",
         school: form.school,
-        schoolCode,
-        status: true,
+        schoolCode: "",
+        status: false,
       };
-      const response = await fetch(
-        "https://sereneminds-backend.onrender.com/api/classes",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(classData),
-        }
-      );
-      if (!response.ok) {
+
+      const response = await axios.post("http://localhost:5000/api/classes", classData);        
+      
+        if (!response.status) {
         throw new Error("Failed to create class");
       }
-      const newClass = await response.json();
-      setClasses((prev) => [newClass, ...prev]);
+
+      const data = response.data;
+      console.log(data);
+
       setForm(defaultForm);
       setMode("list");
+      fetchClasses();
     } catch (err) {
       setError(err.message);
       console.error("Error creating class:", err);
@@ -147,26 +137,18 @@ const ClassPage = () => {
     try {
       setLoading(true);
       setError("");
-      const response = await fetch(
-        `https://sereneminds-backend.onrender.com/api/classes/${selectedId}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(form),
-        }
-      );
-      if (!response.ok) {
+      const response = await axios.put(
+        `http://localhost:5000/api/classes/${selectedId}`,form);
+      
+        if (!response.status) {
         throw new Error("Failed to update class");
       }
-      const updatedClass = await response.json();
-      setClasses((prev) =>
-        prev.map((cls) => (cls.id === selectedId ? updatedClass : cls))
-      );
+      console.log(response.data)
+
       setForm(defaultForm);
       setMode("list");
       setSelectedId(null);
+      fetchClasses();
     } catch (err) {
       setError(err.message);
       console.error("Error updating class:", err);
@@ -200,17 +182,18 @@ const ClassPage = () => {
     setLoading(true);
     setError("");
     try {
-      const response = await fetch(
-        `https://sereneminds-backend.onrender.com/api/classes/${id}`,
-        {
-          method: "DELETE",
-        }
+      const response = await axios.delete(
+        `http://localhost:5000/api/classes/${id}`,
+        
       );
-      if (!response.ok) {
+
+      if (!response.status) {
         throw new Error("Failed to delete class");
       }
-      setClasses((prev) => prev.filter((cls) => cls.id !== id));
+      
       setDeleteConfirmId(null);
+      fetchClasses();
+
     } catch (err) {
       setError(err.message);
     } finally {
@@ -409,7 +392,8 @@ const ClassPage = () => {
                     style={{ width: "100%" }}
                     placeholder="Class Code"
                     value={form.code || ""}
-                    readOnly
+                    onChange={(e) => handleChange("code", e.target.value)}
+                    // readOnly
                   />
                 </div>
                 <div style={{ marginBottom: 12 }}>
@@ -418,7 +402,9 @@ const ClassPage = () => {
                     style={{ width: "100%" }}
                     placeholder="School Code"
                     value={form.schoolCode || ""}
-                    readOnly
+                    onChange={(e) => handleChange("schoolCode", e.target.value)}
+
+                    // readOnly
                   />
                 </div>
               </div>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, cloneElement } from "react";
 import {
   FiEdit,
   FiFilter,
@@ -9,6 +9,7 @@ import {
   FiEye,
 } from "react-icons/fi";
 import "./Board.css";
+import axios from "axios";
 
 const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
 
@@ -37,13 +38,12 @@ const Board = () => {
   const fetchBoards = async () => {
     try {
       setLoading(true);
-      const response = await fetch(
-        "https://sereneminds-backend.onrender.com/api/boards"
-      );
-      if (!response.ok) {
+      const response = await axios.get("http://localhost:5000/api/boards");
+      console.log(response.data);
+      if (!response.status) {
         throw new Error("Failed to fetch boards");
       }
-      const data = await response.json();
+      const data = await response.data;
       setBoards(data);
     } catch (err) {
       setError(err.message);
@@ -76,24 +76,17 @@ const Board = () => {
     }
   }, [selectedId, boards, mode]);
 
+
   const toggleStatus = async (id) => {
     try {
-      const response = await fetch(
-        `https://sereneminds-backend.onrender.com/api/boards/${id}/toggle-status`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      if (!response.ok) {
+      const response = await axios.patch(
+        `http://localhost:5000/api/boards/${id}/toggle-status`);
+      if (!response.status) {
         throw new Error("Failed to toggle status");
       }
-      const updatedBoard = await response.json();
-      setBoards((prev) =>
-        prev.map((board) => (board.id === id ? updatedBoard : board))
-      );
+      const updatedBoard = await response.data;
+      
+      fetchBoards();
     } catch (err) {
       setError(err.message);
       console.error("Error toggling status:", err);
@@ -109,22 +102,16 @@ const Board = () => {
     e.preventDefault();
     try {
       setLoading(true);
-      const response = await fetch(
-        "https://sereneminds-backend.onrender.com/api/boards",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(form),
-        }
-      );
-      if (!response.ok) {
+      const response = await axios.post("http://localhost:5000/api/boards",form);
+      console.log(response.data);
+
+      if (!response.status) {
         throw new Error("Failed to create board");
       }
-      const newBoard = await response.json();
-      setBoards([newBoard, ...boards]);
+
+      // setBoards([newBoard, ...boards]);
       setForm(defaultForm);
+      fetchBoards();
       setMode("list");
     } catch (err) {
       setError(err.message);
@@ -139,26 +126,17 @@ const Board = () => {
     e.preventDefault();
     try {
       setLoading(true);
-      const response = await fetch(
-        `https://sereneminds-backend.onrender.com/api/boards/${selectedId}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(form),
-        }
-      );
-      if (!response.ok) {
+      const response = await axios.put(`http://localhost:5000/api/boards/${selectedId}`, form);
+      
+        if (!response.status) {
         throw new Error("Failed to update board");
       }
-      const updatedBoard = await response.json();
-      setBoards((prev) =>
-        prev.map((board) => (board.id === selectedId ? updatedBoard : board))
-      );
+      
+      console.log(response.data)
       setForm(defaultForm);
       setMode("list");
       setSelectedId(null);
+      fetchBoards();
     } catch (err) {
       setError(err.message);
       console.error("Error updating board:", err);
@@ -193,20 +171,18 @@ const Board = () => {
     setLoading(true);
     setError("");
     try {
-      const response = await fetch(
-        `https://sereneminds-backend.onrender.com/api/boards/${id}`,
-        {
-          method: "DELETE",
-        }
-      );
-      if (!response.ok) throw new Error("Failed to delete board");
-      setBoards((prev) => prev.filter((board) => board.id !== id));
+      const response = await axios.delete(
+        `http://localhost:5000/api/boards/${id}`);
+
+
+      if (!response.status) throw new Error("Failed to delete board");
       setDeleteConfirmId(null);
-      if (selectedBoard && selectedBoard.id === id) {
+      
         setMode("list");
         setSelectedId(null);
         setSelectedBoard(null);
-      }
+
+        fetchBoards();
     } catch (err) {
       setError(err.message);
     } finally {

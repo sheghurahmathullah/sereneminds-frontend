@@ -194,11 +194,12 @@ input:checked + .slider:before {
 }
 
 .modal-input {
+  /* margin-top: 15px; */
   padding: 14px 16px;
   font-size: 15px;
   border: 2px solid #e9ecef;
   border-radius: 8px;
-  margin: 0 24px;
+  margin: 5px 24px;
   transition: all 0.3s ease;
   background: #fafbfc;
 }
@@ -369,3 +370,5 @@ input:checked + .slider:before {
   font-style: italic;
   padding: 40px 16px;
 }
+
+
