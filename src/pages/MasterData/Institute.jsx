@@ -51,6 +51,12 @@ const Institute = () => {
   const [selectedInstitute, setSelectedInstitute] = useState(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
 
+  const [formErrors, setFormErrors] = useState({});
+  
+  const isValidEmail = (email) =>
+  /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+
   const [form, setForm] = useState({
       name: "",
       code: null,
@@ -145,6 +151,8 @@ const Institute = () => {
     e.preventDefault();
     setError(null);
 
+
+   
     if (!form.name) {
       setError("Institute name is required");
       return;
@@ -192,8 +200,8 @@ const Institute = () => {
       name: inst.name || "",
       addressLine1: inst.addressLine1 || "",
       addressLine2: inst.addressLine2 || "",
-      city: inst.city || "",
-      state: inst.state || "",
+      cityId: inst.city.id || "",
+      stateId: inst.state.id || "",
       pinCode: inst.pinCode || "",
       phoneNumber: inst.phoneNumber || "",
       telephoneNumber: inst.telephoneNumber || "",
@@ -216,15 +224,14 @@ const Institute = () => {
   };
 
   // Delete
-  const handleDelete = (id) => {
-    // setInstitutes((prev) => prev.filter((inst) => inst.id !== id));
-    axios.delete(`http://localhost:5000/api/institutes/${id}`)
+  const handleDelete = async (id) => {
+
+    const res = await axios.delete(`http://localhost:5000/api/institutes/${id}`)
+    
+    setViewMode("list");
+    setSelectedInstitute(null);
     fetchInstitutes();
 
-    // if (selectedInstitute && selectedInstitute.id === id) {
-    //   setViewMode("list");
-    //   setSelectedInstitute(null);
-    // }
 
   };
 
@@ -321,40 +328,60 @@ const Institute = () => {
               <legend>Institute</legend>
               <div className="edit-grid">
                 <div className="field">
-                  <label>Institute Name</label>
+                  <label>Institute Name
+                  <span className="required-asterisk"> *</span>
+                  </label>
                   <input
                     type="text"
                     className="institute-input"
                     placeholder="Institute Name"
                     value={form.name}
-                    onChange={(e) => handleChange("name", e.target.value)}
                     required
+                    onChange={(e) => handleChange("name", e.target.value)}
                   />
                 </div>
                 <div className="field">
-                  <label>Pin Code</label>
+                  <label>Pin Code
+                  <span className="required-asterisk"> *</span>
+
+                  </label>
                   <input
                     type="text"
                     className="institute-input"
                     placeholder="Pin Code"
                     value={form.pinCode}
-                    onChange={(e) => handleChange("pinCode", e.target.value)}
+                    required
+
+                    pattern="\d{6}" // Regex for 6-digit pin code
+                    maxLength={6}
+                     onChange={(e) => {
+                      const onlyNums = e.target.value.replace(/\D/g, ""); // remove non-digits
+                      handleChange("pinCode", onlyNums);
+                    }}
+                    // onChange={(e) => handleChange("pinCode", e.target.value)}
                   />
                 </div>
                 <div className="field">
-                  <label>Address Line 1</label>
+                  <label>Address Line 1
+                  <span className="required-asterisk"> *</span>
+
+                  </label>
                   <input
                     type="text"
                     className="institute-input"
                     placeholder="Address Line 1"
                     value={form.addressLine1}
+                    required
+
                     onChange={(e) =>
                       handleChange("addressLine1", e.target.value)
                     }
                   />
                 </div>
                 <div className="field">
-                  <label>Address Line 2</label>
+                  <label>Address Line 2
+
+                  </label>
                   <input
                     type="text"
                     className="institute-input"
@@ -367,10 +394,15 @@ const Institute = () => {
                 </div>
                 
                 <div className="field">
-                  <label>State</label>
+                  <label>State
+                  <span className="required-asterisk"> *</span>
+
+                  </label>
                   <select
                     className="institute-input"
                     value={form.stateId}
+                    required
+                    
                     onChange={(e) =>  {
                       handleChange("stateId", e.target.value);
                   const selected = states.find((state) => String(state.id) === String(e.target.value));
@@ -388,8 +420,14 @@ const Institute = () => {
                   </select>
                 </div>
                 <div className="field">
-                  <label>City</label>
+                  <label>City
+
+                  <span className="required-asterisk"> *</span>
+
+                  </label>
                   <select
+                    required
+
                     className="institute-input"
                     value={form.cityId}
                     onChange={(e) => handleChange("cityId", e.target.value)}
@@ -411,8 +449,12 @@ const Institute = () => {
               <legend>Contact</legend>
               <div className="edit-grid">
                 <div className="field">
-                  <label>Phone Number</label>
+                  <label>Phone Number
+                  <span className="required-asterisk"> *</span>
+                  </label>
                   <input
+                    required
+
                     type="text"
                     className="institute-input"
                     placeholder="Phone Number"
@@ -435,9 +477,15 @@ const Institute = () => {
                   />
                 </div>
                 <div className="field">
-                  <label>Email ID</label>
+                  <label>Email ID
+                    <span className="required-asterisk"> *</span>
+                  </label>
+
+                  {/* {error && <div className="error-message">{error}</div>} */}
+
                   <input
                     type="email"
+                    required
                     className="institute-input"
                     placeholder="Email Address"
                     value={form.email}

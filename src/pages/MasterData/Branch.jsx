@@ -13,9 +13,10 @@ import axios from "axios";
 
 const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
 
+
 const defaultForm = {
-  instituteCode: "INS001",
-  instituteId: null,
+  instituteCode: "",
+  instituteName: "",
   cityId: null,
   stateId: null,
   branchCode: "",
@@ -30,25 +31,7 @@ const defaultForm = {
   status: true,
 };
 
-const initialBranches = [
-  {
-    id: 1,
-    name: "Example Branch Name",
-    code: "951203",
-    institute: "Example Institute Name",
-    instituteCode: "951203",
-    address1: "Ashok Nagar",
-    address2: "1st Avenue",
-    city: "Chennai",
-    state: "Tamil Nadu",
-    pincode: "600106",
-    phone: "9876543210",
-    telephone: "0442345678",
-    email: "branch@example.com",
-    website: "www.branch.com",
-    status: true,
-  },
-];
+
 
 // const BranchForm = ({
 //   isEdit,
@@ -379,7 +362,7 @@ const BranchOverview = ({ branch, onEdit, onBack }) => {
             <div style={{ marginBottom: 12, color: "#888", fontSize: 15 }}>
               Institute Name{" "}
               <span style={{ color: "#222", fontWeight: 500 }}>
-                : {branch.institute.name}
+                : {branch.instituteName}
               </span>
             </div>
             <div style={{ marginBottom: 12, color: "#888", fontSize: 15 }}>
@@ -452,7 +435,7 @@ const BranchOverview = ({ branch, onEdit, onBack }) => {
 };
 
 const Branch = () => {
-  const [branches, setBranches] = useState(initialBranches);
+  const [branches, setBranches] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -481,7 +464,7 @@ const Branch = () => {
         name: "",
         code: "", // unique 
         instituteCode: null,
-        instituteId: null,
+        instituteName: "",
         cityId: null,
         stateId: null,
         address1: "",
@@ -579,12 +562,12 @@ const Branch = () => {
       return;
     }
 
-      form.code = selectedInstitute.code;
+      // form.code = selectedInstitute.code;
     const payload =  { 
         name: form.name,
         code: "1", // form demo purpose 
         instituteCode: form.instituteCode,
-        instituteId: Number (form.instituteId),
+        instituteName: form.instituteName,
         cityId: Number (form.cityId),
         stateId: Number (form.stateId),
         address1: form.address1,
@@ -628,7 +611,7 @@ const Branch = () => {
   const handleEdit = (branch) => {
     setForm({
       instituteCode: branch.instituteCode,
-      instituteName: branch.institute,
+      instituteName: branch.instituteName,
       branchCode: branch.code,
       branchName: branch.name,
       address1: branch.address1,
@@ -721,33 +704,21 @@ const Branch = () => {
         <div className="branch-form-grid">
           <div className="branch-form-input">
             <label>Institute Code</label>
-            <input type="text" value={selectedInstitute.code ?? "" } disabled />
+            <input type="text" value={form.instituteCode} 
+              onChange={(e) => handleChange("instituteCode", e.target.value)}
+            
+            />
           </div>
           <div className="branch-form-input">
 
             <label>Institute Name</label>
             {/* <input type="text" value={form.instituteName} disabled /> */}
-            <select
-                    className="branch-form-input"
-                    value={form.instituteId}
-                     
-                    onChange={(e) => { 
-                      handleChange("instituteId", e.target.value)
-                      const selected = institutes.find((institute) => String(institute.id) === String(e.target.value));
-                      setSelectedInstitute(selected);
-                      console.log("Selected institute:", selected ? selected.name : "");
-                    }
-                    }
-                    
-                  >
-                    <option value="">Select</option>
-                    {institutes
-                      .map((institute) => (
-                        <option key={institute.id} value={institute.id}>
-                          {institute.name}
-                        </option>
-                      ))}
-                  </select>
+            <input
+              type="text"
+              value={form.instituteName}
+              onChange={(e) => handleChange("instituteName", e.target.value)}
+              required
+            />
 
 
           </div>
@@ -760,7 +731,7 @@ const Branch = () => {
           {isEdit && (
             <div className="branch-form-input">
               <label>Branch Code</label>
-              <input type="text" value={form.code} disabled />
+              <input type="text" value={form.code}  />
             </div>
           )}
           <div className="branch-form-input">
@@ -835,7 +806,11 @@ const Branch = () => {
               type="text"
               pattern="\d{6}"
               value={form.pincode}
-              onChange={(e) => handleChange("pincode", e.target.value)}
+              maxLength={6}
+                     onChange={(e) => {
+                      const onlyNums = e.target.value.replace(/\D/g, ""); // remove non-digits
+                      handleChange("pincode", onlyNums);
+                    }}
               required
             />
           </div>
@@ -980,7 +955,7 @@ const Branch = () => {
                   <div className="branch-code">{branch.code}</div>
                 </td>
                 <td>
-                  <div className="institute-name">{branch.institute.name}</div>
+                  <div className="institute-name">{branch.instituteName}</div>
                   <div className="institute-code">{branch.instituteCode}</div>
                 </td>
                 <td>

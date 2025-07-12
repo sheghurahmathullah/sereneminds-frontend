@@ -510,3 +510,11 @@ input:checked + .slider:before {
   align-items: center;
   gap: 6px;
 }
+
+
+/*  */
+.required-asterisk {
+  color: red;
+  font-size: 16px; /* increase to your desired size */
+  font-weight: 600;
+}

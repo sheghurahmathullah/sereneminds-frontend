@@ -400,7 +400,13 @@ const School = () => {
                     placeholder="Pin Code"
                     name="pincode"
                     value={form.pincode}
-                    onChange={ (e) =>  handleFormChange(e.target.name, e.target.value)}
+                    maxLength={6}
+                     onChange={(e) => {
+                      const onlyNums = e.target.value.replace(/\D/g, ""); // remove non-digits
+                      handleFormChange(e.target.name, onlyNums);
+                    }}
+
+                    // onChange={ (e) =>  handleFormChange(e.target.name, e.target.value)}
 
                     required
                   />
