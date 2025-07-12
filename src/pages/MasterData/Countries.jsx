@@ -61,8 +61,7 @@ const Countries = () => {
       if (editingId !== null) {
         await axios.put(`${API_URL}/${editingId}`, form);
       } else {
-        
-        await axios.post("https://sereneminds-backend.onrender.com", form);
+        await axios.post(API_URL, form);
       }
       fetchCountries();
       setShowModal(false);
