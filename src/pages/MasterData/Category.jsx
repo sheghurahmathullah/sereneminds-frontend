@@ -18,12 +18,14 @@ const Category = () => {
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
   const [overviewCategory, setOverviewCategory] = useState(null);
 
+  const SERVER_URL = "https://sereneminds-backend-oucl.onrender.com/api/categories"
+
   // Fetch categories from API
   const fetchCategories = async () => {
     try {
       setLoading(true);
       const response = await fetch(
-        "http://localhost:5000/api/categories"
+        `${SERVER_URL}`
       );
       if (!response.ok) {
         throw new Error("Failed to fetch categories");
@@ -46,7 +48,7 @@ const Category = () => {
   const toggleStatus = async (id) => {
     try {
       const response = await fetch(
-        `http://localhost:5000/api/categories/${id}/toggle-status`,
+        `${SERVER_URL}/${id}/toggle-status`,
         {
           method: "PATCH",
           headers: {
@@ -99,7 +101,7 @@ const Category = () => {
       setLoading(true);
       if (modalType === "edit" && editingId) {
         const response = await fetch(
-          `http://localhost:5000/api/categories/${editingId}`,
+          `${SERVER_URL}/${editingId}`,
           {
             method: "PUT",
             headers: {
@@ -117,7 +119,7 @@ const Category = () => {
         );
       } else {
         const response = await fetch(
-          "http://localhost:5000/api/categories",
+          `${SERVER_URL}`,
           {
             method: "POST",
             headers: {
@@ -168,7 +170,7 @@ const Category = () => {
     try {
       setLoading(true);
       const response = await fetch(
-        `http://localhost:5000/api/categories/${id}`,
+        `${SERVER_URL}/${id}`,
         {
           method: "DELETE",
         }

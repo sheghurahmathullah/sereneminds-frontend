@@ -13,6 +13,7 @@ import { Country } from "country-state-city";
 
 
 const API_URL = "http://localhost:5000/api/countries";
+const SERVER_URL = "https://sereneminds-backend-oucl.onrender.com/api/countries"; // Update with your actual server URL
 
 const Countries = () => {
 
@@ -31,7 +32,7 @@ const Countries = () => {
   const fetchCountries = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(API_URL);
+      const res = await axios.get(SERVER_URL);
       setCountries(res.data);
       setError("");
     } catch (err) {
@@ -59,9 +60,9 @@ const Countries = () => {
     if (!form.countryName) return;
     try {
       if (editingId !== null) {
-        await axios.put(`${API_URL}/${editingId}`, form);
+        await axios.put(`${SERVER_URL}/${editingId}`, form);
       } else {
-        await axios.post(API_URL, form);
+        await axios.post(SERVER_URL, form);
       }
       fetchCountries();
       setShowModal(false);
@@ -77,7 +78,7 @@ const Countries = () => {
     if (!window.confirm("Are you sure you want to delete this country?"))
       return;
     try {
-      await axios.delete(`${API_URL}/${id}`);
+      await axios.delete(`${SERVER_URL}/${id}`);
       fetchCountries();
       setError("");
     } catch (err) {
@@ -88,7 +89,7 @@ const Countries = () => {
   const toggleStatus = async (country) => {
     console.log("Called");
     try {
-      const res = await axios.patch(`${API_URL}/${country.id}/toggle-status`, {
+      const res = await axios.patch(`${SERVER_URL}/${country.id}/toggle-status`, {
         status: !country.status,
       });
       // fetchCountries();

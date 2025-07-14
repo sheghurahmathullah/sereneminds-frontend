@@ -20,12 +20,14 @@ const Emotion = () => {
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
   const [overviewEmotion, setOverviewEmotion] = useState(null);
 
+  const SERVER_URL = "https://sereneminds-backend-oucl.onrender.com/api/emotions"; 
+
   // Fetch emotions from API
   const fetchEmotions = async () => {
     try {
       setLoading(true);
       const response = await fetch(
-        "http://localhost:5000/api/emotions"
+        `${SERVER_URL}`
       );
       if (!response.ok) {
         throw new Error("Failed to fetch emotions");
@@ -49,7 +51,7 @@ const Emotion = () => {
   const toggleStatus = async (id) => {
     try {
       const response = await fetch(
-        `http://localhost:5000/api/emotions/${id}/toggle-status`,
+        `${SERVER_URL}/${id}/toggle-status`,
         {
           method: "PATCH",
           headers: {
@@ -104,7 +106,7 @@ const Emotion = () => {
       if (modalType === "edit" && editingId) {
         // Update existing emotion
         const response = await fetch(
-          `http://localhost:5000/api/emotions/${editingId}`,
+          `${SERVER_URL}/${editingId}`,
           {
             method: "PUT",
             headers: {
@@ -125,7 +127,7 @@ const Emotion = () => {
       } else {
         // Create new emotion
         const response = await fetch(
-          "http://localhost:5000/api/emotions",
+          `${SERVER_URL}`,
           {
             method: "POST",
             headers: {
@@ -178,7 +180,7 @@ const Emotion = () => {
     try {
       setLoading(true);
       const response = await fetch(
-        `http://localhost:5000/api/emotions/${id}`,
+        `${SERVER_URL}/${id}`,
         {
           method: "DELETE",
         }

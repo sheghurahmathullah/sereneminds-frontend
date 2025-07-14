@@ -25,12 +25,16 @@ const Zone = () => {
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
   const [overviewZone, setOverviewZone] = useState(null);
 
+  const SERVER_URL = "https://sereneminds-backend-oucl.onrender.com/api/zones";
+  const SERVER_URL_EMOTIONS = "https://sereneminds-backend-oucl.onrender.com/api/emotions"  
+
+
   // Fetch zones from API
   const fetchZones = async () => {
     try {
       setLoading(true);
       const response = await axios.get(
-        "http://localhost:5000/api/zones"
+        `${SERVER_URL}`
       );
       if (!response.status) {
         throw new Error("Failed to fetch zones");
@@ -50,7 +54,7 @@ const Zone = () => {
   const fetchEmotions = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:5000/api/emotions"
+        `${SERVER_URL_EMOTIONS}`
       );
 
       if (!response.status) {
@@ -73,7 +77,7 @@ const Zone = () => {
   const toggleStatus = async (id) => {
     try {
       const response = await axios.patch(
-        `http://localhost:5000/api/zones/${id}/toggle-status`);
+        `${SERVER_URL}/${id}/toggle-status`);
       
         if (!response.status) {
         throw new Error("Failed to toggle status");
@@ -123,7 +127,7 @@ const Zone = () => {
       setLoading(true);
 
       if(editingId){
-        const res = await axios.put(`http://localhost:5000/api/zones/${editingId}`, {
+        const res = await axios.put(`${SERVER_URL}/${editingId}`, {
           name: modalForm.name,
           description: modalForm.description,
           emotionId: Number(modalForm.emotionId),
@@ -136,7 +140,7 @@ const Zone = () => {
       }else {
 
         
-      const res = await axios.post ("http://localhost:5000/api/zones", {
+      const res = await axios.post (`${SERVER_URL}`, {
           name: modalForm.name,
           description: modalForm.description,
           emotionId: Number(modalForm.emotionId),
@@ -183,7 +187,7 @@ const Zone = () => {
     try {
       setLoading(true);
       const response = await fetch(
-        `http://localhost:5000/api/zones/${id}`,
+        `${SERVER_URL}/${id}`,
         {
           method: "DELETE",
         }

@@ -15,6 +15,9 @@ const Register = () => {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
 
+  const SERVER_URL = "https://sereneminds-backend-oucl.onrender.com/api/auth/register"
+
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -68,7 +71,7 @@ const Register = () => {
     setLoading(true);
     try {
       const response = await fetch(
-        "http://localhost:5000/api/auth/register",
+        `${SERVER_URL}`,
         {
           method: "POST",
           headers: {

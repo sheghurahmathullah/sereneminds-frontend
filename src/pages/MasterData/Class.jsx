@@ -34,11 +34,14 @@ const ClassPage = () => {
   const [selectedClass, setSelectedClass] = useState(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
 
+  const SERVER_URL = "https://sereneminds-backend-oucl.onrender.com/api/classes"; 
+
+
   // Fetch classes from API
   const fetchClasses = async () => {
     try {
       setLoading(true);
-      const response = await axios.get( "http://localhost:5000/api/classes");
+      const response = await axios.get(`${SERVER_URL}`);
       if (!response.status) {
         throw new Error("Failed to fetch classes");
       }
@@ -77,7 +80,7 @@ const ClassPage = () => {
   const toggleStatus = async (id) => {
     try {
       const response = await axios.patch(
-        `http://localhost:5000/api/classes/${id}/toggle-status`,
+        `${SERVER_URL}/${id}/toggle-status`,
         
       );
       if (!response.status) {
@@ -115,7 +118,7 @@ const ClassPage = () => {
         status: false,
       };
 
-      const response = await axios.post("http://localhost:5000/api/classes", classData);        
+      const response = await axios.post(`${SERVER_URL}`, classData);        
       
         if (!response.status) {
         throw new Error("Failed to create class");
@@ -142,7 +145,7 @@ const ClassPage = () => {
       setLoading(true);
       setError("");
       const response = await axios.put(
-        `http://localhost:5000/api/classes/${selectedId}`,form);
+        `${SERVER_URL}/${selectedId}`,form);
       
         if (!response.status) {
         throw new Error("Failed to update class");
@@ -187,7 +190,7 @@ const ClassPage = () => {
     setError("");
     try {
       const response = await axios.delete(
-        `http://localhost:5000/api/classes/${id}`,
+        `${SERVER_URL}/${id}`,
         
       );
 

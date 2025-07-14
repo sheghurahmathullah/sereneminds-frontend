@@ -15,6 +15,9 @@ const Login = () => {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
 
+  const SERVER_URL = "https://sereneminds-backend-oucl.onrender.com/api/auth/login"
+  
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
@@ -57,7 +60,7 @@ const Login = () => {
     setLoading(true);
     try {
       const response = await fetch(
-        "https://sereneminds-backend.onrender.com/api/auth/login",
+        `${SERVER_URL}`,
         {
           method: "POST",
           headers: {

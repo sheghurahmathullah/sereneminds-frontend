@@ -90,12 +90,16 @@ const School = () => {
   const [states, setStates] =useState([]);
   const [selectedState, setSelectedState] = useState("");
   const [cities, setCities] = useState([]);
-  
 
+  const SERVER_URL = "https://sereneminds-backend-oucl.onrender.com/api/schools"; 
+  const SERVER_URL_INSTITUTES = "https://sereneminds-backend-oucl.onrender.com/api/institutes";
+  const SERVER_URL_STATES = "https://sereneminds-backend-oucl.onrender.com/api/states";
+  const SERVER_URL_CITIES = "https://sereneminds-backend-oucl.onrender.com/api/cities";
+  
 
     const fetchStates = async () => {
     try { 
-    const response = await axios.get("http://localhost:5000/api/states");
+    const response = await axios.get(`${SERVER_URL_STATES}`);
     const data = await response.data;
     console.log("Fetched states:", data);
     setStates(data);
@@ -109,7 +113,7 @@ const School = () => {
 
   const fetchCities = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/cities");
+      const response = await axios.get(`${SERVER_URL_CITIES}`);
       const data = await response.data;
       setCities(data);
       console.log("Fetched cities:", data);
@@ -124,7 +128,7 @@ const School = () => {
   const fetchSchools = async () => {
     try {
       setLoading(true);
-      const response = await axios.get("http://localhost:5000/api/schools");  
+      const response = await axios.get(`${SERVER_URL}`);  
       console.log(response.data)
       
       if (!response.status) throw new Error("Failed to fetch schools");
@@ -151,7 +155,7 @@ const School = () => {
   // Toggle status (optimistic)
   const toggleStatus = async (id) => {
     try {
-      const response = await axios.patch(`http://localhost:5000/api/schools/${id}/toggle-status`);
+      const response = await axios.patch(`${SERVER_URL}/${id}/toggle-status`);
 
       const data = response.data;
 
@@ -200,13 +204,13 @@ const School = () => {
 
     try {
       if (isEdit && editId) {
-        const response = await axios.put(`http://localhost:5000/api/schools/${editId}`, form);       
+        const response = await axios.put(`${SERVER_URL}/${editId}`, form);       
         if (!response.status) throw new Error("Failed to update school");
         fetchSchools(); 
 
       } else {
 
-        const response = await axios.post( "http://localhost:5000/api/schools", form);
+        const response = await axios.post(`${SERVER_URL}`, form);
         if (!response.status) throw new Error("Failed to create school");
         const data = await response.data;
         fetchSchools(); 
@@ -243,7 +247,7 @@ const School = () => {
     setLoading(true);
     setError("");
     try {
-      const response = await axios.delete(`http://localhost:5000/api/schools/${id}`);
+      const response = await axios.delete(`${SERVER_URL}/${id}`);
           setViewMode("list");
 
 

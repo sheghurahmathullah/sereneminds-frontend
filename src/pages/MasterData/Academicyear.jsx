@@ -18,13 +18,14 @@ const Academicyear = () => {
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
   const [overviewYear, setOverviewYear] = useState(null);
 
+  const SERVER_URL = "https://sereneminds-backend-oucl.onrender.com/api/academicyears"; 
+
+
   // Fetch academic years from API
   const fetchAcademicYears = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(
-        "http://localhost:5000/api/academicyears"
-      );
+      const response = await axios.get(`${SERVER_URL}`);
       setYears(response.data);
      
       if (!response.status) {
@@ -46,7 +47,7 @@ const Academicyear = () => {
   const toggleStatus = async (id) => {
     try {
       const response = await fetch(
-        `http://localhost:5000/api/academicyears/${id}/toggle-status`,
+        `${SERVER_URL}/${id}/toggle-status`,
         {
           method: "PATCH",
           headers: {
@@ -91,7 +92,7 @@ const Academicyear = () => {
       if (editingId) {
         // Update existing academic year
         const response = await axios.put(
-          `http://localhost:5000/api/academicyears/${editingId}`, payload);
+          `${SERVER_URL}/${editingId}`, payload);
         
           if (!response.status) {
           throw new Error("Failed to update academic year");
@@ -101,7 +102,7 @@ const Academicyear = () => {
       } else {
         // Create new academic year
         const response = await axios.post(
-          "http://localhost:5000/api/academicyears", payload);
+          `${SERVER_URL}`, payload);
           console.log(response.data);
         if (!response.status) {
           throw new Error("Failed to create academic year");
@@ -131,7 +132,7 @@ const Academicyear = () => {
     try {
       setLoading(true);
       const response = await axios.delete(
-        `http://localhost:5000/api/academicyears/${id}`,
+        `${SERVER_URL}/${id}`,
       
       );
 

@@ -21,12 +21,15 @@ const Pleasantness = () => {
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
   const [overviewPleasantness, setOverviewPleasantness] = useState(null);
 
+  const SERVER_URL = "https://sereneminds-backend-oucl.onrender.com/api/pleasantnesses"
+
+
   // Fetch pleasantness from API
   const fetchPleasantness = async () => {
     try {
       setLoading(true);
       const response = await fetch(
-        "http://localhost:5000/api/pleasantnesses"
+        `${SERVER_URL}`
       );
       if (!response.ok) {
         throw new Error("Failed to fetch pleasantness data");
@@ -49,7 +52,7 @@ const Pleasantness = () => {
   const toggleStatus = async (id) => {
     try {
       const response = await fetch(
-        `http://localhost:5000/api/pleasantnesses/${id}/toggle-status`,
+        `${SERVER_URL}/${id}/toggle-status`,
         {
           method: "PATCH",
           headers: {
@@ -97,7 +100,7 @@ const Pleasantness = () => {
       setLoading(true);
       if (modalType === "edit" && editingId) {
         const response = await fetch(
-          `http://localhost:5000/api/pleasantnesses/${editingId}`,
+          `${SERVER_URL}/${editingId}`,
           {
             method: "PUT",
             headers: {
@@ -116,7 +119,7 @@ const Pleasantness = () => {
       fetchPleasantness();
       } else {
         const response = await fetch(
-          "http://localhost:5000/api/pleasantnesses",
+          `${SERVER_URL}`,
           {
             method: "POST",
             headers: {
@@ -165,7 +168,7 @@ const Pleasantness = () => {
     try {
       setLoading(true);
       const response = await fetch(
-        `http://localhost:5000/api/pleasantnesses/${id}`,
+        `${SERVER_URL}/${id}`,
         {
           method: "DELETE",
         }

@@ -34,11 +34,14 @@ const Board = () => {
   const [selectedBoard, setSelectedBoard] = useState(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
 
+  const SERVER_URL = "https://sereneminds-backend-oucl.onrender.com/api/boards"; 
+   
+
   // Fetch boards from API
   const fetchBoards = async () => {
     try {
       setLoading(true);
-      const response = await axios.get("http://localhost:5000/api/boards");
+      const response = await axios.get(`${SERVER_URL}`);
       console.log(response.data);
       if (!response.status) {
         throw new Error("Failed to fetch boards");
@@ -80,7 +83,7 @@ const Board = () => {
   const toggleStatus = async (id) => {
     try {
       const response = await axios.patch(
-        `http://localhost:5000/api/boards/${id}/toggle-status`);
+        `${SERVER_URL}/${id}/toggle-status`);
       
         if (!response.status) {
         throw new Error("Failed to toggle status");
@@ -109,7 +112,7 @@ const Board = () => {
     e.preventDefault();
     try {
       setLoading(true);
-      const response = await axios.post("http://localhost:5000/api/boards",form);
+      const response = await axios.post(`${SERVER_URL}`,form);
       console.log(response.data);
 
       if (!response.status) {
@@ -133,7 +136,7 @@ const Board = () => {
     e.preventDefault();
     try {
       setLoading(true);
-      const response = await axios.put(`http://localhost:5000/api/boards/${selectedId}`, form);
+      const response = await axios.put(`${SERVER_URL}/${selectedId}`, form);
       
         if (!response.status) {
         throw new Error("Failed to update board");
@@ -179,7 +182,7 @@ const Board = () => {
     setError("");
     try {
       const response = await axios.delete(
-        `http://localhost:5000/api/boards/${id}`);
+        `${SERVER_URL}/${id}`);
 
 
       if (!response.status) throw new Error("Failed to delete board");

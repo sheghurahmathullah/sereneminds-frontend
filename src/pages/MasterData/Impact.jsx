@@ -20,13 +20,16 @@ const Impact = () => {
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
   const [overviewImpact, setOverviewImpact] = useState(null);
 
+  const SERVER_URL = "https://sereneminds-backend-oucl.onrender.com/api/impacts"
+
+
   // Fetch impacts from API
   const fetchImpacts = async () => {
     try {
       setLoading(true);
       const response = await fetch(
-        "http://localhost:5000/api/impacts"
-      );
+        `${SERVER_URL}`
+            );
       if (!response.ok) {
         throw new Error("Failed to fetch impacts");
       }
@@ -48,7 +51,7 @@ const Impact = () => {
   const toggleStatus = async (id) => {
     try {
       const response = await fetch(
-        `http://localhost:5000/api/impacts/${id}/toggle-status`,
+        `${SERVER_URL}/${id}/toggle-status`,
         {
           method: "PATCH",
           headers: {
@@ -96,7 +99,7 @@ const Impact = () => {
       setLoading(true);
       if (modalType === "edit" && editingId) {
         const response = await fetch(
-          `http://localhost:5000/api/impacts/${editingId}`,
+          `${SERVER_URL}/${editingId}`,
           {
             method: "PUT",
             headers: {
@@ -115,7 +118,7 @@ const Impact = () => {
 
       } else {
         const response = await fetch(
-          "http://localhost:5000/api/impacts",
+          `${SERVER_URL}`,
           {
             method: "POST",
             headers: {
@@ -165,7 +168,7 @@ const Impact = () => {
     try {
       setLoading(true);
       const response = await fetch(
-        `http://localhost:5000/api/impacts/${id}`,
+        `${SERVER_URL}/${id}`,
         {
           method: "DELETE",
         }

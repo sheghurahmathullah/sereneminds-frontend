@@ -53,6 +53,10 @@ const Institute = () => {
 
   const [formErrors, setFormErrors] = useState({});
   
+  const SERVER_URL = "https://sereneminds-backend-oucl.onrender.com/api/institutes"; // 
+  const SERVER_URL_STATES = "https://sereneminds-backend-oucl.onrender.com/api/states"; // 
+  const SERVER_URL_CITIES = "https://sereneminds-backend-oucl.onrender.com/api/cities"; // 
+
   const isValidEmail = (email) =>
   /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
@@ -75,7 +79,7 @@ const Institute = () => {
 
   const fetchStates = async () => {
     try { 
-    const response = await axios.get("http://localhost:5000/api/states");
+    const response = await axios.get(`${SERVER_URL_STATES}`);
     const data = await response.data;
     console.log("Fetched states:", data);
     setStates(data);
@@ -88,7 +92,7 @@ const Institute = () => {
 
   const fetchCities = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/cities");
+      const response = await axios.get(`${SERVER_URL_CITIES}`);
       const data = await response.data;
       setCities(data);
       console.log("Fetched cities:", data);
@@ -101,7 +105,7 @@ const Institute = () => {
 
   const fetchInstitutes = async () => {
     try { 
-      const response = await axios.get("http://localhost:5000/api/institutes");
+      const response = await axios.get(`${SERVER_URL}`);
       const data = await response.data; 
       setInstitutes(data);
       console.log("Fetched institutes:", data);
@@ -124,7 +128,7 @@ const Institute = () => {
   // Toggle status
   const toggleStatus = (id) => {
     // Optionally update the backend
-    axios.patch(`http://localhost:5000/api/institutes/${id}/toggle-status`, {
+    axios.patch(`${SERVER_URL}/${id}/toggle-status`, {
       status: !institutes.find((inst) => inst.id === id).status,
     });
 
@@ -168,13 +172,13 @@ const Institute = () => {
       // Update existing institute
       console.log("Updating institute with ID:", editId);
       console.log("Form data:", form);
-      const response = await axios.put(`http://localhost:5000/api/institutes/${editId}`, form);
+      const response = await axios.put(`${SERVER_URL}/${editId}`, form);
 
     } else {
 
       // Create new institute
       try {
-        const response = await axios.post("http://localhost:5000/api/institutes", form,  {
+        const response = await axios.post(`${SERVER_URL}`, form,  {
           headers: {
               "Content-Type": "application/json",
             }}
@@ -226,7 +230,7 @@ const Institute = () => {
   // Delete
   const handleDelete = async (id) => {
 
-    const res = await axios.delete(`http://localhost:5000/api/institutes/${id}`)
+    const res = await axios.delete(`${SERVER_URL}/${id}`)
     
     setViewMode("list");
     setSelectedInstitute(null);

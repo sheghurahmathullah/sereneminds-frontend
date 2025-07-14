@@ -30,13 +30,14 @@ const Division = () => {
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
   const [form, setForm] = useState(defaultForm);
 
+  const SERVER_URL = "https://sereneminds-backend-oucl.onrender.com/api/divisions"; 
+
+
   // Fetch divisions from API
   const fetchDivisions = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(
-        "http://localhost:5000/api/divisions"
-      );
+      const response = await axios.get(`${SERVER_URL}`);
       if (!response.status) throw new Error("Failed to fetch divisions");
       const data = await response.data;
       setDivisions(data);
@@ -58,7 +59,7 @@ const Division = () => {
   const toggleStatus = async (id) => {
     try {
       const response = await axios.patch(
-        `http://localhost:5000/api/divisions/${id}/toggle-status`);
+        `${SERVER_URL}/${id}/toggle-status`);
       
       if (!response.status) throw new Error("Failed to toggle status");
       const data = await response.data;
@@ -109,7 +110,7 @@ const Division = () => {
 
         // Create
         const response = await axios.post(
-          "http://localhost:5000/api/divisions", form);
+         `${SERVER_URL}`, form);
         if (!response.status) throw new Error("Failed to create division");
         
         const data = await response.data;
@@ -133,7 +134,7 @@ const Division = () => {
 
     try {
        const response = await axios.put(
-          `http://localhost:5000/api/divisions/${editId}`, form);
+          `${SERVER_URL}/${editId}`, form);
         if (!response.status) throw new Error("Failed to update division");
 
         const updatedDivision = await response.data;
@@ -180,7 +181,7 @@ const Division = () => {
   const handleDelete = async (id) => {
     try {
       setLoading(true);
-      const response = await axios.delete(`http://localhost:5000/api/divisions/${id}`);
+      const response = await axios.delete(`${SERVER_URL}/${id}`);
       if (!response.status) throw new Error("Failed to delete division");
       setDeleteConfirmId(null);
 
