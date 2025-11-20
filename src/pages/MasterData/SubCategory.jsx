@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./SubCategory.css";
 import { FiMoreVertical, FiEdit, FiTrash2, FiEye } from "react-icons/fi";
-import { API_ENDPOINTS } from "../../config/api";
 
 const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
 
@@ -24,12 +23,15 @@ const SubCategory = () => {
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
   const [overviewSubCategory, setOverviewSubCategory] = useState(null);
 
+  const SERVER_URL = "https://sereneminds-backend-oucl.onrender.com/api/subcategories"
+  const SERVER_URL_CATEGORIES = "https://sereneminds-backend-oucl.onrender.com/api/categories"
+
 
   // Fetch categories and subcategories from API
   const fetchCategories = async () => {
     try {
       const response = await fetch(
-        API_ENDPOINTS.CATEGORIES
+        `${SERVER_URL_CATEGORIES}`
       );
       if (!response.ok) throw new Error("Failed to fetch categories");
       const data = await response.json();
@@ -43,7 +45,7 @@ const SubCategory = () => {
     try {
       setLoading(true);
       const response = await fetch(
-        API_ENDPOINTS.SUBCATEGORIES
+        `${SERVER_URL}`
       );
       if (!response.ok) throw new Error("Failed to fetch subcategories");
       const data = await response.json();
@@ -63,7 +65,7 @@ const SubCategory = () => {
   const toggleStatus = async (id) => {
     try {
       const response = await fetch(
-        `${API_ENDPOINTS.SUBCATEGORIES}/${id}/toggle-status`,
+        `${SERVER_URL}/${id}/toggle-status`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
@@ -107,7 +109,7 @@ const SubCategory = () => {
       setLoading(true);
       if (modalType === "edit" && editingId) {
         const response = await fetch(
-          `${API_ENDPOINTS.SUBCATEGORIES}/${editingId}`,
+          `${SERVER_URL}/${editingId}`,
           {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
@@ -124,7 +126,7 @@ const SubCategory = () => {
         );
       } else {
         const response = await fetch(
-          API_ENDPOINTS.SUBCATEGORIES,
+          `${SERVER_URL}`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -172,7 +174,7 @@ const SubCategory = () => {
     try {
       setLoading(true);
       const response = await fetch(
-        `${API_ENDPOINTS.SUBCATEGORIES}/${id}`,
+        `${SERVER_URL}/${id}`,
         {
           method: "DELETE",
         }

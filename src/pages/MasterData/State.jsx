@@ -8,11 +8,11 @@ import {
   FiTrash2,
 } from "react-icons/fi";
 import "./State.css";
-import { API_ENDPOINTS } from "../../config/api";
 
 import{Country, State} from 'country-state-city';
 
 const API_URL = "http://localhost:5000/api/states";
+const SERVER_URL = "https://sereneminds-backend-oucl.onrender.com/api/states"; // Update with your actual server URL
 
 
 const States = () => {
@@ -48,7 +48,7 @@ const States = () => {
   const fetchStates = async () => {
   try {
     setLoading(true);
-    const res = await axios.get(API_ENDPOINTS.STATES);
+    const res = await axios.get(SERVER_URL);
     setAllStates(res.data);
     setLoading(false);
   } catch (error) {
@@ -75,7 +75,7 @@ const States = () => {
     return;
   }
   try {
-    await axios.post(API_ENDPOINTS.STATES, {
+    await axios.post(SERVER_URL, {
       country: selectedCountryObj.name,
       state: selectedState,
     });
@@ -96,13 +96,13 @@ const States = () => {
     
     try {
       if (editingId !== null) {
-        await axios.put(`${API_ENDPOINTS.STATES}/${editingId}`, {
+        await axios.put(`${SERVER_URL}/${editingId}`, {
       country: selectedCountryObj.name,
       state: selectedState,
       });
 
       } else {
-        await axios.post(API_ENDPOINTS.STATES, {
+        await axios.post(SERVER_URL, {
       country: selectedCountryObj.name,
       state: selectedState,
       });
@@ -121,7 +121,7 @@ const States = () => {
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this state?")) return;
     try {
-      await axios.delete(`${API_ENDPOINTS.STATES}/${id}`);
+      await axios.delete(`${SERVER_URL}/${id}`);
       fetchStates(); // Refresh the state list
       setError("");
     } catch (err) {
@@ -131,7 +131,7 @@ const States = () => {
 
   const toggleStatus = async (id) => {
     try {
-      const res = await axios.patch(`${API_ENDPOINTS.STATES}/${id}/toggle-status`);
+      const res = await axios.patch(`${SERVER_URL}/${id}/toggle-status`);
       const data = res.data;
 
       setAllStates((prev) => // for smooth update

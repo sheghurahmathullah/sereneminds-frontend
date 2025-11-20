@@ -10,7 +10,6 @@ import {
 import "./Branch.css";
 import "./BranchForm.css";
 import axios from "axios";
-import { API_ENDPOINTS } from "../../config/api";
 
 const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
 
@@ -459,6 +458,11 @@ const Branch = () => {
   const [selectedState, setSelectedState] = useState("");
   const [selectedInstitute, setSelectedInstitute] = useState("");
   const [selectedCity, setInstituteId] = useState("");
+
+  const SERVER_URL = "https://sereneminds-backend-oucl.onrender.com/api/branches"; 
+  const SERVER_URL_INSTITUTES = "https://sereneminds-backend-oucl.onrender.com/api/institutes";
+  const SERVER_URL_STATES = "https://sereneminds-backend-oucl.onrender.com/api/states";
+  const SERVER_URL_CITIES = "https://sereneminds-backend-oucl.onrender.com/api/cities";
   
 
   const [form, setForm] = useState({
@@ -481,7 +485,7 @@ const Branch = () => {
 
   const fetchInstitutes = async () => {
     try { 
-      const res = await axios.get(API_ENDPOINTS.INSTITUTES);
+      const res = await axios.get(`${SERVER_URL_INSTITUTES}`);
       console.log("Fetched institutes:", res.data);
       setInstitutes(res.data);
     }
@@ -493,7 +497,7 @@ const Branch = () => {
 
   const fetchCities = async () => {
     try {  
-      const res = await axios.get(API_ENDPOINTS.CITIES);
+      const res = await axios.get(`${SERVER_URL_CITIES}`);
       console.log("Fetched cities:", res.data);
       setCities(res.data);
     }
@@ -506,7 +510,7 @@ const Branch = () => {
 
   const fetchStates = async () => {
     try {
-      const res = await axios.get(API_ENDPOINTS.STATES);
+      const res = await axios.get(`${SERVER_URL_STATES}`);
       console.log("Fetched states:", res.data);
       setStates(res.data);
     } catch (error) {
@@ -516,7 +520,7 @@ const Branch = () => {
   };
 
   const fetchAllBranches = async () => {
-    const res = await axios.get(API_ENDPOINTS.BRANCHES);
+    const res = await axios.get(`${SERVER_URL}`);
     setBranches(res.data);
     console.log("Fetched branches:", res.data);
 
@@ -537,7 +541,7 @@ const Branch = () => {
 
   // Toggle status
   const toggleStatus =  async (id) => {
-    const res = await axios.patch(`${API_ENDPOINTS.BRANCHES}/${id}/toggle-status`, {
+    const res = await axios.patch(`${SERVER_URL}/${id}/toggle-status`, {
       status: !branches.find((branch) => branch.id === id).status,
     });
     const updatedBranch = res.data;
@@ -586,13 +590,13 @@ const Branch = () => {
       
       // form.code = selectedInstitute.code;
       console.log("Created branch:", payload);
-      const res = await axios .put(`${API_ENDPOINTS.BRANCHES}/${editId}`, payload);
+      const res = await axios .put(`${SERVER_URL}/${editId}`, payload);
       const data = res.data;
       
     } else {
       
       
-      const res = await axios.post(API_ENDPOINTS.BRANCHES, payload);
+      const res = await axios.post(`${SERVER_URL}`, payload);
       const data = res.data;
       console.log("Created branch:", data);
       
@@ -648,7 +652,7 @@ const Branch = () => {
   // Delete
   const handleDelete = (id) => {
     try {
-      axios.delete(`${API_ENDPOINTS.BRANCHES}/${id}`);
+      axios.delete(`${SERVER_URL}/${id}`);
     } catch (error) {
       console.error("Error deleting branch:", error);
       setError("Failed to delete branch");

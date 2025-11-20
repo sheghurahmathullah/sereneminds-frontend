@@ -10,7 +10,6 @@ import {
 } from "react-icons/fi";
 import "./Class.css";
 import axios from "axios";
-import { API_ENDPOINTS } from "../../config/api";
 
 const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
 const tabs = [{ label: "Overview" }, { label: "History" }];
@@ -33,14 +32,16 @@ const ClassPage = () => {
   const [error, setError] = useState("");
   const [selectedId, setSelectedId] = useState(null);
   const [selectedClass, setSelectedClass] = useState(null);
-  const [deleteConfirmId, setDeleteConfirmId] = useState(null); 
+  const [deleteConfirmId, setDeleteConfirmId] = useState(null);
+
+  const SERVER_URL = "https://sereneminds-backend-oucl.onrender.com/api/classes"; 
 
 
   // Fetch classes from API
   const fetchClasses = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(API_ENDPOINTS.CLASSES);
+      const response = await axios.get(`${SERVER_URL}`);
       if (!response.status) {
         throw new Error("Failed to fetch classes");
       }
@@ -79,7 +80,7 @@ const ClassPage = () => {
   const toggleStatus = async (id) => {
     try {
       const response = await axios.patch(
-        `${API_ENDPOINTS.CLASSES}/${id}/toggle-status`,
+        `${SERVER_URL}/${id}/toggle-status`,
         
       );
       if (!response.status) {
@@ -117,7 +118,7 @@ const ClassPage = () => {
         status: false,
       };
 
-      const response = await axios.post(API_ENDPOINTS.CLASSES, classData);        
+      const response = await axios.post(`${SERVER_URL}`, classData);        
       
         if (!response.status) {
         throw new Error("Failed to create class");
@@ -144,7 +145,7 @@ const ClassPage = () => {
       setLoading(true);
       setError("");
       const response = await axios.put(
-        `${API_ENDPOINTS.CLASSES}/${selectedId}`,form);
+        `${SERVER_URL}/${selectedId}`,form);
       
         if (!response.status) {
         throw new Error("Failed to update class");
@@ -189,7 +190,7 @@ const ClassPage = () => {
     setError("");
     try {
       const response = await axios.delete(
-        `${API_ENDPOINTS.CLASSES}/${id}`,
+        `${SERVER_URL}/${id}`,
         
       );
 

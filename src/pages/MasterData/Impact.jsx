@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./Impact.css";
 import { FiMoreVertical, FiEdit, FiTrash2, FiEye } from "react-icons/fi";
-import { API_ENDPOINTS } from "../../config/api";
 
 const IMPACT_VALUES = [1, 2, 3, 4, 5];
 
@@ -21,14 +20,16 @@ const Impact = () => {
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
   const [overviewImpact, setOverviewImpact] = useState(null);
 
+  const SERVER_URL = "https://sereneminds-backend-oucl.onrender.com/api/impacts"
+
 
   // Fetch impacts from API
   const fetchImpacts = async () => {
     try {
       setLoading(true);
       const response = await fetch(
-        API_ENDPOINTS.IMPACTS
-      );
+        `${SERVER_URL}`
+            );
       if (!response.ok) {
         throw new Error("Failed to fetch impacts");
       }
@@ -50,7 +51,7 @@ const Impact = () => {
   const toggleStatus = async (id) => {
     try {
       const response = await fetch(
-        `${API_ENDPOINTS.IMPACTS}/${id}/toggle-status`,
+        `${SERVER_URL}/${id}/toggle-status`,
         {
           method: "PATCH",
           headers: {
@@ -98,7 +99,7 @@ const Impact = () => {
       setLoading(true);
       if (modalType === "edit" && editingId) {
         const response = await fetch(
-          `${API_ENDPOINTS.IMPACTS}/${editingId}`,
+          `${SERVER_URL}/${editingId}`,
           {
             method: "PUT",
             headers: {
@@ -117,7 +118,7 @@ const Impact = () => {
 
       } else {
         const response = await fetch(
-          API_ENDPOINTS.IMPACTS,
+          `${SERVER_URL}`,
           {
             method: "POST",
             headers: {
@@ -167,7 +168,7 @@ const Impact = () => {
     try {
       setLoading(true);
       const response = await fetch(
-        `${API_ENDPOINTS.IMPACTS}/${id}`,
+        `${SERVER_URL}/${id}`,
         {
           method: "DELETE",
         }

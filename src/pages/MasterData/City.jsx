@@ -8,7 +8,6 @@ import {
   FiFilter,
   FiTrash2,
 } from "react-icons/fi";
-import { API_ENDPOINTS } from "../../config/api";
 
 import{Country, State, City} from 'country-state-city';
 
@@ -17,6 +16,8 @@ const API_URL = "http://localhost:5000/api/cities";
 const STATE_API_URL = "https://localhost:5000/api/states";
 const COUNTRY_API_URL =
   "https://localhost:5000/api/countries";
+
+const SERVER_URL = "https://sereneminds-backend-oucl.onrender.com/api/cities"; // Update with your actual server URL
 
 const Cities = () => {
 
@@ -54,7 +55,7 @@ const cityName = selectedCityObj ? selectedCityObj.name : "";
   const fetchCities = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(API_ENDPOINTS.CITIES);
+      const res = await axios.get(SERVER_URL);
       setCities(res.data);
       setError("");
     } catch (err) {
@@ -96,7 +97,7 @@ const cityName = selectedCityObj ? selectedCityObj.name : "";
     console.log("Submitting payload:", payload);
     try {
       if (editingId !== null) {
-        await axios.put(`${API_ENDPOINTS.CITIES}/${editingId}`, {
+        await axios.put(`${SERVER_URL}/${editingId}`, {
           country: countryName,
           state: stateName,
           city: cityName,
@@ -104,7 +105,7 @@ const cityName = selectedCityObj ? selectedCityObj.name : "";
         
       } else {
         console.log(countryName, stateName, cityName);
-        await axios.post(API_ENDPOINTS.CITIES, {
+        await axios.post(SERVER_URL, {
           country: countryName,
           state: stateName,
           city: cityName,
@@ -126,7 +127,7 @@ const cityName = selectedCityObj ? selectedCityObj.name : "";
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this city?")) return;
     try {
-      await axios.delete(`${API_ENDPOINTS.CITIES}/${id}`);
+      await axios.delete(`${SERVER_URL}/${id}`);
       fetchCities();
       setError("");
     } catch (err) {
@@ -136,7 +137,7 @@ const cityName = selectedCityObj ? selectedCityObj.name : "";
 
   const toggleStatus = async (id) => {
     try {
-     const res =  await axios.patch(`${API_ENDPOINTS.CITIES}/${id}/toggle-status`);
+     const res =  await axios.patch(`${SERVER_URL}/${id}/toggle-status`);
      const data = res.data;
      
       setCities((prev) => // for smooth update
