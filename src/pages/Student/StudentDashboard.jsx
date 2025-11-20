@@ -138,32 +138,28 @@ const StudentDashboard = () => {
             <span className="shortcut-label">Mood History</span>
           </Link>
 
-          {/* <Link to="/student/calendar" className="shortcut-btn"> */}
-          <Link to="/student/dashboard" className="shortcut-btn">
+          <Link to="/student/calendar" className="shortcut-btn">
             <div className="shortcut-icon">
               <FiCalendar />
             </div>
             <span className="shortcut-label">Calendar</span>
           </Link>
 
-          {/* <Link to="/student/streaks-rewards" className="shortcut-btn"> */}
-          <Link to="/student/dashboard" className="shortcut-btn">
+          <Link to="/student/streaks-rewards" className="shortcut-btn">
             <div className="shortcut-icon">
               <FiAward />
             </div>
             <span className="shortcut-label">Rewards</span>
           </Link>
 
-          {/* <Link to="/student/community" className="shortcut-btn"> */}
-          <Link to="/student/dashboard" className="shortcut-btn">
+          <Link to="/student/community" className="shortcut-btn">
             <div className="shortcut-icon">
               <FiUsers />
             </div>
             <span className="shortcut-label">Community</span>
           </Link>
 
-          {/* <Link to="/student/referrals" className="shortcut-btn"> */}
-          <Link to="/student/dashboard" className="shortcut-btn">
+          <Link to="/student/referrals" className="shortcut-btn">
             <div className="shortcut-icon">
               <FiSend />
             </div>
@@ -211,3 +207,4 @@ const StudentDashboard = () => {
 };
 
 export default StudentDashboard;
+

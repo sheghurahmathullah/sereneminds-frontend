@@ -157,14 +157,14 @@ function AppContent() {
             <Route path="/student/profile" element={<StudentProfile />} />
             <Route path="/student/log-mood" element={<LogMood />} />
             <Route path="/student/mood-history" element={<MoodHistory />} />
-            {/* <Route path="/student/calendar" element={<Calendar />} />
+            <Route path="/student/calendar" element={<Calendar />} />
             <Route
               path="/student/streaks-rewards"
               element={<StreaksRewards />}
             />
             <Route path="/student/referrals" element={<Referrals />} />
             <Route path="/student/community" element={<Community />} />
-            <Route path="/student/notifications" element={<Notifications />} /> */}
+            <Route path="/student/notifications" element={<Notifications />} />
 
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
