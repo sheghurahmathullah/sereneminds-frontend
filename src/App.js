@@ -49,6 +49,18 @@ import ForgotPassword from "./pages/Auth/ForgotPassword";
 import ResetPassword from "./pages/Auth/ResetPassword";
 // import Count from "./pages/MasterData/Country.jsx";
 import Countries from "./pages/MasterData/Countries.jsx";
+// Import Student pages
+import {
+  StudentDashboard,
+  StudentProfile,
+  LogMood,
+  MoodHistory,
+  Calendar,
+  StreaksRewards,
+  Referrals,
+  Community,
+  Notifications,
+} from "./pages/Student";
 
 function AppContent() {
   const location = useLocation();
@@ -139,6 +151,21 @@ function AppContent() {
             <Route path="/master/impact" element={<Impact />} />
             <Route path="/master/pleasantness" element={<Pleasantness />} />
             <Route path="/institute/edit/:id" element={<InstituteEdit />} />
+
+            {/* Student Pages */}
+            <Route path="/student/dashboard" element={<StudentDashboard />} />
+            <Route path="/student/profile" element={<StudentProfile />} />
+            <Route path="/student/log-mood" element={<LogMood />} />
+            <Route path="/student/mood-history" element={<MoodHistory />} />
+            {/* <Route path="/student/calendar" element={<Calendar />} />
+            <Route
+              path="/student/streaks-rewards"
+              element={<StreaksRewards />}
+            />
+            <Route path="/student/referrals" element={<Referrals />} />
+            <Route path="/student/community" element={<Community />} />
+            <Route path="/student/notifications" element={<Notifications />} /> */}
+
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
         </div>
