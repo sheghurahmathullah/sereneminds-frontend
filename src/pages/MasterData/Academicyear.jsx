@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./Academicyear.css";
 import { FiEdit, FiTrash2, FiEye } from "react-icons/fi";
 import axios from "axios";
+import { API_ENDPOINTS } from "../../config/api";
 
 const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
 
@@ -16,16 +17,14 @@ const Academicyear = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
-  const [overviewYear, setOverviewYear] = useState(null);
-
-  const SERVER_URL = "https://sereneminds-backend-oucl.onrender.com/api/academicyears"; 
+  const [overviewYear, setOverviewYear] = useState(null); 
 
 
   // Fetch academic years from API
   const fetchAcademicYears = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${SERVER_URL}`);
+      const response = await axios.get(API_ENDPOINTS.ACADEMIC_YEARS);
       setYears(response.data);
      
       if (!response.status) {
@@ -47,7 +46,7 @@ const Academicyear = () => {
   const toggleStatus = async (id) => {
     try {
       const response = await fetch(
-        `${SERVER_URL}/${id}/toggle-status`,
+        `${API_ENDPOINTS.ACADEMIC_YEARS}/${id}/toggle-status`,
         {
           method: "PATCH",
           headers: {
@@ -92,7 +91,7 @@ const Academicyear = () => {
       if (editingId) {
         // Update existing academic year
         const response = await axios.put(
-          `${SERVER_URL}/${editingId}`, payload);
+          `${API_ENDPOINTS.ACADEMIC_YEARS}/${editingId}`, payload);
         
           if (!response.status) {
           throw new Error("Failed to update academic year");
@@ -102,7 +101,7 @@ const Academicyear = () => {
       } else {
         // Create new academic year
         const response = await axios.post(
-          `${SERVER_URL}`, payload);
+          API_ENDPOINTS.ACADEMIC_YEARS, payload);
           console.log(response.data);
         if (!response.status) {
           throw new Error("Failed to create academic year");
@@ -132,7 +131,7 @@ const Academicyear = () => {
     try {
       setLoading(true);
       const response = await axios.delete(
-        `${SERVER_URL}/${id}`,
+        `${API_ENDPOINTS.ACADEMIC_YEARS}/${id}`,
       
       );
 

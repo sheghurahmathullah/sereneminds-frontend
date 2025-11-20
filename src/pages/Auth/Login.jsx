@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import { API_ENDPOINTS } from "../../config/api";
 import "./Auth.css";
 
 const Login = () => {
@@ -14,9 +15,6 @@ const Login = () => {
   });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
-
-  const SERVER_URL = "https://sereneminds-backend-oucl.onrender.com/api/auth/login"
-  
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -59,19 +57,16 @@ const Login = () => {
 
     setLoading(true);
     try {
-      const response = await fetch(
-        `${SERVER_URL}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email: formData.email,
-            password: formData.password,
-          }),
-        }
-      );
+      const response = await fetch(API_ENDPOINTS.AUTH.LOGIN, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
 
       const data = await response.json();
 
@@ -169,12 +164,12 @@ const Login = () => {
           </button>
         </form>
 
-         <div className="auth-footer">
+        <div className="auth-footer">
           <span>New on our platform?</span>
           <Link to="/register" className="auth-link">
             Create an account
           </Link>
-        </div> 
+        </div>
       </div>
     </div>
   );

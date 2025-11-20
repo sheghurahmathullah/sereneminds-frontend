@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./Pleasantness.css";
 import { FiMoreVertical, FiEdit, FiTrash2, FiEye } from "react-icons/fi";
+import { API_ENDPOINTS } from "../../config/api";
 
 const PLEASANTNESS_VALUES = [1, 2, 3, 4, 5];
 
@@ -21,15 +22,13 @@ const Pleasantness = () => {
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
   const [overviewPleasantness, setOverviewPleasantness] = useState(null);
 
-  const SERVER_URL = "https://sereneminds-backend-oucl.onrender.com/api/pleasantnesses"
-
 
   // Fetch pleasantness from API
   const fetchPleasantness = async () => {
     try {
       setLoading(true);
       const response = await fetch(
-        `${SERVER_URL}`
+        API_ENDPOINTS.PLEASANTNESS
       );
       if (!response.ok) {
         throw new Error("Failed to fetch pleasantness data");
@@ -52,7 +51,7 @@ const Pleasantness = () => {
   const toggleStatus = async (id) => {
     try {
       const response = await fetch(
-        `${SERVER_URL}/${id}/toggle-status`,
+        `${API_ENDPOINTS.PLEASANTNESS}/${id}/toggle-status`,
         {
           method: "PATCH",
           headers: {
@@ -100,7 +99,7 @@ const Pleasantness = () => {
       setLoading(true);
       if (modalType === "edit" && editingId) {
         const response = await fetch(
-          `${SERVER_URL}/${editingId}`,
+          `${API_ENDPOINTS.PLEASANTNESS}/${editingId}`,
           {
             method: "PUT",
             headers: {
@@ -119,7 +118,7 @@ const Pleasantness = () => {
       fetchPleasantness();
       } else {
         const response = await fetch(
-          `${SERVER_URL}`,
+          API_ENDPOINTS.PLEASANTNESS,
           {
             method: "POST",
             headers: {
@@ -168,7 +167,7 @@ const Pleasantness = () => {
     try {
       setLoading(true);
       const response = await fetch(
-        `${SERVER_URL}/${id}`,
+        `${API_ENDPOINTS.PLEASANTNESS}/${id}`,
         {
           method: "DELETE",
         }

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import { API_ENDPOINTS } from "../../config/api";
 import "./Auth.css";
 
 const Register = () => {
@@ -14,8 +15,6 @@ const Register = () => {
   });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
-
-  const SERVER_URL = "https://sereneminds-backend-oucl.onrender.com/api/auth/register"
 
 
   const handleChange = (e) => {
@@ -71,7 +70,7 @@ const Register = () => {
     setLoading(true);
     try {
       const response = await fetch(
-        `${SERVER_URL}`,
+        API_ENDPOINTS.AUTH.REGISTER,
         {
           method: "POST",
           headers: {

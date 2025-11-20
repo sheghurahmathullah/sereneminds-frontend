@@ -8,12 +8,12 @@ import {
   FiFilter,
   FiTrash2,
 } from "react-icons/fi";
+import { API_ENDPOINTS } from "../../config/api";
 
 import { Country } from "country-state-city";
 
 
 const API_URL = "http://localhost:5000/api/countries";
-const SERVER_URL = "https://sereneminds-backend-oucl.onrender.com/api/countries"; // Update with your actual server URL
 
 const Countries = () => {
 
@@ -32,7 +32,7 @@ const Countries = () => {
   const fetchCountries = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(SERVER_URL);
+      const res = await axios.get(API_ENDPOINTS.COUNTRIES);
       setCountries(res.data);
       setError("");
     } catch (err) {
@@ -60,9 +60,9 @@ const Countries = () => {
     if (!form.countryName) return;
     try {
       if (editingId !== null) {
-        await axios.put(`${SERVER_URL}/${editingId}`, form);
+        await axios.put(`${API_ENDPOINTS.COUNTRIES}/${editingId}`, form);
       } else {
-        await axios.post(SERVER_URL, form);
+        await axios.post(API_ENDPOINTS.COUNTRIES, form);
       }
       fetchCountries();
       setShowModal(false);
@@ -78,7 +78,7 @@ const Countries = () => {
     if (!window.confirm("Are you sure you want to delete this country?"))
       return;
     try {
-      await axios.delete(`${SERVER_URL}/${id}`);
+      await axios.delete(`${API_ENDPOINTS.COUNTRIES}/${id}`);
       fetchCountries();
       setError("");
     } catch (err) {
@@ -89,7 +89,7 @@ const Countries = () => {
   const toggleStatus = async (country) => {
     console.log("Called");
     try {
-      const res = await axios.patch(`${SERVER_URL}/${country.id}/toggle-status`, {
+      const res = await axios.patch(`${API_ENDPOINTS.COUNTRIES}/${country.id}/toggle-status`, {
         status: !country.status,
       });
       // fetchCountries();

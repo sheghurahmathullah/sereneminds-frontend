@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./Category.css";
 import { FiMoreVertical, FiEdit, FiTrash2, FiEye } from "react-icons/fi";
+import { API_ENDPOINTS } from "../../config/api";
 
 const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
 
@@ -18,14 +19,12 @@ const Category = () => {
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
   const [overviewCategory, setOverviewCategory] = useState(null);
 
-  const SERVER_URL = "https://sereneminds-backend-oucl.onrender.com/api/categories"
-
   // Fetch categories from API
   const fetchCategories = async () => {
     try {
       setLoading(true);
       const response = await fetch(
-        `${SERVER_URL}`
+        API_ENDPOINTS.CATEGORIES
       );
       if (!response.ok) {
         throw new Error("Failed to fetch categories");
@@ -48,7 +47,7 @@ const Category = () => {
   const toggleStatus = async (id) => {
     try {
       const response = await fetch(
-        `${SERVER_URL}/${id}/toggle-status`,
+        `${API_ENDPOINTS.CATEGORIES}/${id}/toggle-status`,
         {
           method: "PATCH",
           headers: {
@@ -101,7 +100,7 @@ const Category = () => {
       setLoading(true);
       if (modalType === "edit" && editingId) {
         const response = await fetch(
-          `${SERVER_URL}/${editingId}`,
+          `${API_ENDPOINTS.CATEGORIES}/${editingId}`,
           {
             method: "PUT",
             headers: {
@@ -119,7 +118,7 @@ const Category = () => {
         );
       } else {
         const response = await fetch(
-          `${SERVER_URL}`,
+          API_ENDPOINTS.CATEGORIES,
           {
             method: "POST",
             headers: {
@@ -170,7 +169,7 @@ const Category = () => {
     try {
       setLoading(true);
       const response = await fetch(
-        `${SERVER_URL}/${id}`,
+        `${API_ENDPOINTS.CATEGORIES}/${id}`,
         {
           method: "DELETE",
         }

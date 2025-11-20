@@ -13,6 +13,7 @@ import {
 } from "react-icons/fi";
 import "./School.css";
 import axios from "axios";
+import { API_ENDPOINTS } from "../../config/api";
 
 const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
 
@@ -90,16 +91,11 @@ const School = () => {
   const [states, setStates] =useState([]);
   const [selectedState, setSelectedState] = useState("");
   const [cities, setCities] = useState([]);
-
-  const SERVER_URL = "https://sereneminds-backend-oucl.onrender.com/api/schools"; 
-  const SERVER_URL_INSTITUTES = "https://sereneminds-backend-oucl.onrender.com/api/institutes";
-  const SERVER_URL_STATES = "https://sereneminds-backend-oucl.onrender.com/api/states";
-  const SERVER_URL_CITIES = "https://sereneminds-backend-oucl.onrender.com/api/cities";
   
 
     const fetchStates = async () => {
     try { 
-    const response = await axios.get(`${SERVER_URL_STATES}`);
+    const response = await axios.get(API_ENDPOINTS.STATES);
     const data = await response.data;
     console.log("Fetched states:", data);
     setStates(data);
@@ -113,7 +109,7 @@ const School = () => {
 
   const fetchCities = async () => {
     try {
-      const response = await axios.get(`${SERVER_URL_CITIES}`);
+      const response = await axios.get(API_ENDPOINTS.CITIES);
       const data = await response.data;
       setCities(data);
       console.log("Fetched cities:", data);
@@ -128,7 +124,7 @@ const School = () => {
   const fetchSchools = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${SERVER_URL}`);  
+      const response = await axios.get(API_ENDPOINTS.SCHOOLS);  
       console.log(response.data)
       
       if (!response.status) throw new Error("Failed to fetch schools");
@@ -155,7 +151,7 @@ const School = () => {
   // Toggle status (optimistic)
   const toggleStatus = async (id) => {
     try {
-      const response = await axios.patch(`${SERVER_URL}/${id}/toggle-status`);
+      const response = await axios.patch(`${API_ENDPOINTS.SCHOOLS}/${id}/toggle-status`);
 
       const data = response.data;
 
@@ -204,13 +200,13 @@ const School = () => {
 
     try {
       if (isEdit && editId) {
-        const response = await axios.put(`${SERVER_URL}/${editId}`, form);       
+        const response = await axios.put(`${API_ENDPOINTS.SCHOOLS}/${editId}`, form);       
         if (!response.status) throw new Error("Failed to update school");
         fetchSchools(); 
 
       } else {
 
-        const response = await axios.post(`${SERVER_URL}`, form);
+        const response = await axios.post(API_ENDPOINTS.SCHOOLS, form);
         if (!response.status) throw new Error("Failed to create school");
         const data = await response.data;
         fetchSchools(); 
@@ -247,7 +243,7 @@ const School = () => {
     setLoading(true);
     setError("");
     try {
-      const response = await axios.delete(`${SERVER_URL}/${id}`);
+      const response = await axios.delete(`${API_ENDPOINTS.SCHOOLS}/${id}`);
           setViewMode("list");
 
 

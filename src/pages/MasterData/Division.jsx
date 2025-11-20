@@ -9,6 +9,7 @@ import {
 } from "react-icons/fi";
 import "./Division.css";
 import axios from "axios";
+import { API_ENDPOINTS } from "../../config/api";
 
 const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
 const defaultForm = { name: "", class: "", school: "", code: "", classCode: "", schoolCode :"",
@@ -28,16 +29,14 @@ const Division = () => {
   const [editId, setEditId] = useState(null);
   const [selectedDivision, setSelectedDivision] = useState(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
-  const [form, setForm] = useState(defaultForm);
-
-  const SERVER_URL = "https://sereneminds-backend-oucl.onrender.com/api/divisions"; 
+  const [form, setForm] = useState(defaultForm); 
 
 
   // Fetch divisions from API
   const fetchDivisions = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${SERVER_URL}`);
+      const response = await axios.get(API_ENDPOINTS.DIVISIONS);
       if (!response.status) throw new Error("Failed to fetch divisions");
       const data = await response.data;
       setDivisions(data);
@@ -59,7 +58,7 @@ const Division = () => {
   const toggleStatus = async (id) => {
     try {
       const response = await axios.patch(
-        `${SERVER_URL}/${id}/toggle-status`);
+        `${API_ENDPOINTS.DIVISIONS}/${id}/toggle-status`);
       
       if (!response.status) throw new Error("Failed to toggle status");
       const data = await response.data;
@@ -110,7 +109,7 @@ const Division = () => {
 
         // Create
         const response = await axios.post(
-         `${SERVER_URL}`, form);
+         API_ENDPOINTS.DIVISIONS, form);
         if (!response.status) throw new Error("Failed to create division");
         
         const data = await response.data;
@@ -134,7 +133,7 @@ const Division = () => {
 
     try {
        const response = await axios.put(
-          `${SERVER_URL}/${editId}`, form);
+          `${API_ENDPOINTS.DIVISIONS}/${editId}`, form);
         if (!response.status) throw new Error("Failed to update division");
 
         const updatedDivision = await response.data;
@@ -181,7 +180,7 @@ const Division = () => {
   const handleDelete = async (id) => {
     try {
       setLoading(true);
-      const response = await axios.delete(`${SERVER_URL}/${id}`);
+      const response = await axios.delete(`${API_ENDPOINTS.DIVISIONS}/${id}`);
       if (!response.status) throw new Error("Failed to delete division");
       setDeleteConfirmId(null);
 

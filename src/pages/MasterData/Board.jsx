@@ -10,6 +10,7 @@ import {
 } from "react-icons/fi";
 import "./Board.css";
 import axios from "axios";
+import { API_ENDPOINTS } from "../../config/api";
 
 const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
 
@@ -32,16 +33,14 @@ const Board = () => {
   const [error, setError] = useState("");
   const [selectedId, setSelectedId] = useState(null);
   const [selectedBoard, setSelectedBoard] = useState(null);
-  const [deleteConfirmId, setDeleteConfirmId] = useState(null);
-
-  const SERVER_URL = "https://sereneminds-backend-oucl.onrender.com/api/boards"; 
+  const [deleteConfirmId, setDeleteConfirmId] = useState(null); 
    
 
   // Fetch boards from API
   const fetchBoards = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${SERVER_URL}`);
+      const response = await axios.get(API_ENDPOINTS.BOARDS);
       console.log(response.data);
       if (!response.status) {
         throw new Error("Failed to fetch boards");
@@ -83,7 +82,7 @@ const Board = () => {
   const toggleStatus = async (id) => {
     try {
       const response = await axios.patch(
-        `${SERVER_URL}/${id}/toggle-status`);
+        `${API_ENDPOINTS.BOARDS}/${id}/toggle-status`);
       
         if (!response.status) {
         throw new Error("Failed to toggle status");
@@ -112,7 +111,7 @@ const Board = () => {
     e.preventDefault();
     try {
       setLoading(true);
-      const response = await axios.post(`${SERVER_URL}`,form);
+      const response = await axios.post(API_ENDPOINTS.BOARDS,form);
       console.log(response.data);
 
       if (!response.status) {
@@ -136,7 +135,7 @@ const Board = () => {
     e.preventDefault();
     try {
       setLoading(true);
-      const response = await axios.put(`${SERVER_URL}/${selectedId}`, form);
+      const response = await axios.put(`${API_ENDPOINTS.BOARDS}/${selectedId}`, form);
       
         if (!response.status) {
         throw new Error("Failed to update board");
@@ -182,7 +181,7 @@ const Board = () => {
     setError("");
     try {
       const response = await axios.delete(
-        `${SERVER_URL}/${id}`);
+        `${API_ENDPOINTS.BOARDS}/${id}`);
 
 
       if (!response.status) throw new Error("Failed to delete board");

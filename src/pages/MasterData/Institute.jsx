@@ -10,6 +10,7 @@ import {
 } from "react-icons/fi";
 import axios from "axios";
 import Cities from "./City";
+import { API_ENDPOINTS } from "../../config/api";
 
 const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
 
@@ -53,10 +54,6 @@ const Institute = () => {
 
   const [formErrors, setFormErrors] = useState({});
   
-  const SERVER_URL = "https://sereneminds-backend-oucl.onrender.com/api/institutes"; // 
-  const SERVER_URL_STATES = "https://sereneminds-backend-oucl.onrender.com/api/states"; // 
-  const SERVER_URL_CITIES = "https://sereneminds-backend-oucl.onrender.com/api/cities"; // 
-
   const isValidEmail = (email) =>
   /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
@@ -79,7 +76,7 @@ const Institute = () => {
 
   const fetchStates = async () => {
     try { 
-    const response = await axios.get(`${SERVER_URL_STATES}`);
+    const response = await axios.get(API_ENDPOINTS.STATES);
     const data = await response.data;
     console.log("Fetched states:", data);
     setStates(data);
@@ -92,7 +89,7 @@ const Institute = () => {
 
   const fetchCities = async () => {
     try {
-      const response = await axios.get(`${SERVER_URL_CITIES}`);
+      const response = await axios.get(API_ENDPOINTS.CITIES);
       const data = await response.data;
       setCities(data);
       console.log("Fetched cities:", data);
@@ -105,7 +102,7 @@ const Institute = () => {
 
   const fetchInstitutes = async () => {
     try { 
-      const response = await axios.get(`${SERVER_URL}`);
+      const response = await axios.get(API_ENDPOINTS.INSTITUTES);
       const data = await response.data; 
       setInstitutes(data);
       console.log("Fetched institutes:", data);
@@ -128,7 +125,7 @@ const Institute = () => {
   // Toggle status
   const toggleStatus = (id) => {
     // Optionally update the backend
-    axios.patch(`${SERVER_URL}/${id}/toggle-status`, {
+    axios.patch(`${API_ENDPOINTS.INSTITUTES}/${id}/toggle-status`, {
       status: !institutes.find((inst) => inst.id === id).status,
     });
 
@@ -172,13 +169,13 @@ const Institute = () => {
       // Update existing institute
       console.log("Updating institute with ID:", editId);
       console.log("Form data:", form);
-      const response = await axios.put(`${SERVER_URL}/${editId}`, form);
+      const response = await axios.put(`${API_ENDPOINTS.INSTITUTES}/${editId}`, form);
 
     } else {
 
       // Create new institute
       try {
-        const response = await axios.post(`${SERVER_URL}`, form,  {
+        const response = await axios.post(API_ENDPOINTS.INSTITUTES, form,  {
           headers: {
               "Content-Type": "application/json",
             }}
@@ -230,7 +227,7 @@ const Institute = () => {
   // Delete
   const handleDelete = async (id) => {
 
-    const res = await axios.delete(`${SERVER_URL}/${id}`)
+    const res = await axios.delete(`${API_ENDPOINTS.INSTITUTES}/${id}`)
     
     setViewMode("list");
     setSelectedInstitute(null);

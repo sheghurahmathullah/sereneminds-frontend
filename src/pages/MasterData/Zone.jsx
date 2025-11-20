@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./Zone.css";
 import { FiMoreVertical, FiEdit, FiTrash2, FiEye } from "react-icons/fi";
 import axios from "axios";
+import { API_ENDPOINTS } from "../../config/api";
 
 const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
 
@@ -23,10 +24,7 @@ const Zone = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
-  const [overviewZone, setOverviewZone] = useState(null);
-
-  const SERVER_URL = "https://sereneminds-backend-oucl.onrender.com/api/zones";
-  const SERVER_URL_EMOTIONS = "https://sereneminds-backend-oucl.onrender.com/api/emotions"  
+  const [overviewZone, setOverviewZone] = useState(null);  
 
 
   // Fetch zones from API
@@ -34,7 +32,7 @@ const Zone = () => {
     try {
       setLoading(true);
       const response = await axios.get(
-        `${SERVER_URL}`
+        API_ENDPOINTS.ZONES
       );
       if (!response.status) {
         throw new Error("Failed to fetch zones");
@@ -54,7 +52,7 @@ const Zone = () => {
   const fetchEmotions = async () => {
     try {
       const response = await axios.get(
-        `${SERVER_URL_EMOTIONS}`
+        API_ENDPOINTS.EMOTIONS
       );
 
       if (!response.status) {
@@ -77,7 +75,7 @@ const Zone = () => {
   const toggleStatus = async (id) => {
     try {
       const response = await axios.patch(
-        `${SERVER_URL}/${id}/toggle-status`);
+        `${API_ENDPOINTS.ZONES}/${id}/toggle-status`);
       
         if (!response.status) {
         throw new Error("Failed to toggle status");
@@ -127,7 +125,7 @@ const Zone = () => {
       setLoading(true);
 
       if(editingId){
-        const res = await axios.put(`${SERVER_URL}/${editingId}`, {
+        const res = await axios.put(`${API_ENDPOINTS.ZONES}/${editingId}`, {
           name: modalForm.name,
           description: modalForm.description,
           emotionId: Number(modalForm.emotionId),
@@ -140,7 +138,7 @@ const Zone = () => {
       }else {
 
         
-      const res = await axios.post (`${SERVER_URL}`, {
+      const res = await axios.post (API_ENDPOINTS.ZONES, {
           name: modalForm.name,
           description: modalForm.description,
           emotionId: Number(modalForm.emotionId),
@@ -187,7 +185,7 @@ const Zone = () => {
     try {
       setLoading(true);
       const response = await fetch(
-        `${SERVER_URL}/${id}`,
+        `${API_ENDPOINTS.ZONES}/${id}`,
         {
           method: "DELETE",
         }

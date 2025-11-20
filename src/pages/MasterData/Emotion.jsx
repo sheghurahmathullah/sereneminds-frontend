@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./Emotion.css";
 import { FiMoreVertical, FiEdit, FiTrash2, FiEye } from "react-icons/fi";
+import { API_ENDPOINTS } from "../../config/api";
 
 const EMOTION_SCORES = [50, 60, 70, 75, 80, 90, 100];
 const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
@@ -18,16 +19,14 @@ const Emotion = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
-  const [overviewEmotion, setOverviewEmotion] = useState(null);
-
-  const SERVER_URL = "https://sereneminds-backend-oucl.onrender.com/api/emotions"; 
+  const [overviewEmotion, setOverviewEmotion] = useState(null); 
 
   // Fetch emotions from API
   const fetchEmotions = async () => {
     try {
       setLoading(true);
       const response = await fetch(
-        `${SERVER_URL}`
+        API_ENDPOINTS.EMOTIONS
       );
       if (!response.ok) {
         throw new Error("Failed to fetch emotions");
@@ -51,7 +50,7 @@ const Emotion = () => {
   const toggleStatus = async (id) => {
     try {
       const response = await fetch(
-        `${SERVER_URL}/${id}/toggle-status`,
+        `${API_ENDPOINTS.EMOTIONS}/${id}/toggle-status`,
         {
           method: "PATCH",
           headers: {
@@ -106,7 +105,7 @@ const Emotion = () => {
       if (modalType === "edit" && editingId) {
         // Update existing emotion
         const response = await fetch(
-          `${SERVER_URL}/${editingId}`,
+          `${API_ENDPOINTS.EMOTIONS}/${editingId}`,
           {
             method: "PUT",
             headers: {
@@ -127,7 +126,7 @@ const Emotion = () => {
       } else {
         // Create new emotion
         const response = await fetch(
-          `${SERVER_URL}`,
+          API_ENDPOINTS.EMOTIONS,
           {
             method: "POST",
             headers: {
@@ -180,7 +179,7 @@ const Emotion = () => {
     try {
       setLoading(true);
       const response = await fetch(
-        `${SERVER_URL}/${id}`,
+        `${API_ENDPOINTS.EMOTIONS}/${id}`,
         {
           method: "DELETE",
         }
