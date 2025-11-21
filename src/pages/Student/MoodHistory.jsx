@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { FiFilter, FiEye, FiPlus } from "react-icons/fi";
+import { FiFilter, FiEye, FiPlus, FiEdit } from "react-icons/fi";
 import "./Student.css";
 
 const MoodHistory = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [selectedMood, setSelectedMood] = useState(null);
+  const [editingMood, setEditingMood] = useState(null);
+  const [editForm, setEditForm] = useState(null);
   const [filters, setFilters] = useState({
     dateFrom: "",
     dateTo: "",
@@ -346,7 +348,7 @@ const MoodHistory = () => {
               <th>Impact</th>
               <th>Joyfulness</th>
               <th>Zone</th>
-              <th>Actions</th>
+              <th style={{ width: "150px" }}>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -430,31 +432,69 @@ const MoodHistory = () => {
                     </div>
                   </td>
                   <td>
-                    <button
-                      onClick={() => setSelectedMood(mood)}
-                      style={{
-                        background: "none",
-                        border: "none",
-                        color: "#00c7b7",
-                        cursor: "pointer",
-                        fontSize: "14px",
-                        fontWeight: "600",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "6px",
-                        padding: "6px 12px",
-                        borderRadius: "8px",
-                        transition: "background 0.2s",
-                      }}
-                      onMouseEnter={(e) =>
-                        (e.currentTarget.style.background = "#f9f9f9")
-                      }
-                      onMouseLeave={(e) =>
-                        (e.currentTarget.style.background = "none")
-                      }
-                    >
-                      <FiEye /> View
-                    </button>
+                    <div style={{ display: "flex", gap: "8px" }}>
+                      <button
+                        onClick={() => setSelectedMood(mood)}
+                        style={{
+                          background: "none",
+                          border: "none",
+                          color: "#00c7b7",
+                          cursor: "pointer",
+                          fontSize: "14px",
+                          fontWeight: "600",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "6px",
+                          padding: "6px 12px",
+                          borderRadius: "8px",
+                          transition: "background 0.2s",
+                        }}
+                        onMouseEnter={(e) =>
+                          (e.currentTarget.style.background = "#f9f9f9")
+                        }
+                        onMouseLeave={(e) =>
+                          (e.currentTarget.style.background = "none")
+                        }
+                      >
+                        <FiEye /> View
+                      </button>
+                      <button
+                        onClick={() => {
+                          setEditingMood(mood);
+                          setEditForm({
+                            date: mood.date,
+                            time: mood.time,
+                            category: mood.category,
+                            subcategory: mood.subcategory,
+                            impact: mood.impact,
+                            joyfulness: mood.joyfulness,
+                            note: mood.note || "",
+                          });
+                        }}
+                        style={{
+                          background: "none",
+                          border: "none",
+                          color: "#f39c12",
+                          cursor: "pointer",
+                          fontSize: "14px",
+                          fontWeight: "600",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "6px",
+                          padding: "6px 12px",
+                          borderRadius: "8px",
+                          transition: "background 0.2s",
+                        }}
+                        onMouseEnter={(e) =>
+                          (e.currentTarget.style.background = "#f9f9f9")
+                        }
+                        onMouseLeave={(e) =>
+                          (e.currentTarget.style.background = "none")
+                        }
+                      >
+                        <FiEdit /> Edit
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))
@@ -657,6 +697,144 @@ const MoodHistory = () => {
                 Close
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Mood Modal */}
+      {editingMood && editForm && (
+        <div className="modal-overlay" onClick={() => {
+          setEditingMood(null);
+          setEditForm(null);
+        }}>
+          <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: "600px" }}>
+            <div className="modal-header">
+              <h3 className="modal-title">Edit Mood Log</h3>
+              <button
+                className="modal-close"
+                onClick={() => {
+                  setEditingMood(null);
+                  setEditForm(null);
+                }}
+              >
+                ×
+              </button>
+            </div>
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              alert("Mood updated successfully!");
+              setEditingMood(null);
+              setEditForm(null);
+            }}>
+              <div className="modal-body">
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+                  <div className="form-group">
+                    <label className="form-label">Date *</label>
+                    <input
+                      type="date"
+                      className="form-input"
+                      value={editForm.date}
+                      onChange={(e) => setEditForm({ ...editForm, date: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Time *</label>
+                    <input
+                      type="time"
+                      className="form-input"
+                      value={editForm.time}
+                      onChange={(e) => setEditForm({ ...editForm, time: e.target.value })}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Category *</label>
+                  <select
+                    className="form-select"
+                    value={editForm.category}
+                    onChange={(e) => setEditForm({ ...editForm, category: e.target.value })}
+                    required
+                  >
+                    <option value="">Select Category</option>
+                    <option value="Happy">Happy</option>
+                    <option value="Sad">Sad</option>
+                    <option value="Angry">Angry</option>
+                    <option value="Anxious">Anxious</option>
+                    <option value="Surprised">Surprised</option>
+                    <option value="Calm">Calm</option>
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Subcategory *</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={editForm.subcategory}
+                    onChange={(e) => setEditForm({ ...editForm, subcategory: e.target.value })}
+                    required
+                  />
+                </div>
+
+                <div className="slider-group">
+                  <div className="slider-label">
+                    <label className="form-label">Impact Level (1-7) *</label>
+                    <span className="slider-value">{editForm.impact}</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="1"
+                    max="7"
+                    value={editForm.impact}
+                    onChange={(e) => setEditForm({ ...editForm, impact: parseInt(e.target.value) })}
+                    className="slider"
+                  />
+                </div>
+
+                <div className="slider-group">
+                  <div className="slider-label">
+                    <label className="form-label">Joyfulness Level (1-7) *</label>
+                    <span className="slider-value">{editForm.joyfulness}</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="1"
+                    max="7"
+                    value={editForm.joyfulness}
+                    onChange={(e) => setEditForm({ ...editForm, joyfulness: parseInt(e.target.value) })}
+                    className="slider"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Note</label>
+                  <textarea
+                    className="form-textarea"
+                    value={editForm.note}
+                    onChange={(e) => setEditForm({ ...editForm, note: e.target.value })}
+                    placeholder="Add any additional notes..."
+                  />
+                </div>
+              </div>
+              <div className="modal-actions">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => {
+                    setEditingMood(null);
+                    setEditForm(null);
+                  }}
+                >
+                  Cancel
+                </button>
+                <button type="submit" className="btn btn-primary">
+                  Save Changes
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

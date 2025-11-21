@@ -8,6 +8,9 @@ import {
   FiFlag,
   FiBookmark,
   FiMoreVertical,
+  FiEdit,
+  FiUserPlus,
+  FiActivity,
 } from "react-icons/fi";
 import "./Student.css";
 
@@ -16,8 +19,16 @@ const Community = () => {
   const [selectedCommunity, setSelectedCommunity] = useState(null);
   const [showCreatePost, setShowCreatePost] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
+  const [showEditCommunity, setShowEditCommunity] = useState(false);
+  const [showEditPost, setShowEditPost] = useState(false);
+  const [showMembers, setShowMembers] = useState(false);
+  const [showActivityLog, setShowActivityLog] = useState(false);
+  const [editingCommunity, setEditingCommunity] = useState(null);
+  const [editingPost, setEditingPost] = useState(null);
+  const [selectedCommunityForMembers, setSelectedCommunityForMembers] = useState(null);
   const [reportTarget, setReportTarget] = useState(null);
   const [postContent, setPostContent] = useState("");
+  const [editPostContent, setEditPostContent] = useState("");
   const [likedPosts, setLikedPosts] = useState([1, 5, 8]);
 
   // Static communities data
@@ -224,6 +235,31 @@ const Community = () => {
     setShowCreatePost(false);
   };
 
+  const handleEditPost = (post) => {
+    setEditingPost(post);
+    setEditPostContent(post.content);
+    setShowEditPost(true);
+  };
+
+  const handleUpdatePost = (e) => {
+    e.preventDefault();
+    if (!editPostContent.trim()) return;
+    alert("Post updated successfully!");
+    setShowEditPost(false);
+    setEditingPost(null);
+    setEditPostContent("");
+  };
+
+  const handleEditCommunity = (community) => {
+    setEditingCommunity(community);
+    setShowEditCommunity(true);
+  };
+
+  const handleViewMembers = (community) => {
+    setSelectedCommunityForMembers(community);
+    setShowMembers(true);
+  };
+
   const handleReportPost = (post) => {
     setReportTarget(post);
     setShowReportModal(true);
@@ -313,27 +349,82 @@ const Community = () => {
                   <>
                     <button
                       className="btn btn-secondary"
-                      style={{ flex: 1 }}
                       onClick={() => handleExitCommunity(community.id)}
+                      style={{ 
+                        fontSize: "13px",
+                        padding: "8px 12px",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis"
+                      }}
                     >
                       Exit
                     </button>
                     <button
+                      className="btn btn-secondary"
+                      onClick={() => handleEditCommunity(community)}
+                      style={{ 
+                        fontSize: "13px",
+                        padding: "8px 12px",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: "4px"
+                      }}
+                    >
+                      <FiEdit style={{ fontSize: "14px" }} /> <span>Edit</span>
+                    </button>
+                    <button
                       className="btn btn-primary"
-                      style={{ flex: 1 }}
                       onClick={() => {
                         setSelectedCommunity(community);
                         setShowCreatePost(true);
                       }}
+                      style={{ 
+                        fontSize: "13px",
+                        padding: "8px 12px",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: "4px"
+                      }}
                     >
-                      <FiPlus /> Post
+                      <FiPlus style={{ fontSize: "14px" }} /> <span>Post</span>
+                    </button>
+                    <button
+                      className="btn btn-secondary"
+                      onClick={() => handleViewMembers(community)}
+                      style={{ 
+                        fontSize: "13px",
+                        padding: "8px 12px",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: "4px"
+                      }}
+                    >
+                      <FiUsers style={{ fontSize: "14px" }} /> <span>Members</span>
                     </button>
                   </>
                 ) : (
                   <button
                     className="btn btn-primary"
-                    style={{ width: "100%" }}
                     onClick={() => handleJoinCommunity(community.id)}
+                    style={{ 
+                      gridColumn: "1 / -1",
+                      width: "100%",
+                      fontSize: "14px",
+                      padding: "10px 16px"
+                    }}
                   >
                     Join Community
                   </button>
@@ -394,24 +485,48 @@ const Community = () => {
                     {post.communityName} · {post.time}
                   </div>
                 </div>
-                <button
-                  style={{
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer",
-                    padding: "8px",
-                    borderRadius: "8px",
-                    color: "#888",
-                  }}
-                  onMouseEnter={(e) =>
-                    (e.currentTarget.style.background = "#f9f9f9")
-                  }
-                  onMouseLeave={(e) =>
-                    (e.currentTarget.style.background = "none")
-                  }
-                >
-                  <FiMoreVertical size={20} />
-                </button>
+                <div style={{ display: "flex", gap: "8px" }}>
+                  {post.author === "Sarah Johnson" && (
+                    <button
+                      onClick={() => handleEditPost(post)}
+                      style={{
+                        background: "none",
+                        border: "none",
+                        cursor: "pointer",
+                        padding: "8px",
+                        borderRadius: "8px",
+                        color: "#f39c12",
+                      }}
+                      onMouseEnter={(e) =>
+                        (e.currentTarget.style.background = "#f9f9f9")
+                      }
+                      onMouseLeave={(e) =>
+                        (e.currentTarget.style.background = "none")
+                      }
+                      title="Edit Post"
+                    >
+                      <FiEdit size={18} />
+                    </button>
+                  )}
+                  <button
+                    style={{
+                      background: "none",
+                      border: "none",
+                      cursor: "pointer",
+                      padding: "8px",
+                      borderRadius: "8px",
+                      color: "#888",
+                    }}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.background = "#f9f9f9")
+                    }
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.background = "none")
+                    }
+                  >
+                    <FiMoreVertical size={20} />
+                  </button>
+                </div>
               </div>
 
               <div className="post-content">{post.content}</div>
@@ -664,6 +779,335 @@ const Community = () => {
                 }}
               >
                 Submit Report
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Community Modal */}
+      {showEditCommunity && editingCommunity && (
+        <div className="modal-overlay" onClick={() => {
+          setShowEditCommunity(false);
+          setEditingCommunity(null);
+        }}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3 className="modal-title">Edit Community</h3>
+              <button
+                className="modal-close"
+                onClick={() => {
+                  setShowEditCommunity(false);
+                  setEditingCommunity(null);
+                }}
+              >
+                ×
+              </button>
+            </div>
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              alert("Community updated successfully!");
+              setShowEditCommunity(false);
+              setEditingCommunity(null);
+            }}>
+              <div className="modal-body">
+                <div className="form-group">
+                  <label className="form-label">Community Name *</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    defaultValue={editingCommunity.name}
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Description *</label>
+                  <textarea
+                    className="form-textarea"
+                    defaultValue={editingCommunity.description}
+                    required
+                    style={{ minHeight: "120px" }}
+                  />
+                </div>
+              </div>
+              <div className="modal-actions">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => {
+                    setShowEditCommunity(false);
+                    setEditingCommunity(null);
+                  }}
+                >
+                  Cancel
+                </button>
+                <button type="submit" className="btn btn-primary">
+                  Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Post Modal */}
+      {showEditPost && editingPost && (
+        <div className="modal-overlay" onClick={() => {
+          setShowEditPost(false);
+          setEditingPost(null);
+        }}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3 className="modal-title">Edit Post</h3>
+              <button
+                className="modal-close"
+                onClick={() => {
+                  setShowEditPost(false);
+                  setEditingPost(null);
+                }}
+              >
+                ×
+              </button>
+            </div>
+            <form onSubmit={handleUpdatePost}>
+              <div className="modal-body">
+                <div className="form-group">
+                  <label className="form-label">Post Content *</label>
+                  <textarea
+                    className="form-textarea"
+                    value={editPostContent}
+                    onChange={(e) => setEditPostContent(e.target.value)}
+                    required
+                    style={{ minHeight: "150px" }}
+                  />
+                </div>
+              </div>
+              <div className="modal-actions">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => {
+                    setShowEditPost(false);
+                    setEditingPost(null);
+                  }}
+                >
+                  Cancel
+                </button>
+                <button type="submit" className="btn btn-primary">
+                  Update Post
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Members Modal */}
+      {showMembers && selectedCommunityForMembers && (
+        <div className="modal-overlay" onClick={() => {
+          setShowMembers(false);
+          setSelectedCommunityForMembers(null);
+        }}>
+          <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: "800px" }}>
+            <div className="modal-header">
+              <h3 className="modal-title">
+                Members - {selectedCommunityForMembers.name}
+              </h3>
+              <button
+                className="modal-close"
+                onClick={() => {
+                  setShowMembers(false);
+                  setSelectedCommunityForMembers(null);
+                }}
+              >
+                ×
+              </button>
+            </div>
+            <div className="modal-body">
+              {/* Add Member Button */}
+              <div style={{ marginBottom: "20px" }}>
+                <button
+                  className="btn btn-primary"
+                  onClick={() => alert("Add member functionality")}
+                  style={{ display: "flex", alignItems: "center", gap: "8px" }}
+                >
+                  <FiUserPlus /> Add Member
+                </button>
+              </div>
+
+              {/* Members List */}
+              <div style={{ display: "grid", gap: "12px" }}>
+                {[
+                  { id: 1, name: "Sarah Johnson", role: "Admin", joined: "2024-01-01", avatar: "SJ" },
+                  { id: 2, name: "Alex Chen", role: "Member", joined: "2024-01-05", avatar: "AC" },
+                  { id: 3, name: "Maya Patel", role: "Member", joined: "2024-01-08", avatar: "MP" },
+                  { id: 4, name: "Jordan Lee", role: "Member", joined: "2024-01-10", avatar: "JL" },
+                ].map((member) => (
+                  <div
+                    key={member.id}
+                    style={{
+                      padding: "16px",
+                      background: "#f9f9f9",
+                      borderRadius: "10px",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                    }}
+                  >
+                    <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                      <div
+                        style={{
+                          width: "40px",
+                          height: "40px",
+                          borderRadius: "50%",
+                          background: "#00c7b7",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          color: "#fff",
+                          fontWeight: "700",
+                        }}
+                      >
+                        {member.avatar}
+                      </div>
+                      <div>
+                        <div style={{ fontWeight: "600", fontSize: "15px" }}>
+                          {member.name}
+                        </div>
+                        <div style={{ fontSize: "13px", color: "#888" }}>
+                          Joined: {member.joined}
+                        </div>
+                      </div>
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                      <span
+                        style={{
+                          padding: "6px 12px",
+                          background: member.role === "Admin" ? "#00c7b715" : "#f9f9f9",
+                          borderRadius: "20px",
+                          fontSize: "12px",
+                          fontWeight: "600",
+                          color: member.role === "Admin" ? "#00c7b7" : "#666",
+                        }}
+                      >
+                        {member.role}
+                      </span>
+                      <button
+                        onClick={() => {
+                          setShowActivityLog(true);
+                        }}
+                        style={{
+                          background: "none",
+                          border: "none",
+                          color: "#00c7b7",
+                          cursor: "pointer",
+                          fontSize: "14px",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "6px",
+                        }}
+                        title="View Activity Log"
+                      >
+                        <FiActivity /> Activity
+                      </button>
+                      {member.role !== "Admin" && (
+                        <button
+                          onClick={() => alert("Edit member functionality")}
+                          style={{
+                            background: "none",
+                            border: "none",
+                            color: "#f39c12",
+                            cursor: "pointer",
+                            fontSize: "14px",
+                          }}
+                          title="Edit Member"
+                        >
+                          <FiEdit />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="modal-actions">
+              <button
+                className="btn btn-secondary"
+                onClick={() => {
+                  setShowMembers(false);
+                  setSelectedCommunityForMembers(null);
+                }}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Activity Log Modal */}
+      {showActivityLog && (
+        <div className="modal-overlay" onClick={() => setShowActivityLog(false)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: "700px" }}>
+            <div className="modal-header">
+              <h3 className="modal-title">Activity Log</h3>
+              <button
+                className="modal-close"
+                onClick={() => setShowActivityLog(false)}
+              >
+                ×
+              </button>
+            </div>
+            <div className="modal-body">
+              <div style={{ display: "grid", gap: "16px" }}>
+                {[
+                  { action: "Created post", date: "2024-01-15 14:30", type: "post" },
+                  { action: "Liked a post", date: "2024-01-14 10:20", type: "like" },
+                  { action: "Commented on post", date: "2024-01-13 16:45", type: "comment" },
+                  { action: "Joined community", date: "2024-01-01 09:00", type: "join" },
+                ].map((activity, index) => (
+                  <div
+                    key={index}
+                    style={{
+                      padding: "16px",
+                      background: "#f9f9f9",
+                      borderRadius: "10px",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                    }}
+                  >
+                    <div>
+                      <div style={{ fontWeight: "600", fontSize: "15px" }}>
+                        {activity.action}
+                      </div>
+                      <div style={{ fontSize: "13px", color: "#888" }}>
+                        {activity.date}
+                      </div>
+                    </div>
+                    <span
+                      style={{
+                        padding: "6px 12px",
+                        background: "#00c7b715",
+                        borderRadius: "20px",
+                        fontSize: "12px",
+                        fontWeight: "600",
+                        color: "#00c7b7",
+                        textTransform: "capitalize",
+                      }}
+                    >
+                      {activity.type}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="modal-actions">
+              <button
+                className="btn btn-secondary"
+                onClick={() => setShowActivityLog(false)}
+              >
+                Close
               </button>
             </div>
           </div>

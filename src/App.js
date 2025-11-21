@@ -5,6 +5,8 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Topbar from "./components/Topbar.jsx";
 import Sidebar from "./components/Sidebar.jsx";
 import MobileSidebar from "./components/MobileSidebar.jsx";
+import StudentSidebar from "./components/StudentSidebar.jsx";
+import StudentMobileSidebar from "./components/StudentMobileSidebar.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import Reports from "./pages/Reports.jsx";
 import Graph from "./pages/Graph.jsx";
@@ -55,11 +57,13 @@ import {
   StudentProfile,
   LogMood,
   MoodHistory,
+  MoodOverview,
   Calendar,
   StreaksRewards,
   Referrals,
   Community,
   Notifications,
+  PredefinedList,
 } from "./pages/Student";
 
 function AppContent() {
@@ -73,6 +77,9 @@ function AppContent() {
   ];
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Check if current path is a student route
+  const isStudentRoute = location.pathname.startsWith("/student");
 
   // Redirect to dashboard if user is already authenticated and trying to access auth pages
   if (isAuthenticated && authRoutes.includes(location.pathname)) {
@@ -94,15 +101,22 @@ function AppContent() {
   return (
     <ProtectedRoute>
       <div style={{ display: "flex", position: "relative" }}>
-        {/* Desktop Sidebar */}
+        {/* Desktop Sidebar - Conditional based on route */}
         <div className="sidebar-desktop">
-          <Sidebar />
+          {isStudentRoute ? <StudentSidebar /> : <Sidebar />}
         </div>
-        {/* Mobile Sidebar (only on mobile) */}
-        <MobileSidebar
-          isOpen={sidebarOpen}
-          onClose={() => setSidebarOpen(false)}
-        />
+        {/* Mobile Sidebar - Conditional based on route */}
+        {isStudentRoute ? (
+          <StudentMobileSidebar
+            isOpen={sidebarOpen}
+            onClose={() => setSidebarOpen(false)}
+          />
+        ) : (
+          <MobileSidebar
+            isOpen={sidebarOpen}
+            onClose={() => setSidebarOpen(false)}
+          />
+        )}
         <div style={{ flex: 1 }}>
           <Topbar onMenuClick={() => setSidebarOpen(true)} />
           <Routes>
@@ -157,6 +171,7 @@ function AppContent() {
             <Route path="/student/profile" element={<StudentProfile />} />
             <Route path="/student/log-mood" element={<LogMood />} />
             <Route path="/student/mood-history" element={<MoodHistory />} />
+            <Route path="/student/mood-overview" element={<MoodOverview />} />
             <Route path="/student/calendar" element={<Calendar />} />
             <Route
               path="/student/streaks-rewards"
@@ -165,6 +180,7 @@ function AppContent() {
             <Route path="/student/referrals" element={<Referrals />} />
             <Route path="/student/community" element={<Community />} />
             <Route path="/student/notifications" element={<Notifications />} />
+            <Route path="/student/predefined-list" element={<PredefinedList />} />
 
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>

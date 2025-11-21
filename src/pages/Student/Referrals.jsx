@@ -1,10 +1,12 @@
 import React, { useState } from "react";
-import { FiMail, FiMessageCircle, FiSend, FiCopy, FiCheck } from "react-icons/fi";
+import { FiMail, FiMessageCircle, FiSend, FiCopy, FiCheck, FiEdit, FiEye } from "react-icons/fi";
 import "./Student.css";
 
 const Referrals = () => {
   const [showInviteModal, setShowInviteModal] = useState(false);
+  const [showOverview, setShowOverview] = useState(false);
   const [inviteMethod, setInviteMethod] = useState("");
+  const [editingInvite, setEditingInvite] = useState(null);
   const [inviteForm, setInviteForm] = useState({
     name: "",
     email: "",
@@ -114,8 +116,12 @@ const Referrals = () => {
 
   const handleInviteSubmit = (e) => {
     e.preventDefault();
-    // Send invite logic here
-    alert(`Invite sent via ${inviteMethod}!`);
+    if (editingInvite) {
+      alert(`Invite updated successfully!`);
+      setEditingInvite(null);
+    } else {
+      alert(`Invite sent via ${inviteMethod}!`);
+    }
     setShowInviteModal(false);
     setInviteForm({ name: "", email: "", phone: "", message: "" });
     setInviteMethod("");
@@ -506,6 +512,8 @@ const Referrals = () => {
               <th>Sent Date</th>
               <th>Status</th>
               <th>Accepted Date</th>
+              <th className="action-cell" style={{ width: "80px" }}>Edit</th>
+              <th className="action-cell" style={{ width: "80px" }}>Overview</th>
             </tr>
           </thead>
           <tbody>
@@ -537,6 +545,86 @@ const Referrals = () => {
                 <td style={{ fontSize: "14px", color: "#666" }}>
                   {invite.acceptedDate || "—"}
                 </td>
+                <td className="action-cell">
+                  {invite.status === "pending" ? (
+                    <button
+                      onClick={() => {
+                        setEditingInvite(invite);
+                        setInviteMethod(invite.method.toLowerCase());
+                        setInviteForm({
+                          name: invite.name,
+                          email: invite.email || "",
+                          phone: invite.phone || "",
+                          message: "",
+                        });
+                        setShowInviteModal(true);
+                      }}
+                      title="Edit Invite"
+                      style={{
+                        background: "none",
+                        border: "none",
+                        color: "#f39c12",
+                        cursor: "pointer",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        padding: "0",
+                        borderRadius: "6px",
+                        transition: "all 0.2s",
+                        width: "32px",
+                        height: "32px",
+                        minWidth: "32px",
+                        minHeight: "32px",
+                        margin: "0 auto",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = "#fff5e6";
+                        e.currentTarget.style.transform = "scale(1.1)";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = "none";
+                        e.currentTarget.style.transform = "scale(1)";
+                      }}
+                    >
+                      <FiEdit size={18} style={{ display: "block" }} />
+                    </button>
+                  ) : (
+                    <span style={{ color: "#ccc" }}>—</span>
+                  )}
+                </td>
+                <td className="action-cell">
+                  <button
+                    onClick={() => setShowOverview(true)}
+                    title="View Overview"
+                    style={{
+                      background: "none",
+                      border: "none",
+                      color: "#00c7b7",
+                      cursor: "pointer",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      padding: "0",
+                      borderRadius: "6px",
+                      transition: "all 0.2s",
+                      width: "32px",
+                      height: "32px",
+                      minWidth: "32px",
+                      minHeight: "32px",
+                      margin: "0 auto",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = "#e6fffa";
+                      e.currentTarget.style.transform = "scale(1.1)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = "none";
+                      e.currentTarget.style.transform = "scale(1)";
+                    }}
+                  >
+                    <FiEye size={18} style={{ display: "block" }} />
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>
@@ -549,7 +637,7 @@ const Referrals = () => {
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h3 className="modal-title">
-                Send Invite via {inviteMethod === "email" ? "Email" : inviteMethod === "whatsapp" ? "WhatsApp" : "SMS"}
+                {editingInvite ? "Edit Invite" : `Send Invite via ${inviteMethod === "email" ? "Email" : inviteMethod === "whatsapp" ? "WhatsApp" : "SMS"}`}
               </h3>
               <button
                 className="modal-close"
@@ -638,7 +726,10 @@ const Referrals = () => {
                 <button
                   type="button"
                   className="btn btn-secondary"
-                  onClick={() => setShowInviteModal(false)}
+                  onClick={() => {
+                    setShowInviteModal(false);
+                    setEditingInvite(null);
+                  }}
                 >
                   Cancel
                 </button>
@@ -647,10 +738,105 @@ const Referrals = () => {
                   className="btn btn-primary"
                   style={{ display: "flex", alignItems: "center", gap: "8px" }}
                 >
-                  <FiSend /> Send Invite
+                  <FiSend /> {editingInvite ? "Update Invite" : "Send Invite"}
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Overview Modal */}
+      {showOverview && (
+        <div className="modal-overlay" onClick={() => setShowOverview(false)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: "700px" }}>
+            <div className="modal-header">
+              <h3 className="modal-title">Referrals Overview</h3>
+              <button
+                className="modal-close"
+                onClick={() => setShowOverview(false)}
+              >
+                ×
+              </button>
+            </div>
+            <div className="modal-body">
+              <div style={{ display: "grid", gap: "24px" }}>
+                {/* Stats Grid */}
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "16px" }}>
+                  <div style={{ padding: "20px", background: "#f9f9f9", borderRadius: "12px" }}>
+                    <div style={{ fontSize: "12px", color: "#888", marginBottom: "8px" }}>Total Sent</div>
+                    <div style={{ fontSize: "32px", fontWeight: "700", color: "#00c7b7" }}>
+                      {inviteStats.totalSent}
+                    </div>
+                  </div>
+                  <div style={{ padding: "20px", background: "#f9f9f9", borderRadius: "12px" }}>
+                    <div style={{ fontSize: "12px", color: "#888", marginBottom: "8px" }}>Accepted</div>
+                    <div style={{ fontSize: "32px", fontWeight: "700", color: "#00b894" }}>
+                      {inviteStats.accepted}
+                    </div>
+                  </div>
+                  <div style={{ padding: "20px", background: "#f9f9f9", borderRadius: "12px" }}>
+                    <div style={{ fontSize: "12px", color: "#888", marginBottom: "8px" }}>Pending</div>
+                    <div style={{ fontSize: "32px", fontWeight: "700", color: "#f39c12" }}>
+                      {inviteStats.pending}
+                    </div>
+                  </div>
+                  <div style={{ padding: "20px", background: "#f9f9f9", borderRadius: "12px" }}>
+                    <div style={{ fontSize: "12px", color: "#888", marginBottom: "8px" }}>Points Earned</div>
+                    <div style={{ fontSize: "32px", fontWeight: "700", color: "#a29bfe" }}>
+                      {inviteStats.pointsEarned}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Success Rate */}
+                <div style={{ padding: "20px", background: "#f0f9ff", borderRadius: "12px", border: "2px solid #00c7b7" }}>
+                  <div style={{ fontSize: "14px", color: "#666", marginBottom: "8px" }}>Acceptance Rate</div>
+                  <div style={{ fontSize: "24px", fontWeight: "700", color: "#00c7b7" }}>
+                    {Math.round((inviteStats.accepted / inviteStats.totalSent) * 100)}%
+                  </div>
+                  <div style={{ marginTop: "12px", fontSize: "13px", color: "#888" }}>
+                    {inviteStats.accepted} out of {inviteStats.totalSent} invites accepted
+                  </div>
+                </div>
+
+                {/* Recent Activity */}
+                <div>
+                  <div style={{ fontSize: "16px", fontWeight: "600", marginBottom: "16px" }}>Recent Activity</div>
+                  <div style={{ display: "grid", gap: "12px" }}>
+                    {sentInvites.slice(0, 5).map((invite) => (
+                      <div
+                        key={invite.id}
+                        style={{
+                          padding: "16px",
+                          background: "#f9f9f9",
+                          borderRadius: "10px",
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                        }}
+                      >
+                        <div>
+                          <div style={{ fontWeight: "600", fontSize: "15px" }}>{invite.name}</div>
+                          <div style={{ fontSize: "13px", color: "#888" }}>
+                            {invite.method} · {invite.sentDate}
+                          </div>
+                        </div>
+                        {getStatusBadge(invite.status)}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="modal-actions">
+              <button
+                className="btn btn-secondary"
+                onClick={() => setShowOverview(false)}
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}
