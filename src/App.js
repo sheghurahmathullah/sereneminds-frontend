@@ -25,9 +25,7 @@ import SchoolOverview from "./pages/MasterData/SchoolOverview.jsx";
 import SchoolCreate from "./pages/MasterData/SchoolCreate.jsx";
 import SchoolEdit from "./pages/MasterData/SchoolEdit.jsx";
 import Board from "./pages/MasterData/Board.jsx";
-import BoardOverview from "./pages/MasterData/BoardOverview.jsx";
-import BoardCreate from "./pages/MasterData/BoardCreate.jsx";
-import BoardEdit from "./pages/MasterData/BoardEdit.jsx";
+
 import ClassPage from "./pages/MasterData/Class.jsx";
 import ClassOverview from "./pages/MasterData/ClassOverview.jsx";
 // import ClassCreate from "./pages/MasterData/ClassCreate.jsx";
@@ -142,9 +140,6 @@ function AppContent() {
             <Route path="/school/create" element={<SchoolCreate />} />
             <Route path="/school/edit/:id" element={<SchoolEdit />} />
             <Route path="/master/board" element={<Board />} />
-            <Route path="/board/overview/:id" element={<BoardOverview />} />
-            <Route path="/board/create" element={<BoardCreate />} />
-            <Route path="/board/edit/:id" element={<BoardEdit />} />
             <Route path="/master/class" element={<ClassPage />} />
             <Route path="/class/overview/:id" element={<ClassOverview />} />
             {/* <Route path="/class/create" element={<ClassCreate />} /> */}
