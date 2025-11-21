@@ -34,8 +34,8 @@ const Board = () => {
   const [selectedBoard, setSelectedBoard] = useState(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
 
-  const SERVER_URL = "https://sereneminds-backend-oucl.onrender.com/api/boards"; 
-   
+  const SERVER_URL = "https://sereneminds-backend-oucl.onrender.com/api/boards";
+
 
   // Fetch boards from API
   const fetchBoards = async () => {
@@ -84,18 +84,18 @@ const Board = () => {
     try {
       const response = await axios.patch(
         `${SERVER_URL}/${id}/toggle-status`);
-      
-        if (!response.status) {
+
+      if (!response.status) {
         throw new Error("Failed to toggle status");
       }
 
       const data = response.data;
 
-      setBoards( (prev) =>  
-        prev.map((imp ) => (imp.id === id) ? data : imp) 
+      setBoards((prev) =>
+        prev.map((imp) => (imp.id === id) ? data : imp)
       );
 
-      
+
       // fetchBoards();
     } catch (err) {
       setError(err.message);
@@ -112,7 +112,7 @@ const Board = () => {
     e.preventDefault();
     try {
       setLoading(true);
-      const response = await axios.post(`${SERVER_URL}`,form);
+      const response = await axios.post(`${SERVER_URL}`, form);
       console.log(response.data);
 
       if (!response.status) {
@@ -137,11 +137,11 @@ const Board = () => {
     try {
       setLoading(true);
       const response = await axios.put(`${SERVER_URL}/${selectedId}`, form);
-      
-        if (!response.status) {
+
+      if (!response.status) {
         throw new Error("Failed to update board");
       }
-      
+
       console.log(response.data)
       setForm(defaultForm);
       setMode("list");
@@ -187,12 +187,12 @@ const Board = () => {
 
       if (!response.status) throw new Error("Failed to delete board");
       setDeleteConfirmId(null);
-      
-        setMode("list");
-        setSelectedId(null);
-        setSelectedBoard(null);
 
-        fetchBoards();
+      setMode("list");
+      setSelectedId(null);
+      setSelectedBoard(null);
+
+      fetchBoards();
     } catch (err) {
       setError(err.message);
     } finally {
@@ -718,7 +718,7 @@ const Board = () => {
                         checked={board.status}
                         onChange={() => toggleStatus(board.id)}
                       />
-                      <span className="slider round"></span>
+                      <span className="slider round" style={{ height: "21px" }}></span>
                     </label>
                   </td>
                   <td style={{ display: "flex", gap: 8 }}>
