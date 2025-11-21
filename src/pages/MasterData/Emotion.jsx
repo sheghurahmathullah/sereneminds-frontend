@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import "./Emotion.css";
+import "./Styles/Emotion.css";
 import { FiMoreVertical, FiEdit, FiTrash2, FiEye } from "react-icons/fi";
 
 const EMOTION_SCORES = [50, 60, 70, 75, 80, 90, 100];

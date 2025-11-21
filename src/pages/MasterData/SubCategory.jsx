@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import "./SubCategory.css";
+import "./Styles/SubCategory.css";
 import { FiMoreVertical, FiEdit, FiTrash2, FiEye } from "react-icons/fi";
 
 const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];

@@ -7,7 +7,7 @@ import {
   FiEdit,
   FiChevronRight,
 } from "react-icons/fi";
-import "./Branch.css";
+import "./Styles/Branch.css";
 
 const tabs = [
   { label: "Overview" },

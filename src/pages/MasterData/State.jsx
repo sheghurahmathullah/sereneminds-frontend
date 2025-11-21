@@ -7,7 +7,7 @@ import {
   FiEdit,
   FiTrash2,
 } from "react-icons/fi";
-import "./State.css";
+import "./Styles/State.css";
 
 import{Country, State} from 'country-state-city';
 

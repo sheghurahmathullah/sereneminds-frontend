@@ -1,5 +1,5 @@
 import React from "react";
-import "./Branch.css";
+import "./Styles/Branch.css";
 
 const BoardCreate = () => {
   return (

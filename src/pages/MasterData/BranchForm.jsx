@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import "./BranchForm.css";
+import "./Styles/BranchForm.css";
 
 // Mock data fetch, in a real app this would be an API call.
 const branches = [

@@ -11,7 +11,7 @@ import {
   FiTrash2,
   FiEye,
 } from "react-icons/fi";
-import "./School.css";
+import "./Styles/School.css";
 import axios from "axios";
 
 const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];

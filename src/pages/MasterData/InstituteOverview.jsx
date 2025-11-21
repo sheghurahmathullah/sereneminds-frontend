@@ -6,7 +6,7 @@ import {
   FiEdit,
   FiChevronRight,
 } from "react-icons/fi";
-import "./Institute.css";
+import "./Styles/Institute.css";
 import { useNavigate, useParams } from "react-router-dom";
 
 const tabs = [

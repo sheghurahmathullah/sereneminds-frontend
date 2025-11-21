@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import "./Branch.css";
+import "./Styles/Branch.css";
 
 const mockDivision = {
   id: 1,

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import "./Academicyear.css";
+import "./Styles/Academicyear.css";
 import { FiEdit, FiTrash2, FiEye } from "react-icons/fi";
 import axios from "axios";
 

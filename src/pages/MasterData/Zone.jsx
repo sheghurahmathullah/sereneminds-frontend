@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import "./Zone.css";
+import "./Styles/Zone.css";
 import { FiMoreVertical, FiEdit, FiTrash2, FiEye } from "react-icons/fi";
 import axios from "axios";
 

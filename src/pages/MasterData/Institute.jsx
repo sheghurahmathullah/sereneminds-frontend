@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import "./Institute.css";
+import "./Styles/Institute.css";
 import {
   FiEdit,
   FiFilter,

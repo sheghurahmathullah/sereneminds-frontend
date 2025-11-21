@@ -7,8 +7,8 @@ import {
   FiTrash2,
   FiEye,
 } from "react-icons/fi";
-import "./Branch.css";
-import "./BranchForm.css";
+import "./Styles/Branch.css";
+import "./Styles/BranchForm.css";
 import axios from "axios";
 
 const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];

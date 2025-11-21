@@ -7,7 +7,7 @@ import {
   FiTrash2,
   FiEye,
 } from "react-icons/fi";
-import "./Division.css";
+import "./Styles/Division.css";
 import axios from "axios";
 
 const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];

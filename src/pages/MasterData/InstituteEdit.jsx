@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import "./Institute.css";
+import "./Styles/Institute.css";
 
 const mockInstitute = {
   id: 951201,

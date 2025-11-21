@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import "./Pleasantness.css";
+import "./Styles/Pleasantness.css";
 import { FiMoreVertical, FiEdit, FiTrash2, FiEye } from "react-icons/fi";
 
 const PLEASANTNESS_VALUES = [1, 2, 3, 4, 5];

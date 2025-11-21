@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import "./Country.css";
+import "./Styles/Country.css";
 
 import {
   FiEdit,

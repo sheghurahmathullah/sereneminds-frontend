@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import "./Impact.css";
+import "./Styles/Impact.css";
 import { FiMoreVertical, FiEdit, FiTrash2, FiEye } from "react-icons/fi";
 
 const IMPACT_VALUES = [1, 2, 3, 4, 5];
