@@ -9,6 +9,7 @@ import {
 } from "react-icons/fi";
 import "./Styles/Division.css";
 import axios from "axios";
+import API_BASE_URL from "../../config/api";
 
 const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
 const defaultForm = { name: "", class: "", school: "", code: "", classCode: "", schoolCode :"",
@@ -30,7 +31,7 @@ const Division = () => {
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
   const [form, setForm] = useState(defaultForm);
 
-  const SERVER_URL = "https://sereneminds-backend-oucl.onrender.com/api/divisions"; 
+  const SERVER_URL = `${API_BASE_URL}/divisions`; 
 
 
   // Fetch divisions from API

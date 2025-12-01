@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./Styles/Pleasantness.css";
 import { FiMoreVertical, FiEdit, FiTrash2, FiEye } from "react-icons/fi";
+import API_BASE_URL from "../../config/api";
 
 const PLEASANTNESS_VALUES = [1, 2, 3, 4, 5];
 
@@ -21,7 +22,7 @@ const Pleasantness = () => {
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
   const [overviewPleasantness, setOverviewPleasantness] = useState(null);
 
-  const SERVER_URL = "https://sereneminds-backend-oucl.onrender.com/api/pleasantnesses"
+  const SERVER_URL = `${API_BASE_URL}/pleasantnesses`
 
 
   // Fetch pleasantness from API

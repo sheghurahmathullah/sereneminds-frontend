@@ -10,6 +10,7 @@ import {
 } from "react-icons/fi";
 import "./Styles/Class.css";
 import axios from "axios";
+import API_BASE_URL from "../../config/api";
 
 const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
 const tabs = [{ label: "Overview" }, { label: "History" }];
@@ -34,7 +35,7 @@ const ClassPage = () => {
   const [selectedClass, setSelectedClass] = useState(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
 
-  const SERVER_URL = "https://sereneminds-backend-oucl.onrender.com/api/classes"; 
+  const SERVER_URL = `${API_BASE_URL}/classes`; 
 
 
   // Fetch classes from API

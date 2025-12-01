@@ -8,11 +8,11 @@ import {
   FiTrash2,
 } from "react-icons/fi";
 import "./Styles/State.css";
+import API_BASE_URL from "../../config/api";
 
 import{Country, State} from 'country-state-city';
 
-const API_URL = "http://localhost:5000/api/states";
-const SERVER_URL = "https://sereneminds-backend-oucl.onrender.com/api/states"; // Update with your actual server URL
+const SERVER_URL = `${API_BASE_URL}/states`;
 
 
 const States = () => {

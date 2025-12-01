@@ -8,16 +8,14 @@ import {
   FiFilter,
   FiTrash2,
 } from "react-icons/fi";
+import API_BASE_URL from "../../config/api";
 
 import { Country } from "country-state-city";
 
-
-const API_URL = "http://localhost:5000/api/countries";
-const SERVER_URL = "https://sereneminds-backend-oucl.onrender.com/api/countries"; // Update with your actual server URL
+const SERVER_URL = `${API_BASE_URL}/countries`;
 
 const Countries = () => {
-
-    const [allCountries,setAllCountries] = useState([]);
+  const [allCountries, setAllCountries] = useState([]);
   const [countries, setCountries] = useState([]);
   const [showModal, setShowModal] = useState(false);
 
@@ -41,15 +39,14 @@ const Countries = () => {
     setLoading(false);
   };
 
-
   const fetchAllCountries = async () => {
     try {
-        const res = Country.getAllCountries();
-        setAllCountries(res);
+      const res = Country.getAllCountries();
+      setAllCountries(res);
     } catch (error) {
-        setError("Failed to fetch all countries");        
+      setError("Failed to fetch all countries");
     }
-  }
+  };
 
   useEffect(() => {
     fetchAllCountries();
@@ -89,15 +86,20 @@ const Countries = () => {
   const toggleStatus = async (country) => {
     console.log("Called");
     try {
-      const res = await axios.patch(`${SERVER_URL}/${country.id}/toggle-status`, {
-        status: !country.status,
-      });
+      const res = await axios.patch(
+        `${SERVER_URL}/${country.id}/toggle-status`,
+        {
+          status: !country.status,
+        }
+      );
       // fetchCountries();
       const data = res.data;
       console.log(data);
 
-      setCountries((prev) => // for smooth update
-        prev.map((p) => (p.id === country.id ? data : p))
+      setCountries(
+        (
+          prev // for smooth update
+        ) => prev.map((p) => (p.id === country.id ? data : p))
       );
 
       setError("");
@@ -135,28 +137,23 @@ const Countries = () => {
               {editingId !== null ? "Edit Country" : "Add New Country"}
             </h3>
 
-
             {/* Countries dropdown*/}
             <select
-                  className="modal-input"
-                  value={form.countryName}
-                  onChange={(e) => {
-                    setForm({ ...form, countryName: e.target.value });
-                    // (e.target.value);
-                  }}
-                  required
-                >
-                  <option value="">Select Country</option>
-                  {allCountries.map((country) => (
-                    <option key={country.isoCode} value={country.name}>
-                      {country.name}
-                    </option>
-                  ))}
-                </select>
-        
-
-
-
+              className="modal-input"
+              value={form.countryName}
+              onChange={(e) => {
+                setForm({ ...form, countryName: e.target.value });
+                // (e.target.value);
+              }}
+              required
+            >
+              <option value="">Select Country</option>
+              {allCountries.map((country) => (
+                <option key={country.isoCode} value={country.name}>
+                  {country.name}
+                </option>
+              ))}
+            </select>
 
             <div className="status-toggle">
               <label>
@@ -297,9 +294,7 @@ const Countries = () => {
 
       <div className="pagination">
         <span>
-          {`Showing ${
-            totalEntries === 0 ? 0 : (page - 1) * pageSize + 1
-          } to ${
+          {`Showing ${totalEntries === 0 ? 0 : (page - 1) * pageSize + 1} to ${
             page * pageSize > totalEntries ? totalEntries : page * pageSize
           } of ${totalEntries} entries`}
         </span>

@@ -8,16 +8,11 @@ import {
   FiFilter,
   FiTrash2,
 } from "react-icons/fi";
+import API_BASE_URL from "../../config/api";
 
 import{Country, State, City} from 'country-state-city';
 
-
-const API_URL = "http://localhost:5000/api/cities";
-const STATE_API_URL = "https://localhost:5000/api/states";
-const COUNTRY_API_URL =
-  "https://localhost:5000/api/countries";
-
-const SERVER_URL = "https://sereneminds-backend-oucl.onrender.com/api/cities"; // Update with your actual server URL
+const SERVER_URL = `${API_BASE_URL}/cities`;
 
 const Cities = () => {
 

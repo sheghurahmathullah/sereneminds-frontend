@@ -10,6 +10,7 @@ import {
 import "./Styles/Branch.css";
 import "./Styles/BranchForm.css";
 import axios from "axios";
+import API_BASE_URL from "../../config/api";
 
 const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
 
@@ -459,10 +460,10 @@ const Branch = () => {
   const [selectedInstitute, setSelectedInstitute] = useState("");
   const [selectedCity, setInstituteId] = useState("");
 
-  const SERVER_URL = "https://sereneminds-backend-oucl.onrender.com/api/branches"; 
-  const SERVER_URL_INSTITUTES = "https://sereneminds-backend-oucl.onrender.com/api/institutes";
-  const SERVER_URL_STATES = "https://sereneminds-backend-oucl.onrender.com/api/states";
-  const SERVER_URL_CITIES = "https://sereneminds-backend-oucl.onrender.com/api/cities";
+  const SERVER_URL = `${API_BASE_URL}/branches`; 
+  const SERVER_URL_INSTITUTES = `${API_BASE_URL}/institutes`;
+  const SERVER_URL_STATES = `${API_BASE_URL}/states`;
+  const SERVER_URL_CITIES = `${API_BASE_URL}/cities`;
   
 
   const [form, setForm] = useState({

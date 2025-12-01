@@ -10,6 +10,7 @@ import {
 } from "react-icons/fi";
 import "./Styles/Board.css";
 import axios from "axios";
+import API_BASE_URL from "../../config/api";
 
 const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
 
@@ -34,8 +35,7 @@ const Board = () => {
   const [selectedBoard, setSelectedBoard] = useState(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
 
-  const SERVER_URL = "https://sereneminds-backend-oucl.onrender.com/api/boards";
-
+  const SERVER_URL = `${API_BASE_URL}/boards`;
 
   // Fetch boards from API
   const fetchBoards = async () => {
@@ -79,11 +79,9 @@ const Board = () => {
     }
   }, [selectedId, boards, mode]);
 
-
   const toggleStatus = async (id) => {
     try {
-      const response = await axios.patch(
-        `${SERVER_URL}/${id}/toggle-status`);
+      const response = await axios.patch(`${SERVER_URL}/${id}/toggle-status`);
 
       if (!response.status) {
         throw new Error("Failed to toggle status");
@@ -91,10 +89,7 @@ const Board = () => {
 
       const data = response.data;
 
-      setBoards((prev) =>
-        prev.map((imp) => (imp.id === id) ? data : imp)
-      );
-
+      setBoards((prev) => prev.map((imp) => (imp.id === id ? data : imp)));
 
       // fetchBoards();
     } catch (err) {
@@ -142,7 +137,7 @@ const Board = () => {
         throw new Error("Failed to update board");
       }
 
-      console.log(response.data)
+      console.log(response.data);
       setForm(defaultForm);
       setMode("list");
       setSelectedId(null);
@@ -181,9 +176,7 @@ const Board = () => {
     setLoading(true);
     setError("");
     try {
-      const response = await axios.delete(
-        `${SERVER_URL}/${id}`);
-
+      const response = await axios.delete(`${SERVER_URL}/${id}`);
 
       if (!response.status) throw new Error("Failed to delete board");
       setDeleteConfirmId(null);
@@ -718,7 +711,10 @@ const Board = () => {
                         checked={board.status}
                         onChange={() => toggleStatus(board.id)}
                       />
-                      <span className="slider round" style={{ height: "21px" }}></span>
+                      <span
+                        className="slider round"
+                        style={{ height: "21px" }}
+                      ></span>
                     </label>
                   </td>
                   <td style={{ display: "flex", gap: 8 }}>

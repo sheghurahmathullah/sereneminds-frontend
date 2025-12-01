@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./Styles/Country.css";
+import API_BASE_URL from "../../config/api";
 
 import {
   FiEdit,
@@ -13,7 +14,7 @@ import {
 
 import {Country} from 'country-state-city';
 
-const API_URL = "http://localhost:5000/api/countries";
+const API_URL = `${API_BASE_URL}/countries`;
 
 const Count = () => {
 

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./Styles/Academicyear.css";
 import { FiEdit, FiTrash2, FiEye } from "react-icons/fi";
 import axios from "axios";
+import API_BASE_URL from "../../config/api";
 
 const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
 
@@ -18,8 +19,7 @@ const Academicyear = () => {
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
   const [overviewYear, setOverviewYear] = useState(null);
 
-  const SERVER_URL = "https://sereneminds-backend-oucl.onrender.com/api/academicyears"; 
-
+  const SERVER_URL = `${API_BASE_URL}/academicyears`;
 
   // Fetch academic years from API
   const fetchAcademicYears = async () => {
@@ -27,7 +27,7 @@ const Academicyear = () => {
       setLoading(true);
       const response = await axios.get(`${SERVER_URL}`);
       setYears(response.data);
-     
+
       if (!response.status) {
         throw new Error("Failed to fetch academic years");
       }
@@ -46,15 +46,12 @@ const Academicyear = () => {
 
   const toggleStatus = async (id) => {
     try {
-      const response = await fetch(
-        `${SERVER_URL}/${id}/toggle-status`,
-        {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await fetch(`${SERVER_URL}/${id}/toggle-status`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
       if (!response.ok) {
         throw new Error("Failed to toggle status");
       }
@@ -83,32 +80,28 @@ const Academicyear = () => {
     e.preventDefault();
     if (modalValue.trim() === "") return;
 
-    const payload ={
-      year : modalValue
-    }
+    const payload = {
+      year: modalValue,
+    };
 
     try {
       setLoading(true);
       if (editingId) {
         // Update existing academic year
-        const response = await axios.put(
-          `${SERVER_URL}/${editingId}`, payload);
-        
-          if (!response.status) {
+        const response = await axios.put(`${SERVER_URL}/${editingId}`, payload);
+
+        if (!response.status) {
           throw new Error("Failed to update academic year");
         }
 
         fetchAcademicYears();
       } else {
         // Create new academic year
-        const response = await axios.post(
-          `${SERVER_URL}`, payload);
-          console.log(response.data);
+        const response = await axios.post(`${SERVER_URL}`, payload);
+        console.log(response.data);
         if (!response.status) {
           throw new Error("Failed to create academic year");
         }
-
-
       }
       setShowModal(false);
       setModalValue("");
@@ -131,17 +124,13 @@ const Academicyear = () => {
   const handleDelete = async (id) => {
     try {
       setLoading(true);
-      const response = await axios.delete(
-        `${SERVER_URL}/${id}`,
-      
-      );
+      const response = await axios.delete(`${SERVER_URL}/${id}`);
 
       if (!response.status) {
         throw new Error("Failed to delete academic year");
       }
       setDeleteConfirmId(null);
       fetchAcademicYears();
-
     } catch (err) {
       setError(err.message);
       console.error("Error deleting academic year:", err);

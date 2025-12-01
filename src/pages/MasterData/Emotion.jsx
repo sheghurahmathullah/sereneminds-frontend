@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./Styles/Emotion.css";
 import { FiMoreVertical, FiEdit, FiTrash2, FiEye } from "react-icons/fi";
+import API_BASE_URL from "../../config/api";
 
 const EMOTION_SCORES = [50, 60, 70, 75, 80, 90, 100];
 const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
@@ -20,7 +21,7 @@ const Emotion = () => {
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
   const [overviewEmotion, setOverviewEmotion] = useState(null);
 
-  const SERVER_URL = "https://sereneminds-backend-oucl.onrender.com/api/emotions"; 
+  const SERVER_URL = `${API_BASE_URL}/emotions`; 
 
   // Fetch emotions from API
   const fetchEmotions = async () => {

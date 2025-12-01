@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./Styles/Category.css";
 import { FiMoreVertical, FiEdit, FiTrash2, FiEye } from "react-icons/fi";
+import API_BASE_URL from "../../config/api";
 
 const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
 
@@ -18,7 +19,7 @@ const Category = () => {
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
   const [overviewCategory, setOverviewCategory] = useState(null);
 
-  const SERVER_URL = "https://sereneminds-backend-oucl.onrender.com/api/categories"
+  const SERVER_URL = `${API_BASE_URL}/categories`
 
   // Fetch categories from API
   const fetchCategories = async () => {

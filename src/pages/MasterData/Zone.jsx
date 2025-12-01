@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./Styles/Zone.css";
 import { FiMoreVertical, FiEdit, FiTrash2, FiEye } from "react-icons/fi";
 import axios from "axios";
+import API_BASE_URL from "../../config/api";
 
 const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
 
@@ -25,8 +26,8 @@ const Zone = () => {
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
   const [overviewZone, setOverviewZone] = useState(null);
 
-  const SERVER_URL = "https://sereneminds-backend-oucl.onrender.com/api/zones";
-  const SERVER_URL_EMOTIONS = "https://sereneminds-backend-oucl.onrender.com/api/emotions"  
+  const SERVER_URL = `${API_BASE_URL}/zones`;
+  const SERVER_URL_EMOTIONS = `${API_BASE_URL}/emotions`  
 
 
   // Fetch zones from API

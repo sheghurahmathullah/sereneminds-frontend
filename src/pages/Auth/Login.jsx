@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import "./Auth.css";
+import API_BASE_URL from "../../config/api";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -15,7 +16,7 @@ const Login = () => {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
 
-  const SERVER_URL = "https://sereneminds-backend-oucl.onrender.com/api/auth/login"
+  const SERVER_URL = `${API_BASE_URL}/auth/login`
   
 
   const handleChange = (e) => {

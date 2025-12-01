@@ -10,6 +10,7 @@ import {
 } from "react-icons/fi";
 import axios from "axios";
 import Cities from "./City";
+import API_BASE_URL from "../../config/api";
 
 const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
 
@@ -53,9 +54,9 @@ const Institute = () => {
 
   const [formErrors, setFormErrors] = useState({});
   
-  const SERVER_URL = "https://sereneminds-backend-oucl.onrender.com/api/institutes"; // 
-  const SERVER_URL_STATES = "https://sereneminds-backend-oucl.onrender.com/api/states"; // 
-  const SERVER_URL_CITIES = "https://sereneminds-backend-oucl.onrender.com/api/cities"; // 
+  const SERVER_URL = `${API_BASE_URL}/institutes`; 
+  const SERVER_URL_STATES = `${API_BASE_URL}/states`; 
+  const SERVER_URL_CITIES = `${API_BASE_URL}/cities`; 
 
   const isValidEmail = (email) =>
   /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
