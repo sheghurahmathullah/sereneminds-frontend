@@ -1,24 +1,117 @@
-import React, { useState } from "react";
-import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
+import React, { useState, useEffect } from "react";
+import { FiChevronLeft, FiChevronRight, FiSearch } from "react-icons/fi";
+import axios from "axios";
+import API_BASE_URL from "../../config/api";
 import "./Student.css";
 
 const Calendar = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDay, setSelectedDay] = useState(null);
+  const [selectedMoodLog, setSelectedMoodLog] = useState(null);
+  const [moodLogs, setMoodLogs] = useState([]);
+  const [moodData, setMoodData] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showSearch, setShowSearch] = useState(false);
+  const [selectedDate, setSelectedDate] = useState("");
 
-  // Static mood data for calendar
-  const moodData = {
-    "2024-01-01": { zone: "Green Zone", color: "#2ecc71", moods: [{ time: "14:30", emotion: "Happy - Joyful", icon: "😊" }] },
-    "2024-01-02": { zone: "Yellow Zone", color: "#f39c12", moods: [{ time: "10:00", emotion: "Anxious - Nervous", icon: "😰" }] },
-    "2024-01-03": { zone: "Green Zone", color: "#2ecc71", moods: [{ time: "16:45", emotion: "Calm - Relaxed", icon: "😌" }] },
-    "2024-01-05": { zone: "Orange Zone", color: "#e67e22", moods: [{ time: "11:20", emotion: "Sad - Disappointed", icon: "😢" }] },
-    "2024-01-08": { zone: "Green Zone", color: "#2ecc71", moods: [{ time: "09:15", emotion: "Happy - Excited", icon: "🤩" }] },
-    "2024-01-10": { zone: "Yellow Zone", color: "#f39c12", moods: [{ time: "13:00", emotion: "Angry - Frustrated", icon: "😠" }, { time: "19:00", emotion: "Calm - Peaceful", icon: "😌" }] },
-    "2024-01-12": { zone: "Green Zone", color: "#2ecc71", moods: [{ time: "20:15", emotion: "Happy - Content", icon: "😊" }, { time: "14:00", emotion: "Anxious - Stressed", icon: "😰" }] },
-    "2024-01-13": { zone: "Green Zone", color: "#2ecc71", moods: [{ time: "16:00", emotion: "Excited - Enthusiastic", icon: "🤩" }, { time: "10:30", emotion: "Angry - Frustrated", icon: "😠" }] },
-    "2024-01-14": { zone: "Green Zone", color: "#2ecc71", moods: [{ time: "18:45", emotion: "Calm - Relaxed", icon: "😌" }, { time: "12:20", emotion: "Sad - Disappointed", icon: "😢" }] },
-    "2024-01-15": { zone: "Green Zone", color: "#2ecc71", moods: [{ time: "14:30", emotion: "Happy - Joyful", icon: "😊" }, { time: "09:15", emotion: "Anxious - Nervous", icon: "😰" }] },
+  // Helper functions for colors
+  const getEmotionColor = (emotion) => {
+    const emotionColors = {
+      Sad: "#3b82f6",
+      Calm: "#10b981",
+      Angry: "#ef4444",
+      Joy: "#10b981",
+      Complacent: "#f59e0b",
+      Neutral: "#f59e0b",
+      Happy: "#10b981",
+      Anxious: "#f59e0b",
+      Stressed: "#f97316",
+      Excited: "#9b59b6",
+    };
+    return emotionColors[emotion] || "#6b7280";
   };
+
+  const getZoneColor = (zone) => {
+    const zoneColors = {
+      Green: "#10b981",
+      Yellow: "#f59e0b",
+      Brown: "#8b4513",
+      "Light Red": "#ff6b6b",
+      "Dark Red": "#dc2626",
+      Blue: "#3b82f6",
+    };
+    return zoneColors[zone] || "#6b7280";
+  };
+
+  const getEmotionIcon = (emotion) => {
+    const emotionIcons = {
+      Sad: "😢",
+      Calm: "😌",
+      Angry: "😠",
+      Joy: "😊",
+      Complacent: "😐",
+      Neutral: "😐",
+      Happy: "😊",
+      Anxious: "😰",
+      Stressed: "😰",
+      Excited: "🤩",
+    };
+    return emotionIcons[emotion] || "😐";
+  };
+
+  // Fetch mood logs from API
+  useEffect(() => {
+    const fetchMoodLogs = async () => {
+      try {
+        setLoading(true);
+        // TODO: Replace studentId=1 with actual logged-in student ID from auth context
+        const response = await axios.get(`${API_BASE_URL}/student-mood-logs`, {
+          params: {
+            studentId: 1,
+            status: true,
+          },
+        });
+
+        if (response.data) {
+          setMoodLogs(response.data);
+          // Transform API data to calendar format (group by date)
+          const dataByDate = {};
+          response.data.forEach((log) => {
+            const dateKey = log.date; // YYYY-MM-DD format
+            if (!dataByDate[dateKey]) {
+              dataByDate[dateKey] = {
+                zone: log.calculatedZone || "N/A",
+                color: getZoneColor(log.calculatedZone),
+                moods: [],
+              };
+            }
+            dataByDate[dateKey].moods.push({
+              id: log.id,
+              time: log.time.substring(0, 5), // HH:MM
+              emotion: log.calculatedEmotion || "N/A",
+              icon: getEmotionIcon(log.calculatedEmotion),
+              category: log.category?.name || "N/A",
+              subcategory: log.subCategory?.name || log.addNote || "N/A",
+              impact: log.impact,
+              joyfulness: log.joyfulness,
+              note: log.addNote || "",
+              feelingDescription: log.feelingDescription || "",
+              fullData: log,
+            });
+          });
+          setMoodData(dataByDate);
+        }
+      } catch (err) {
+        console.error("Error fetching mood logs:", err);
+        setMoodData({});
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMoodLogs();
+  }, []);
 
   const monthNames = [
     "January",
@@ -89,6 +182,57 @@ const Calendar = () => {
     );
     if (moodData[dateStr]) {
       setSelectedDay({ day, dateStr, data: moodData[dateStr] });
+      setSelectedMoodLog(null); // Reset individual mood selection
+    }
+  };
+
+  const handleMoodLogClick = (moodLog) => {
+    setSelectedMoodLog(moodLog);
+  };
+
+  const handleDatePickerChange = (e) => {
+    const selectedDateValue = e.target.value;
+    setSelectedDate(selectedDateValue);
+    
+    if (selectedDateValue && moodData[selectedDateValue]) {
+      // Parse the date to set currentDate to that month
+      const [year, month, day] = selectedDateValue.split('-').map(Number);
+      setCurrentDate(new Date(year, month - 1, 1));
+      setSelectedDay({ 
+        day: day, 
+        dateStr: selectedDateValue, 
+        data: moodData[selectedDateValue] 
+      });
+    }
+  };
+
+  const handleSearch = () => {
+    if (!searchQuery.trim()) return;
+    
+    // Filter mood logs based on search query
+    const filtered = moodLogs.filter((log) => {
+      const searchLower = searchQuery.toLowerCase();
+      return (
+        log.feelingDescription?.toLowerCase().includes(searchLower) ||
+        log.calculatedEmotion?.toLowerCase().includes(searchLower) ||
+        log.category?.name?.toLowerCase().includes(searchLower) ||
+        log.subCategory?.name?.toLowerCase().includes(searchLower) ||
+        log.addNote?.toLowerCase().includes(searchLower)
+      );
+    });
+
+    if (filtered.length > 0) {
+      // Show first result in calendar
+      const firstResult = filtered[0];
+      const [year, month, day] = firstResult.date.split('-').map(Number);
+      setCurrentDate(new Date(year, month - 1, 1));
+      setSelectedDay({
+        day: day,
+        dateStr: firstResult.date,
+        data: moodData[firstResult.date]
+      });
+    } else {
+      alert("No mood logs found matching your search.");
     }
   };
 
@@ -104,13 +248,31 @@ const Calendar = () => {
 
   const days = getDaysInMonth(currentDate);
 
+  // Loading state
+  if (loading) {
+    return (
+      <div className="student-container">
+        <div style={{ 
+          display: "flex", 
+          justifyContent: "center", 
+          alignItems: "center", 
+          minHeight: "400px" 
+        }}>
+          Loading calendar...
+        </div>
+      </div>
+    );
+  }
+
   // Calculate monthly stats
   const getMonthlyStats = () => {
     const stats = {
-      "Green Zone": 0,
-      "Yellow Zone": 0,
-      "Orange Zone": 0,
-      "Red Zone": 0
+      Green: 0,
+      Yellow: 0,
+      Brown: 0,
+      "Light Red": 0,
+      "Dark Red": 0,
+      Blue: 0
     };
     
     Object.values(moodData).forEach(data => {
@@ -118,49 +280,78 @@ const Calendar = () => {
         stats[data.zone]++;
       }
     });
-    return stats;
+    
+    // Find most common zone
+    let mostCommonZone = "Green";
+    let maxCount = 0;
+    Object.entries(stats).forEach(([zone, count]) => {
+      if (count > maxCount) {
+        maxCount = count;
+        mostCommonZone = zone;
+      }
+    });
+    
+    return { ...stats, mostCommon: { zone: mostCommonZone, count: maxCount } };
   };
 
-  const stats = getMonthlyStats();
+  const monthlyStats = getMonthlyStats();
 
   // Get wellness tip based on zone
   const getWellnessTip = (zone) => {
     switch(zone) {
-      case "Green Zone":
+      case "Green":
         return {
           title: "Keep the Momentum!",
           text: "You're in a great headspace. Use this energy to tackle your most challenging subjects or help a friend study.",
           icon: "🌟",
-          color: "#2ecc71",
+          color: "#10b981",
           bg: "#f0fff4",
           border: "#c6f6d5"
         };
-      case "Yellow Zone":
+      case "Yellow":
         return {
           title: "Pause and Reset",
           text: "Feeling a bit jittery? Try the 4-7-8 breathing technique before your next study session to regain focus.",
           icon: "🧘",
-          color: "#f39c12",
+          color: "#f59e0b",
           bg: "#fffaf0",
           border: "#feebc8"
         };
-      case "Orange Zone":
+      case "Brown":
+        return {
+          title: "Stay Balanced",
+          text: "You're in a neutral zone. Take this opportunity to reflect on your feelings and maintain your emotional balance.",
+          icon: "⚖️",
+          color: "#8b4513",
+          bg: "#faf5f0",
+          border: "#e8d4bf"
+        };
+      case "Light Red":
         return {
           title: "Be Gentle with Yourself",
           text: "It's okay to not be okay. Take a short walk, listen to calming music, or talk to a friend. Your mental health comes first.",
           icon: "🧡",
-          color: "#e67e22",
+          color: "#ff6b6b",
           bg: "#fff5f5",
           border: "#fed7d7"
         };
-      case "Red Zone":
+      case "Dark Red":
         return {
           title: "Stop and Seek Support",
           text: "High stress can block learning. Please step away from your books and reach out to a counselor or trusted adult.",
           icon: "🛑",
-          color: "#e74c3c",
+          color: "#dc2626",
           bg: "#fff5f5",
           border: "#feb2b2"
+        };
+      case "Blue":
+        return {
+          title: "Embrace the Positive Energy!",
+          text: "You're feeling great! This is a perfect time for learning and creative work. Keep up the positive momentum!",
+          icon: "💙",
+          color: "#3b82f6",
+          bg: "#eff6ff",
+          border: "#bfdbfe"
         };
       default:
         return null;
@@ -170,10 +361,12 @@ const Calendar = () => {
   // Mock study impact data
   const getStudyImpact = (zone) => {
     switch(zone) {
-      case "Green Zone": return { level: 90, label: "High Focus", color: "#2ecc71" };
-      case "Yellow Zone": return { level: 60, label: "Moderate Focus", color: "#f39c12" };
-      case "Orange Zone": return { level: 40, label: "Low Focus", color: "#e67e22" };
-      case "Red Zone": return { level: 20, label: "Distracted", color: "#e74c3c" };
+      case "Green": return { level: 90, label: "High Focus", color: "#10b981" };
+      case "Yellow": return { level: 60, label: "Moderate Focus", color: "#f59e0b" };
+      case "Brown": return { level: 50, label: "Neutral Focus", color: "#8b4513" };
+      case "Light Red": return { level: 40, label: "Low Focus", color: "#ff6b6b" };
+      case "Dark Red": return { level: 20, label: "Distracted", color: "#dc2626" };
+      case "Blue": return { level: 85, label: "Excellent Focus", color: "#3b82f6" };
       default: return { level: 0, label: "Unknown", color: "#ccc" };
     }
   };
@@ -199,34 +392,112 @@ const Calendar = () => {
         </p>
       </div>
 
+      {/* Search and Date Picker Section */}
+      <div style={{ 
+        background: "#fff", 
+        borderRadius: "14px", 
+        padding: "20px", 
+        marginBottom: "24px",
+        boxShadow: "0 2px 8px rgba(0,0,0,0.03)"
+      }}>
+        <div style={{ display: "flex", gap: "12px", alignItems: "center", flexWrap: "wrap" }}>
+          <div style={{ flex: 1, minWidth: "250px" }}>
+            <div style={{ position: "relative" }}>
+              <input
+                type="text"
+                placeholder="Search by mood, category, subcategory, or notes..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyPress={(e) => e.key === "Enter" && handleSearch()}
+                style={{
+                  width: "100%",
+                  padding: "10px 40px 10px 16px",
+                  border: "1px solid #e0e0e0",
+                  borderRadius: "8px",
+                  fontSize: "14px"
+                }}
+              />
+              <button
+                onClick={handleSearch}
+                style={{
+                  position: "absolute",
+                  right: "8px",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  background: "none",
+                  border: "none",
+                  color: "#00c7b7",
+                  cursor: "pointer",
+                  padding: "4px 8px",
+                  display: "flex",
+                  alignItems: "center"
+                }}
+              >
+                <FiSearch size={20} />
+              </button>
+            </div>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <label style={{ fontSize: "14px", color: "#666", whiteSpace: "nowrap" }}>
+              Jump to date:
+            </label>
+            <input
+              type="date"
+              value={selectedDate}
+              onChange={handleDatePickerChange}
+              style={{
+                padding: "10px 16px",
+                border: "1px solid #e0e0e0",
+                borderRadius: "8px",
+                fontSize: "14px"
+              }}
+            />
+          </div>
+        </div>
+      </div>
+
       {/* Monthly Stats Summary */}
       <div className="stats-summary-container">
         <div className="stat-pill">
-          <div className="stat-pill-dot" style={{ background: "#2ecc71" }} />
+          <div className="stat-pill-dot" style={{ background: "#10b981" }} />
           <div className="stat-pill-content">
             <span className="stat-pill-label">Green Days</span>
-            <span className="stat-pill-value">{stats["Green Zone"]}</span>
+            <span className="stat-pill-value">{monthlyStats["Green"]}</span>
           </div>
         </div>
         <div className="stat-pill">
-          <div className="stat-pill-dot" style={{ background: "#f39c12" }} />
+          <div className="stat-pill-dot" style={{ background: "#f59e0b" }} />
           <div className="stat-pill-content">
             <span className="stat-pill-label">Yellow Days</span>
-            <span className="stat-pill-value">{stats["Yellow Zone"]}</span>
+            <span className="stat-pill-value">{monthlyStats["Yellow"]}</span>
           </div>
         </div>
         <div className="stat-pill">
-          <div className="stat-pill-dot" style={{ background: "#e67e22" }} />
+          <div className="stat-pill-dot" style={{ background: "#8b4513" }} />
           <div className="stat-pill-content">
-            <span className="stat-pill-label">Orange Days</span>
-            <span className="stat-pill-value">{stats["Orange Zone"]}</span>
+            <span className="stat-pill-label">Brown Days</span>
+            <span className="stat-pill-value">{monthlyStats["Brown"]}</span>
           </div>
         </div>
         <div className="stat-pill">
-          <div className="stat-pill-dot" style={{ background: "#e74c3c" }} />
+          <div className="stat-pill-dot" style={{ background: "#ff6b6b" }} />
           <div className="stat-pill-content">
-            <span className="stat-pill-label">Red Days</span>
-            <span className="stat-pill-value">{stats["Red Zone"]}</span>
+            <span className="stat-pill-label">Light Red Days</span>
+            <span className="stat-pill-value">{monthlyStats["Light Red"]}</span>
+          </div>
+        </div>
+        <div className="stat-pill">
+          <div className="stat-pill-dot" style={{ background: "#dc2626" }} />
+          <div className="stat-pill-content">
+            <span className="stat-pill-label">Dark Red Days</span>
+            <span className="stat-pill-value">{monthlyStats["Dark Red"]}</span>
+          </div>
+        </div>
+        <div className="stat-pill">
+          <div className="stat-pill-dot" style={{ background: "#3b82f6" }} />
+          <div className="stat-pill-content">
+            <span className="stat-pill-label">Blue Days</span>
+            <span className="stat-pill-value">{monthlyStats["Blue"]}</span>
           </div>
         </div>
       </div>
@@ -301,20 +572,28 @@ const Calendar = () => {
         {/* Legend */}
         <div className="calendar-legend">
           <div className="legend-item">
-            <div className="legend-dot" style={{ background: "#2ecc71" }} />
-            <span className="legend-text">Green Zone</span>
+            <div className="legend-dot" style={{ background: "#10b981" }} />
+            <span className="legend-text">Green</span>
           </div>
           <div className="legend-item">
-            <div className="legend-dot" style={{ background: "#f39c12" }} />
-            <span className="legend-text">Yellow Zone</span>
+            <div className="legend-dot" style={{ background: "#f59e0b" }} />
+            <span className="legend-text">Yellow</span>
           </div>
           <div className="legend-item">
-            <div className="legend-dot" style={{ background: "#e67e22" }} />
-            <span className="legend-text">Orange Zone</span>
+            <div className="legend-dot" style={{ background: "#8b4513" }} />
+            <span className="legend-text">Brown</span>
           </div>
           <div className="legend-item">
-            <div className="legend-dot" style={{ background: "#e74c3c" }} />
-            <span className="legend-text">Red Zone</span>
+            <div className="legend-dot" style={{ background: "#ff6b6b" }} />
+            <span className="legend-text">Light Red</span>
+          </div>
+          <div className="legend-item">
+            <div className="legend-dot" style={{ background: "#dc2626" }} />
+            <span className="legend-text">Dark Red</span>
+          </div>
+          <div className="legend-item">
+            <div className="legend-dot" style={{ background: "#3b82f6" }} />
+            <span className="legend-text">Blue</span>
           </div>
         </div>
       </div>
@@ -348,7 +627,12 @@ const Calendar = () => {
             <div className="modal-body">
               <div style={{ display: "grid", gap: "16px" }}>
                 {selectedDay.data.moods.map((mood, index) => (
-                  <div key={index} className="mood-entry-card">
+                  <div 
+                    key={index} 
+                    className="mood-entry-card"
+                    onClick={() => handleMoodLogClick(mood)}
+                    style={{ cursor: "pointer" }}
+                  >
                     <div className="mood-entry-icon">{mood.icon}</div>
                     <div style={{ flex: 1 }}>
                       <div className="mood-entry-time">
@@ -356,6 +640,9 @@ const Calendar = () => {
                       </div>
                       <div className="mood-entry-emotion">
                         {mood.emotion}
+                      </div>
+                      <div style={{ fontSize: "12px", color: "#666", marginTop: "4px" }}>
+                        Click to view details
                       </div>
                     </div>
                   </div>
@@ -419,6 +706,260 @@ const Calendar = () => {
               <button
                 className="btn btn-secondary"
                 onClick={() => setSelectedDay(null)}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Individual Mood Log Detail Modal */}
+      {selectedMoodLog && (
+        <div className="modal-overlay" onClick={() => setSelectedMoodLog(null)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3 className="modal-title">View Mood Details</h3>
+              <button
+                className="modal-close"
+                onClick={() => setSelectedMoodLog(null)}
+              >
+                ×
+              </button>
+            </div>
+            <div className="modal-body">
+              <div style={{ display: "grid", gap: "20px" }}>
+                {/* Date (Logged Date) */}
+                <div>
+                  <div style={{
+                    fontSize: "12px",
+                    color: "#888",
+                    marginBottom: "6px",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.5px",
+                    fontWeight: "600"
+                  }}>
+                    Date (Logged Date)
+                  </div>
+                  <div style={{ fontSize: "16px", fontWeight: "600", color: "#222" }}>
+                    {selectedMoodLog.fullData.date}
+                  </div>
+                </div>
+
+                {/* Time (Logged Time) */}
+                <div>
+                  <div style={{
+                    fontSize: "12px",
+                    color: "#888",
+                    marginBottom: "6px",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.5px",
+                    fontWeight: "600"
+                  }}>
+                    Time (Logged Time)
+                  </div>
+                  <div style={{ fontSize: "16px", fontWeight: "600", color: "#222" }}>
+                    {selectedMoodLog.time}
+                  </div>
+                </div>
+
+                {/* Past Mood (Logged Mood) */}
+                <div>
+                  <div style={{
+                    fontSize: "12px",
+                    color: "#888",
+                    marginBottom: "8px",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.5px",
+                    fontWeight: "600"
+                  }}>
+                    Past Mood (Logged Mood)
+                  </div>
+                  <div style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "12px"
+                  }}>
+                    <div style={{
+                      width: "28px",
+                      height: "28px",
+                      borderRadius: "50%",
+                      backgroundColor: getEmotionColor(selectedMoodLog.emotion),
+                      border: "2px solid #fff",
+                      boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
+                    }} />
+                    <span style={{ fontSize: "16px", fontWeight: "600", color: getEmotionColor(selectedMoodLog.emotion) }}>
+                      {selectedMoodLog.feelingDescription || selectedMoodLog.emotion}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Category */}
+                <div>
+                  <div style={{
+                    fontSize: "12px",
+                    color: "#888",
+                    marginBottom: "6px",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.5px",
+                    fontWeight: "600"
+                  }}>
+                    Category
+                  </div>
+                  <div style={{ fontSize: "16px", fontWeight: "600", color: "#222" }}>
+                    {selectedMoodLog.category}
+                  </div>
+                </div>
+
+                {/* Sub Category */}
+                <div>
+                  <div style={{
+                    fontSize: "12px",
+                    color: "#888",
+                    marginBottom: "6px",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.5px",
+                    fontWeight: "600"
+                  }}>
+                    Sub Category
+                  </div>
+                  <div style={{ fontSize: "16px", fontWeight: "600", color: "#222" }}>
+                    {selectedMoodLog.subcategory}
+                  </div>
+                </div>
+
+                {/* Impact & Joyfulness */}
+                <div style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: "16px"
+                }}>
+                  <div>
+                    <div style={{
+                      fontSize: "12px",
+                      color: "#888",
+                      marginBottom: "6px",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.5px",
+                      fontWeight: "600"
+                    }}>
+                      Impact
+                    </div>
+                    <div style={{
+                      fontSize: "24px",
+                      fontWeight: "700",
+                      color: "#00c7b7"
+                    }}>
+                      {selectedMoodLog.impact}/7
+                    </div>
+                  </div>
+                  <div>
+                    <div style={{
+                      fontSize: "12px",
+                      color: "#888",
+                      marginBottom: "6px",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.5px",
+                      fontWeight: "600"
+                    }}>
+                      Joyfulness
+                    </div>
+                    <div style={{
+                      fontSize: "24px",
+                      fontWeight: "700",
+                      color: "#00c7b7"
+                    }}>
+                      {selectedMoodLog.joyfulness}/7
+                    </div>
+                  </div>
+                </div>
+
+                {/* Calculated Emotion & Zone */}
+                <div>
+                  <div style={{
+                    fontSize: "12px",
+                    color: "#888",
+                    marginBottom: "10px",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.5px",
+                    fontWeight: "600"
+                  }}>
+                    Calculated Emotion & Zone
+                  </div>
+                  <div style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "16px",
+                    flexWrap: "wrap"
+                  }}>
+                    <div style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px"
+                    }}>
+                      <div style={{
+                        width: "28px",
+                        height: "28px",
+                        borderRadius: "50%",
+                        backgroundColor: getEmotionColor(selectedMoodLog.emotion),
+                        border: "2px solid #fff",
+                        boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
+                      }} />
+                      <span style={{ fontWeight: "600", fontSize: "16px", color: "#222" }}>
+                        {selectedMoodLog.emotion}
+                      </span>
+                    </div>
+                    <div style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px"
+                    }}>
+                      <div style={{
+                        width: "28px",
+                        height: "28px",
+                        borderRadius: "50%",
+                        backgroundColor: getZoneColor(selectedMoodLog.fullData.calculatedZone),
+                        border: "2px solid #fff",
+                        boxShadow: "0 2px 4px rgba(0,0,0,0.1)"
+                      }} />
+                      <span style={{ fontWeight: "600", fontSize: "16px", color: "#222" }}>
+                        {selectedMoodLog.fullData.calculatedZone}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Note (Added Note) */}
+                {selectedMoodLog.note && (
+                  <div>
+                    <div style={{
+                      fontSize: "12px",
+                      color: "#888",
+                      marginBottom: "6px",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.5px",
+                      fontWeight: "600"
+                    }}>
+                      Note (Added Note)
+                    </div>
+                    <div style={{
+                      fontSize: "15px",
+                      color: "#444",
+                      lineHeight: "1.6",
+                      padding: "16px",
+                      background: "#f9f9f9",
+                      borderRadius: "10px"
+                    }}>
+                      {selectedMoodLog.note}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="modal-actions">
+              <button
+                className="btn btn-secondary"
+                onClick={() => setSelectedMoodLog(null)}
               >
                 Close
               </button>

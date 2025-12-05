@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { FiFilter, FiEye, FiPlus, FiEdit } from "react-icons/fi";
+import axios from "axios";
+import API_BASE_URL from "../../config/api";
 import "./Student.css";
 
 const MoodHistory = () => {
@@ -8,6 +10,10 @@ const MoodHistory = () => {
   const [selectedMood, setSelectedMood] = useState(null);
   const [editingMood, setEditingMood] = useState(null);
   const [editForm, setEditForm] = useState(null);
+  const [moodHistory, setMoodHistory] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [currentTime, setCurrentTime] = useState(new Date());
   const [filters, setFilters] = useState({
     dateFrom: "",
     dateTo: "",
@@ -18,8 +24,145 @@ const MoodHistory = () => {
     joyfulnessMax: "",
   });
 
-  // Static mood history data
-  const moodHistory = [
+  // Update current time every minute for countdown
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 60000); // Update every minute
+
+    return () => clearInterval(timer);
+  }, []);
+
+  // Check if mood log can be edited (within 24 hours)
+  const canEdit = (moodLog) => {
+    if (!moodLog.createdAt) return false;
+
+    const createdAt = new Date(moodLog.createdAt);
+    const now = new Date();
+    const hoursSinceCreation = (now - createdAt) / (1000 * 60 * 60);
+
+    return hoursSinceCreation < 24;
+  };
+
+  // Get remaining edit time
+  const getRemainingEditTime = (moodLog) => {
+    if (!moodLog.createdAt) return null;
+
+    const createdAt = new Date(moodLog.createdAt);
+    const now = new Date();
+    const hoursRemaining = 24 - (now - createdAt) / (1000 * 60 * 60);
+
+    if (hoursRemaining <= 0) return "Edit time expired";
+
+    const hours = Math.floor(hoursRemaining);
+    const minutes = Math.floor((hoursRemaining - hours) * 60);
+
+    if (hours > 0) {
+      return `${hours}h ${minutes}m left to edit`;
+    } else {
+      return `${minutes}m left to edit`;
+    }
+  };
+
+  // Helper function to get emotion color
+  const getEmotionColor = (emotion) => {
+    const emotionColors = {
+      Sad: "#3b82f6",
+      Calm: "#10b981",
+      Angry: "#ef4444",
+      Joy: "#10b981",
+      Complacent: "#f59e0b",
+      Neutral: "#f59e0b",
+      Happy: "#10b981",
+      Anxious: "#f59e0b",
+      Stressed: "#f97316",
+      Excited: "#9b59b6",
+    };
+    return emotionColors[emotion] || "#6b7280";
+  };
+
+  // Helper function to get zone color
+  const getZoneColor = (zone) => {
+    const zoneColors = {
+      Green: "#10b981",
+      Yellow: "#f59e0b",
+      Brown: "#8b4513",
+      "Light Red": "#ff6b6b",
+      "Dark Red": "#dc2626",
+      Blue: "#3b82f6",
+    };
+    return zoneColors[zone] || "#6b7280";
+  };
+
+  // Helper function to get emoji for emotion
+  const getEmotionIcon = (emotion) => {
+    const emotionIcons = {
+      Sad: "😢",
+      Calm: "😌",
+      Angry: "😠",
+      Joy: "😊",
+      Complacent: "😐",
+      Neutral: "😐",
+      Happy: "😊",
+      Anxious: "😰",
+      Stressed: "😰",
+      Excited: "🤩",
+    };
+    return emotionIcons[emotion] || "😐";
+  };
+
+  // Fetch mood logs from API
+  useEffect(() => {
+    const fetchMoodLogs = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        // TODO: Replace studentId=1 with actual logged-in student ID from auth context
+        const response = await axios.get(`${API_BASE_URL}/student-mood-logs`, {
+          params: {
+            studentId: 1,
+            status: true,
+          },
+        });
+
+        if (response.data) {
+          // Transform API data to match the component's expected format
+          const transformedData = response.data.map((log) => ({
+            id: log.id,
+            date: log.date,
+            time: log.time.substring(0, 5), // Extract HH:MM from HH:MM:SS
+            category: log.calculatedEmotion || "N/A",
+            subcategory: log.subCategory?.name || log.addNote || "N/A",
+            icon: getEmotionIcon(log.calculatedEmotion),
+            color: getEmotionColor(log.calculatedEmotion),
+            impact: log.impact,
+            joyfulness: log.joyfulness,
+            zone: log.calculatedZone || "N/A",
+            zoneColor: getZoneColor(log.calculatedZone),
+            note: log.addNote || "",
+            feelingDescription: log.feelingDescription || "",
+            categoryName: log.category?.name || "",
+            createdAt: log.createdAt, // Include creation timestamp
+          }));
+
+          setMoodHistory(transformedData);
+        }
+      } catch (err) {
+        console.error("Error fetching mood logs:", err);
+        setError("Failed to load mood history. Please try again.");
+        // Fallback to empty array
+        setMoodHistory([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMoodLogs();
+  }, []);
+
+  // Static mood history data (fallback - now replaced by API data)
+  const staticMoodHistory = [
     {
       id: 1,
       date: "2024-01-15",
@@ -33,6 +176,7 @@ const MoodHistory = () => {
       zone: "Green Zone",
       zoneColor: "#2ecc71",
       note: "Had a great day at school! Aced my math test and spent time with friends.",
+      createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2 hours ago
     },
     {
       id: 2,
@@ -47,6 +191,7 @@ const MoodHistory = () => {
       zone: "Yellow Zone",
       zoneColor: "#f39c12",
       note: "Feeling nervous about the upcoming presentation in class.",
+      createdAt: new Date(Date.now() - 30 * 60 * 60 * 1000).toISOString(), // 30 hours ago (expired)
     },
     {
       id: 3,
@@ -61,6 +206,7 @@ const MoodHistory = () => {
       zone: "Green Zone",
       zoneColor: "#2ecc71",
       note: "Evening meditation session was very peaceful.",
+      createdAt: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(), // 5 hours ago
     },
     {
       id: 4,
@@ -75,6 +221,7 @@ const MoodHistory = () => {
       zone: "Orange Zone",
       zoneColor: "#e67e22",
       note: "Didn't make it to the soccer team. Feeling let down.",
+      createdAt: new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString(), // 48 hours ago (expired)
     },
     {
       id: 5,
@@ -89,6 +236,7 @@ const MoodHistory = () => {
       zone: "Green Zone",
       zoneColor: "#2ecc71",
       note: "Got accepted into the school drama club! Can't wait to start rehearsals.",
+      createdAt: new Date(Date.now() - 20 * 60 * 60 * 1000).toISOString(), // 20 hours ago
     },
     {
       id: 6,
@@ -103,6 +251,7 @@ const MoodHistory = () => {
       zone: "Yellow Zone",
       zoneColor: "#f39c12",
       note: "Got into an argument with my friend over something silly.",
+      createdAt: new Date(Date.now() - 72 * 60 * 60 * 1000).toISOString(), // 72 hours ago (expired)
     },
     {
       id: 7,
@@ -117,6 +266,7 @@ const MoodHistory = () => {
       zone: "Green Zone",
       zoneColor: "#2ecc71",
       note: "Family movie night was fun. Feeling grateful for quality time together.",
+      createdAt: new Date(Date.now() - 10 * 60 * 60 * 1000).toISOString(), // 10 hours ago
     },
     {
       id: 8,
@@ -131,6 +281,7 @@ const MoodHistory = () => {
       zone: "Yellow Zone",
       zoneColor: "#f39c12",
       note: "Lots of homework to catch up on. Feeling overwhelmed.",
+      createdAt: new Date(Date.now() - 96 * 60 * 60 * 1000).toISOString(), // 96 hours ago (expired)
     },
   ];
 
@@ -170,6 +321,55 @@ const MoodHistory = () => {
       return false;
     return true;
   });
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="student-container">
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            minHeight: "400px",
+            fontSize: "18px",
+            color: "#666",
+          }}
+        >
+          Loading mood history...
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="student-container">
+        <div
+          style={{
+            background: "#fff",
+            borderRadius: "14px",
+            padding: "32px",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.03)",
+            textAlign: "center",
+          }}
+        >
+          <div
+            style={{ color: "#ef4444", fontSize: "18px", marginBottom: "16px" }}
+          >
+            {error}
+          </div>
+          <button
+            className="btn btn-primary"
+            onClick={() => window.location.reload()}
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="student-container">
@@ -432,7 +632,16 @@ const MoodHistory = () => {
                     </div>
                   </td>
                   <td>
-                    <div style={{ display: "flex", gap: "8px" }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: "16px",
+                        alignItems: "center",
+                        justifyContent: "flex-start",
+                        paddingLeft: "12px",
+                      }}
+                    >
+                      {/* Overview Icon */}
                       <button
                         onClick={() => setSelectedMood(mood)}
                         style={{
@@ -440,60 +649,136 @@ const MoodHistory = () => {
                           border: "none",
                           color: "#00c7b7",
                           cursor: "pointer",
-                          fontSize: "14px",
-                          fontWeight: "600",
+                          fontSize: "18px",
                           display: "flex",
                           alignItems: "center",
-                          gap: "6px",
-                          padding: "6px 12px",
-                          borderRadius: "8px",
-                          transition: "background 0.2s",
+                          justifyContent: "center",
+                          padding: "8px",
+                          borderRadius: "6px",
+                          transition: "all 0.2s",
                         }}
-                        onMouseEnter={(e) =>
-                          (e.currentTarget.style.background = "#f9f9f9")
-                        }
-                        onMouseLeave={(e) =>
-                          (e.currentTarget.style.background = "none")
-                        }
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = "#e0f7f5";
+                          e.currentTarget.style.transform = "scale(1.1)";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = "none";
+                          e.currentTarget.style.transform = "scale(1)";
+                        }}
+                        title="Overview Mood"
                       >
-                        <FiEye /> View
+                        <FiEye />
                       </button>
-                      <button
-                        onClick={() => {
-                          setEditingMood(mood);
-                          setEditForm({
-                            date: mood.date,
-                            time: mood.time,
-                            category: mood.category,
-                            subcategory: mood.subcategory,
-                            impact: mood.impact,
-                            joyfulness: mood.joyfulness,
-                            note: mood.note || "",
-                          });
-                        }}
+
+                      {/* Edit Icon with Timer */}
+                      <div
                         style={{
-                          background: "none",
-                          border: "none",
-                          color: "#f39c12",
-                          cursor: "pointer",
-                          fontSize: "14px",
-                          fontWeight: "600",
+                          position: "relative",
                           display: "flex",
+                          flexDirection: "column",
                           alignItems: "center",
-                          gap: "6px",
-                          padding: "6px 12px",
-                          borderRadius: "8px",
-                          transition: "background 0.2s",
                         }}
-                        onMouseEnter={(e) =>
-                          (e.currentTarget.style.background = "#f9f9f9")
-                        }
-                        onMouseLeave={(e) =>
-                          (e.currentTarget.style.background = "none")
-                        }
                       >
-                        <FiEdit /> Edit
-                      </button>
+                        {canEdit(mood) ? (
+                          <>
+                            <button
+                              onClick={() => {
+                                setEditingMood(mood);
+                                setEditForm({
+                                  date: mood.date,
+                                  time: mood.time,
+                                  category: mood.category,
+                                  subcategory: mood.subcategory,
+                                  impact: mood.impact,
+                                  joyfulness: mood.joyfulness,
+                                  note: mood.note || "",
+                                });
+                              }}
+                              style={{
+                                background: "none",
+                                border: "none",
+                                color: "#f39c12",
+                                cursor: "pointer",
+                                fontSize: "18px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                padding: "8px",
+                                borderRadius: "6px",
+                                transition: "all 0.2s",
+                              }}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.background = "#fff8e1";
+                                e.currentTarget.style.transform = "scale(1.1)";
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.background = "none";
+                                e.currentTarget.style.transform = "scale(1)";
+                              }}
+                              title={`Edit - ${getRemainingEditTime(mood)}`}
+                            >
+                              <FiEdit />
+                            </button>
+                            {mood.createdAt && (
+                              <div
+                                style={{
+                                  fontSize: "10px",
+                                  color: "#f39c12",
+                                  fontWeight: "700",
+                                  marginTop: "2px",
+                                  whiteSpace: "nowrap",
+                                }}
+                              >
+                                {(() => {
+                                  const createdAt = new Date(mood.createdAt);
+                                  const hoursRemaining =
+                                    24 -
+                                    (currentTime - createdAt) /
+                                      (1000 * 60 * 60);
+                                  const hours = Math.floor(hoursRemaining);
+                                  const minutes = Math.floor(
+                                    (hoursRemaining - hours) * 60
+                                  );
+                                  return hours > 0
+                                    ? `${hours}h ${minutes}m`
+                                    : `${minutes}m`;
+                                })()}
+                              </div>
+                            )}
+                          </>
+                        ) : (
+                          <>
+                            <button
+                              disabled
+                              style={{
+                                background: "none",
+                                border: "none",
+                                color: "#d0d0d0",
+                                cursor: "not-allowed",
+                                fontSize: "18px",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                padding: "8px",
+                                borderRadius: "6px",
+                              }}
+                              title="Edit time expired (24 hours)"
+                            >
+                              <FiEdit />
+                            </button>
+                            <div
+                              style={{
+                                fontSize: "10px",
+                                color: "#999",
+                                fontWeight: "600",
+                                marginTop: "2px",
+                              }}
+                            >
+                              🔒
+                            </div>
+                          </>
+                        )}
+                      </div>
                     </div>
                   </td>
                 </tr>
@@ -515,12 +800,12 @@ const MoodHistory = () => {
         </table>
       </div>
 
-      {/* Overview Modal */}
+      {/* Overview Mood Modal */}
       {selectedMood && (
         <div className="modal-overlay" onClick={() => setSelectedMood(null)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h3 className="modal-title">Mood Details</h3>
+              <h3 className="modal-title">Overview Mood</h3>
               <button
                 className="modal-close"
                 onClick={() => setSelectedMood(null)}
@@ -529,39 +814,9 @@ const MoodHistory = () => {
               </button>
             </div>
             <div className="modal-body">
-              {/* Emotion Header */}
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "16px",
-                  padding: "20px",
-                  background: `${selectedMood.color}15`,
-                  borderRadius: "12px",
-                  marginBottom: "24px",
-                  border: `2px solid ${selectedMood.color}`,
-                }}
-              >
-                <div style={{ fontSize: "48px" }}>{selectedMood.icon}</div>
-                <div>
-                  <div
-                    style={{
-                      fontSize: "24px",
-                      fontWeight: "700",
-                      color: selectedMood.color,
-                      marginBottom: "4px",
-                    }}
-                  >
-                    {selectedMood.category}
-                  </div>
-                  <div style={{ fontSize: "16px", color: "#666" }}>
-                    {selectedMood.subcategory}
-                  </div>
-                </div>
-              </div>
-
               {/* Details Grid */}
               <div style={{ display: "grid", gap: "20px" }}>
+                {/* Date */}
                 <div>
                   <div
                     style={{
@@ -570,15 +825,141 @@ const MoodHistory = () => {
                       marginBottom: "6px",
                       textTransform: "uppercase",
                       letterSpacing: "0.5px",
+                      fontWeight: "600",
                     }}
                   >
-                    Date & Time
+                    Date (Logged Date)
                   </div>
-                  <div style={{ fontSize: "16px", fontWeight: "600" }}>
-                    {selectedMood.date} at {selectedMood.time}
+                  <div
+                    style={{
+                      fontSize: "16px",
+                      fontWeight: "600",
+                      color: "#222",
+                    }}
+                  >
+                    {selectedMood.date}
                   </div>
                 </div>
 
+                {/* Time */}
+                <div>
+                  <div
+                    style={{
+                      fontSize: "12px",
+                      color: "#888",
+                      marginBottom: "6px",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.5px",
+                      fontWeight: "600",
+                    }}
+                  >
+                    Time (Logged Time)
+                  </div>
+                  <div
+                    style={{
+                      fontSize: "16px",
+                      fontWeight: "600",
+                      color: "#222",
+                    }}
+                  >
+                    {selectedMood.time}
+                  </div>
+                </div>
+
+                {/* Current Mood */}
+                <div>
+                  <div
+                    style={{
+                      fontSize: "12px",
+                      color: "#888",
+                      marginBottom: "8px",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.5px",
+                      fontWeight: "600",
+                    }}
+                  >
+                    Current Mood (Logged Mood)
+                  </div>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "12px",
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: "28px",
+                        height: "28px",
+                        borderRadius: "50%",
+                        backgroundColor: selectedMood.color,
+                        border: "2px solid #fff",
+                        boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                      }}
+                    />
+                    <span
+                      style={{
+                        fontSize: "16px",
+                        fontWeight: "600",
+                        color: selectedMood.color,
+                      }}
+                    >
+                      {selectedMood.category}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Category */}
+                <div>
+                  <div
+                    style={{
+                      fontSize: "12px",
+                      color: "#888",
+                      marginBottom: "6px",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.5px",
+                      fontWeight: "600",
+                    }}
+                  >
+                    Category
+                  </div>
+                  <div
+                    style={{
+                      fontSize: "16px",
+                      fontWeight: "600",
+                      color: "#222",
+                    }}
+                  >
+                    {selectedMood.category}
+                  </div>
+                </div>
+
+                {/* Sub Category */}
+                <div>
+                  <div
+                    style={{
+                      fontSize: "12px",
+                      color: "#888",
+                      marginBottom: "6px",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.5px",
+                      fontWeight: "600",
+                    }}
+                  >
+                    Sub Category
+                  </div>
+                  <div
+                    style={{
+                      fontSize: "16px",
+                      fontWeight: "600",
+                      color: "#222",
+                    }}
+                  >
+                    {selectedMood.subcategory}
+                  </div>
+                </div>
+
+                {/* Impact & Joyfulness */}
                 <div
                   style={{
                     display: "grid",
@@ -594,9 +975,10 @@ const MoodHistory = () => {
                         marginBottom: "6px",
                         textTransform: "uppercase",
                         letterSpacing: "0.5px",
+                        fontWeight: "600",
                       }}
                     >
-                      Impact Level
+                      Impact
                     </div>
                     <div
                       style={{
@@ -616,9 +998,10 @@ const MoodHistory = () => {
                         marginBottom: "6px",
                         textTransform: "uppercase",
                         letterSpacing: "0.5px",
+                        fontWeight: "600",
                       }}
                     >
-                      Joyfulness Level
+                      Joyfulness
                     </div>
                     <div
                       style={{
@@ -632,34 +1015,86 @@ const MoodHistory = () => {
                   </div>
                 </div>
 
+                {/* Calculated Emotion & Zone */}
                 <div>
                   <div
                     style={{
                       fontSize: "12px",
                       color: "#888",
-                      marginBottom: "6px",
+                      marginBottom: "10px",
                       textTransform: "uppercase",
                       letterSpacing: "0.5px",
+                      fontWeight: "600",
                     }}
                   >
-                    Calculated Zone
+                    Calculated Emotion & Zone
                   </div>
                   <div
                     style={{
-                      display: "inline-block",
-                      padding: "8px 18px",
-                      background: `${selectedMood.zoneColor}15`,
-                      borderRadius: "20px",
-                      fontWeight: "700",
-                      fontSize: "16px",
-                      color: selectedMood.zoneColor,
-                      border: `2px solid ${selectedMood.zoneColor}`,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "16px",
+                      flexWrap: "wrap",
                     }}
                   >
-                    {selectedMood.zone}
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "8px",
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: "28px",
+                          height: "28px",
+                          borderRadius: "50%",
+                          backgroundColor: selectedMood.color,
+                          border: "2px solid #fff",
+                          boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                        }}
+                      />
+                      <span
+                        style={{
+                          fontWeight: "600",
+                          fontSize: "16px",
+                          color: "#222",
+                        }}
+                      >
+                        {selectedMood.category}
+                      </span>
+                    </div>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "8px",
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: "28px",
+                          height: "28px",
+                          borderRadius: "50%",
+                          backgroundColor: selectedMood.zoneColor,
+                          border: "2px solid #fff",
+                          boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                        }}
+                      />
+                      <span
+                        style={{
+                          fontWeight: "600",
+                          fontSize: "16px",
+                          color: "#222",
+                        }}
+                      >
+                        {selectedMood.zone}
+                      </span>
+                    </div>
                   </div>
                 </div>
 
+                {/* Note */}
                 {selectedMood.note && (
                   <div>
                     <div
@@ -669,9 +1104,10 @@ const MoodHistory = () => {
                         marginBottom: "6px",
                         textTransform: "uppercase",
                         letterSpacing: "0.5px",
+                        fontWeight: "600",
                       }}
                     >
-                      Your Note
+                      Note (Added Note)
                     </div>
                     <div
                       style={{
@@ -703,12 +1139,28 @@ const MoodHistory = () => {
 
       {/* Edit Mood Modal */}
       {editingMood && editForm && (
-        <div className="modal-overlay" onClick={() => {
-          setEditingMood(null);
-          setEditForm(null);
-        }}>
-          <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: "600px" }}>
-            <div className="modal-header">
+        <div
+          className="modal-overlay"
+          onClick={() => {
+            setEditingMood(null);
+            setEditForm(null);
+          }}
+        >
+          <div
+            className="modal"
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              maxWidth: "600px",
+              maxHeight: "90vh",
+              display: "flex",
+              flexDirection: "column",
+              overflow: "hidden",
+            }}
+          >
+            <div
+              className="modal-header"
+              style={{ position: "relative", zIndex: 10, flexShrink: 0 }}
+            >
               <h3 className="modal-title">Edit Mood Log</h3>
               <button
                 className="modal-close"
@@ -720,43 +1172,75 @@ const MoodHistory = () => {
                 ×
               </button>
             </div>
-            <form onSubmit={(e) => {
-              e.preventDefault();
-              alert("Mood updated successfully!");
-              setEditingMood(null);
-              setEditForm(null);
-            }}>
-              <div className="modal-body">
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-                  <div className="form-group">
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                alert("Mood updated successfully!");
+                setEditingMood(null);
+                setEditForm(null);
+              }}
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                flex: 1,
+                overflow: "hidden",
+              }}
+            >
+              <div
+                className="modal-body"
+                style={{
+                  padding: "24px",
+                  overflowY: "auto",
+                  flex: 1,
+                  position: "relative",
+                }}
+              >
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "1fr 1fr",
+                    gap: "16px",
+                    marginBottom: "20px",
+                  }}
+                >
+                  <div style={{ marginBottom: 0 }}>
                     <label className="form-label">Date *</label>
                     <input
                       type="date"
                       className="form-input"
                       value={editForm.date}
-                      onChange={(e) => setEditForm({ ...editForm, date: e.target.value })}
+                      onChange={(e) =>
+                        setEditForm({ ...editForm, date: e.target.value })
+                      }
                       required
+                      style={{ border: "1px solid #e0e0e0" }}
                     />
                   </div>
-                  <div className="form-group">
+                  <div style={{ marginBottom: 0 }}>
                     <label className="form-label">Time *</label>
                     <input
                       type="time"
                       className="form-input"
                       value={editForm.time}
-                      onChange={(e) => setEditForm({ ...editForm, time: e.target.value })}
+                      onChange={(e) =>
+                        setEditForm({ ...editForm, time: e.target.value })
+                      }
                       required
+                      style={{ border: "1px solid #e0e0e0" }}
                     />
                   </div>
                 </div>
 
-                <div className="form-group">
+                <div style={{ marginBottom: "20px" }}>
                   <label className="form-label">Category *</label>
                   <select
                     className="form-select"
                     value={editForm.category}
-                    onChange={(e) => setEditForm({ ...editForm, category: e.target.value })}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, category: e.target.value })
+                    }
                     required
+                    style={{ border: "1px solid #e0e0e0" }}
                   >
                     <option value="">Select Category</option>
                     <option value="Happy">Happy</option>
@@ -768,18 +1252,29 @@ const MoodHistory = () => {
                   </select>
                 </div>
 
-                <div className="form-group">
+                <div style={{ marginBottom: "20px" }}>
                   <label className="form-label">Subcategory *</label>
                   <input
                     type="text"
                     className="form-input"
                     value={editForm.subcategory}
-                    onChange={(e) => setEditForm({ ...editForm, subcategory: e.target.value })}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, subcategory: e.target.value })
+                    }
                     required
+                    style={{ border: "1px solid #e0e0e0" }}
                   />
                 </div>
 
-                <div className="slider-group">
+                <div
+                  style={{
+                    marginBottom: "20px",
+                    paddingBottom: 0,
+                    borderBottom: "none",
+                    position: "relative",
+                    overflow: "visible",
+                  }}
+                >
                   <div className="slider-label">
                     <label className="form-label">Impact Level (1-7) *</label>
                     <span className="slider-value">{editForm.impact}</span>
@@ -789,14 +1284,30 @@ const MoodHistory = () => {
                     min="1"
                     max="7"
                     value={editForm.impact}
-                    onChange={(e) => setEditForm({ ...editForm, impact: parseInt(e.target.value) })}
+                    onChange={(e) =>
+                      setEditForm({
+                        ...editForm,
+                        impact: parseInt(e.target.value),
+                      })
+                    }
                     className="slider"
+                    style={{ position: "relative", zIndex: 1 }}
                   />
                 </div>
 
-                <div className="slider-group">
+                <div
+                  style={{
+                    marginBottom: "20px",
+                    paddingBottom: 0,
+                    borderBottom: "none",
+                    position: "relative",
+                    overflow: "visible",
+                  }}
+                >
                   <div className="slider-label">
-                    <label className="form-label">Joyfulness Level (1-7) *</label>
+                    <label className="form-label">
+                      Joyfulness Level (1-7) *
+                    </label>
                     <span className="slider-value">{editForm.joyfulness}</span>
                   </div>
                   <input
@@ -804,22 +1315,34 @@ const MoodHistory = () => {
                     min="1"
                     max="7"
                     value={editForm.joyfulness}
-                    onChange={(e) => setEditForm({ ...editForm, joyfulness: parseInt(e.target.value) })}
+                    onChange={(e) =>
+                      setEditForm({
+                        ...editForm,
+                        joyfulness: parseInt(e.target.value),
+                      })
+                    }
                     className="slider"
+                    style={{ position: "relative", zIndex: 1 }}
                   />
                 </div>
 
-                <div className="form-group">
+                <div style={{ marginBottom: 0 }}>
                   <label className="form-label">Note</label>
                   <textarea
                     className="form-textarea"
                     value={editForm.note}
-                    onChange={(e) => setEditForm({ ...editForm, note: e.target.value })}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, note: e.target.value })
+                    }
                     placeholder="Add any additional notes..."
+                    style={{ border: "1px solid #e0e0e0" }}
                   />
                 </div>
               </div>
-              <div className="modal-actions">
+              <div
+                className="modal-actions"
+                style={{ flexShrink: 0, position: "relative", zIndex: 10 }}
+              >
                 <button
                   type="button"
                   className="btn btn-secondary"
@@ -843,5 +1366,3 @@ const MoodHistory = () => {
 };
 
 export default MoodHistory;
-
-

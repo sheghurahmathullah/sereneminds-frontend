@@ -37,6 +37,7 @@ import DivisionEdit from "./pages/MasterData/DivisionEdit";
 import Academicyear from "./pages/MasterData/Academicyear";
 import Emotion from "./pages/MasterData/Emotion";
 import Zone from "./pages/MasterData/Zone";
+import LogMoodMaster from "./pages/MasterData/LogMood";
 import Category from "./pages/MasterData/Category";
 import SubCategory from "./pages/MasterData/SubCategory";
 import Impact from "./pages/MasterData/Impact";
@@ -155,6 +156,7 @@ function AppContent() {
             <Route path="/master/academicyear" element={<Academicyear />} />
             <Route path="/master/emotion" element={<Emotion />} />
             <Route path="/master/zone" element={<Zone />} />
+            <Route path="/master/logmood" element={<LogMoodMaster />} />
             <Route path="/master/category" element={<Category />} />
             <Route path="/master/subcategory" element={<SubCategory />} />
             <Route path="/master/impact" element={<Impact />} />

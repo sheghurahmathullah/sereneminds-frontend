@@ -30,6 +30,7 @@ const MobileSidebar = ({ isOpen, onClose }) => {
     "Student",
     "Emotion",
     "Zone",
+    "Log Mood",
     "Category",
     "Sub Category",
     "Impact",
@@ -65,7 +66,7 @@ const MobileSidebar = ({ isOpen, onClose }) => {
             onClick={onClose}
           >
             <BsBarChart className="icon" />
-            <Link to="/reports">Reports</Link>
+            <Link to="/reports">Student Report</Link>
           </li>
           <li className={isActive("/graph") ? "active" : ""} onClick={onClose}>
             <BsGraphUp className="icon" />
@@ -96,14 +97,14 @@ const MobileSidebar = ({ isOpen, onClose }) => {
               <li
                 key={i}
                 className={
-                  isActive(`/master/${item.toLowerCase().replace(" ", "")}`)
+                  isActive(`/master/${item.toLowerCase().replace(/\s+/g, "")}`)
                     ? "active"
                     : ""
                 }
                 onClick={onClose}
               >
                 <IoRemoveCircleOutline className="icon sub-menu-icon" />
-                <Link to={`/master/${item.toLowerCase().replace(" ", "")}`}>
+                <Link to={`/master/${item.toLowerCase().replace(/\s+/g, "")}`}>
                   {item}
                   {item === "Student" && <span className="new-badge">New</span>}
                 </Link>

@@ -1,25 +1,148 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiCheck } from "react-icons/fi";
+import axios from "axios";
+import API_BASE_URL from "../../config/api";
 import "./Student.css";
 
 const LogMood = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     feelingDescription: "",
-    parentCategory: "",
+    subCategory: "",
+    subCategoryId: null,
+    category: "",
+    categoryId: null,
+    addNote: "",
     pleasantness: 4,
     impact: 4,
     emotion: "",
+    calculatedEmotion: "",
+    calculatedZone: "",
+    date: new Date().toISOString().split("T")[0],
+    time: new Date().toTimeString().slice(0, 5),
   });
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [autocompleteSuggestions, setAutocompleteSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
+  const [moods, setMoods] = useState([]);
+  const [loadingMoods, setLoadingMoods] = useState(false);
+  const [subCategories, setSubCategories] = useState([]);
+  const [loadingSubCategories, setLoadingSubCategories] = useState(false);
+  const [subCategorySuggestions, setSubCategorySuggestions] = useState([]);
+  const [showSubCategorySuggestions, setShowSubCategorySuggestions] =
+    useState(false);
+  const [selectedSubCategoryIndex, setSelectedSubCategoryIndex] = useState(-1);
+  const [categories, setCategories] = useState([]);
+  const [selectedSubCategoryData, setSelectedSubCategoryData] = useState(null);
+  const [showCategorySelection, setShowCategorySelection] = useState(false);
+  const [selectedCategories, setSelectedCategories] = useState([]);
+  const [emotions, setEmotions] = useState([]);
+  const [zones, setZones] = useState([]);
   const textareaRef = useRef(null);
   const suggestionsRef = useRef(null);
+  const subCategoryInputRef = useRef(null);
+  const subCategorySuggestionsRef = useRef(null);
 
-  // Comprehensive mood definitions
+  const SERVER_URL = `${API_BASE_URL}/moods`;
+  const SUB_CATEGORY_URL = `${API_BASE_URL}/subcategories`;
+  const CATEGORY_URL = `${API_BASE_URL}/categories`;
+  const EMOTION_URL = `${API_BASE_URL}/emotions`;
+  const ZONE_URL = `${API_BASE_URL}/zones`;
+
+  // Fetch moods from API
+  useEffect(() => {
+    const fetchMoods = async () => {
+      try {
+        setLoadingMoods(true);
+        const response = await axios.get(`${SERVER_URL}`, {
+          params: {
+            status: "true", // Only fetch active moods
+          },
+        });
+        if (response.data) {
+          setMoods(response.data);
+        }
+      } catch (err) {
+        console.error("Error fetching moods:", err);
+        // Fallback to empty array if API fails
+        setMoods([]);
+      } finally {
+        setLoadingMoods(false);
+      }
+    };
+
+    fetchMoods();
+  }, []);
+
+  // Fetch subcategories from API
+  useEffect(() => {
+    const fetchSubCategories = async () => {
+      try {
+        setLoadingSubCategories(true);
+        const response = await axios.get(`${SUB_CATEGORY_URL}`);
+        if (response.data) {
+          // Filter only active subcategories
+          const activeSubCategories = response.data.filter(
+            (subCat) => subCat.status === true
+          );
+          setSubCategories(activeSubCategories);
+        }
+      } catch (err) {
+        console.error("Error fetching subcategories:", err);
+        setSubCategories([]);
+      } finally {
+        setLoadingSubCategories(false);
+      }
+    };
+
+    fetchSubCategories();
+  }, []);
+
+  // Fetch categories from API
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.get(`${CATEGORY_URL}`);
+        if (response.data) {
+          const activeCategories = response.data.filter(
+            (cat) => cat.status === true
+          );
+          setCategories(activeCategories);
+        }
+      } catch (err) {
+        console.error("Error fetching categories:", err);
+        setCategories([]);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+  // Fetch emotions and zones for calculation
+  useEffect(() => {
+    const fetchEmotionsAndZones = async () => {
+      try {
+        const [emotionsRes, zonesRes] = await Promise.all([
+          axios.get(`${EMOTION_URL}`),
+          axios.get(`${ZONE_URL}`),
+        ]);
+        if (emotionsRes.data) {
+          setEmotions(emotionsRes.data.filter((e) => e.status === true));
+        }
+        if (zonesRes.data) {
+          setZones(zonesRes.data.filter((z) => z.status === true));
+        }
+      } catch (err) {
+        console.error("Error fetching emotions/zones:", err);
+      }
+    };
+
+    fetchEmotionsAndZones();
+  }, []);
+
+  // Comprehensive mood definitions (fallback if API fails)
   const moodDefinitions = [
     {
       mood: "Enraged",
@@ -494,14 +617,7 @@ const LogMood = () => {
     },
   ];
 
-  // Emotion options matching the design
-  const emotions = [
-    { id: "angry", name: "Angry", color: "#e74c3c" },
-    { id: "anxious", name: "Anxious", color: "#8B4513" },
-    { id: "sad", name: "Sad", color: "#e67e22" },
-    { id: "joy", name: "Joy", color: "#2ecc71" },
-    { id: "calm", name: "Calm", color: "#3498db" },
-  ];
+  // Note: Emotions are now fetched from API and calculated based on impact/joyfulness
 
   // Get pleasantness label
   const getPleasantnessLabel = (value) => {
@@ -528,27 +644,44 @@ const LogMood = () => {
     const value = e.target.value;
     setFormData({ ...formData, feelingDescription: value });
 
-    // Show suggestions if user is typing
-    if (value.trim().length > 0) {
-      const filtered = moodDefinitions.filter(
-        (mood) =>
-          mood.mood.toLowerCase().includes(value.toLowerCase()) ||
-          mood.description.toLowerCase().includes(value.toLowerCase())
-      );
+    // Show suggestions only if user is typing AND there are API moods available
+    if (value.trim().length > 0 && moods.length > 0) {
+      // Only use API moods - no fallback to hardcoded definitions
+      const filtered = moods
+        .filter(
+          (mood) =>
+            mood.name?.toLowerCase().includes(value.toLowerCase()) ||
+            mood.emotion?.name?.toLowerCase().includes(value.toLowerCase()) ||
+            mood.zone?.description
+              ?.toLowerCase()
+              .includes(value.toLowerCase()) ||
+            mood.zone?.name?.toLowerCase().includes(value.toLowerCase())
+        )
+        .map((mood) => ({
+          mood: mood.name,
+          description: mood.zone?.description || mood.zone?.name || "",
+          emotion: mood.emotion?.name || "",
+          zone: mood.zone?.name || "",
+        }));
+
+      // Only show suggestions if there are matches in API data
       setAutocompleteSuggestions(filtered.slice(0, 5)); // Show top 5 matches
       setShowSuggestions(filtered.length > 0);
       setSelectedSuggestionIndex(-1);
     } else {
+      // Hide suggestions if no input or no API moods available
       setShowSuggestions(false);
       setAutocompleteSuggestions([]);
+      setSelectedSuggestionIndex(-1);
     }
   };
 
   // Handle suggestion selection
   const handleSuggestionSelect = (mood) => {
+    // Only use the mood name/content (which already contains "Emotion - Zone Description")
     setFormData({
       ...formData,
-      feelingDescription: `${mood.mood}: ${mood.description}`,
+      feelingDescription: mood.mood,
     });
     setShowSuggestions(false);
     setAutocompleteSuggestions([]);
@@ -588,6 +721,15 @@ const LogMood = () => {
         setShowSuggestions(false);
         setSelectedSuggestionIndex(-1);
       }
+      if (
+        subCategorySuggestionsRef.current &&
+        !subCategorySuggestionsRef.current.contains(event.target) &&
+        subCategoryInputRef.current &&
+        !subCategoryInputRef.current.contains(event.target)
+      ) {
+        setShowSubCategorySuggestions(false);
+        setSelectedSubCategoryIndex(-1);
+      }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
@@ -596,26 +738,300 @@ const LogMood = () => {
     };
   }, []);
 
-  const handleEmotionSelect = (emotionId) => {
-    setFormData({ ...formData, emotion: emotionId });
+  // Handle subcategory input change
+  const handleSubCategoryChange = (e) => {
+    const value = e.target.value;
+    setFormData({ ...formData, subCategory: value });
+
+    // Show suggestions only if user is typing AND there are subcategories available
+    if (value.trim().length > 0 && subCategories.length > 0) {
+      const filtered = subCategories.filter((subCat) =>
+        subCat.name?.toLowerCase().includes(value.toLowerCase())
+      );
+
+      setSubCategorySuggestions(filtered.slice(0, 5)); // Show top 5 matches
+      setShowSubCategorySuggestions(filtered.length > 0);
+      setSelectedSubCategoryIndex(-1);
+    } else {
+      setShowSubCategorySuggestions(false);
+      setSubCategorySuggestions([]);
+      setSelectedSubCategoryIndex(-1);
+    }
   };
+
+  // Handle subcategory suggestion selection
+  const handleSubCategorySelect = (subCategory) => {
+    setSelectedSubCategoryData(subCategory);
+    setShowSubCategorySuggestions(false);
+    setSubCategorySuggestions([]);
+    setSelectedSubCategoryIndex(-1);
+
+    // Auto-select category if subcategory has one category
+    let categoryName = "";
+    let categoryId = null;
+
+    if (subCategory.category) {
+      categoryName = subCategory.category.name;
+      categoryId = subCategory.category.id;
+      setSelectedCategories([subCategory.category.id]);
+    } else if (subCategory.categoryId) {
+      // If category data not included, find it from categories list
+      const category = categories.find((c) => c.id === subCategory.categoryId);
+      if (category) {
+        categoryName = category.name;
+        categoryId = category.id;
+        setSelectedCategories([category.id]);
+      }
+    }
+
+    // Update form data once with all values
+    setFormData((prev) => ({
+      ...prev,
+      subCategory: subCategory.name,
+      subCategoryId: subCategory.id,
+      category: categoryName,
+      categoryId: categoryId,
+      addNote: "", // Clear add note when subcategory is selected
+    }));
+  };
+
+  // Handle keyboard navigation for subcategory
+  const handleSubCategoryKeyDown = (e) => {
+    if (!showSubCategorySuggestions || subCategorySuggestions.length === 0)
+      return;
+
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setSelectedSubCategoryIndex((prev) =>
+        prev < subCategorySuggestions.length - 1 ? prev + 1 : prev
+      );
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setSelectedSubCategoryIndex((prev) => (prev > 0 ? prev - 1 : -1));
+    } else if (e.key === "Enter" && selectedSubCategoryIndex >= 0) {
+      e.preventDefault();
+      handleSubCategorySelect(subCategorySuggestions[selectedSubCategoryIndex]);
+    } else if (e.key === "Escape") {
+      setShowSubCategorySuggestions(false);
+      setSelectedSubCategoryIndex(-1);
+    }
+  };
+
+  // Helper function to get color for emotion
+  const getEmotionColor = (emotion) => {
+    const emotionColors = {
+      Sad: "#3b82f6",
+      Calm: "#10b981",
+      Angry: "#ef4444",
+      Joy: "#10b981",
+      Complacent: "#f59e0b",
+      Neutral: "#f59e0b",
+      Happy: "#10b981",
+      Anxious: "#f59e0b",
+      Stressed: "#f97316",
+    };
+    return emotionColors[emotion] || "#6b7280";
+  };
+
+  // Helper function to get color for zone
+  const getZoneColor = (zone) => {
+    const zoneColors = {
+      Green: "#10b981",
+      Yellow: "#f59e0b",
+      Brown: "#8b4513",
+      "Light Red": "#ff6b6b",
+      "Dark Red": "#dc2626",
+      Blue: "#3b82f6",
+    };
+    return zoneColors[zone] || "#6b7280";
+  };
+
+  // Calculate emotion and zone based on impact and pleasantness
+  const calculateEmotionAndZone = (impact, pleasantness) => {
+    // Lookup table based on Impact and Pleasantness values
+    const emotionZoneLookup = {
+      "1-1": { emotion: "Depressed", zone: "Light Red" },
+      "1-2": { emotion: "Discouraged", zone: "Light Red" },
+      "1-3": { emotion: "Exhausted", zone: "Brown" },
+      "1-4": { emotion: "Uneasy", zone: "Yellow" },
+      "1-5": { emotion: "Relaxed", zone: "Green" },
+      "1-6": { emotion: "Comfortable", zone: "Green" },
+      "1-7": { emotion: "Serene", zone: "Green" },
+      "2-1": { emotion: "Lonely", zone: "Light Red" },
+      "2-2": { emotion: "Miserable", zone: "Light Red" },
+      "2-3": { emotion: "Tired", zone: "Brown" },
+      "2-4": { emotion: "Bored", zone: "Yellow" },
+      "2-5": { emotion: "Thoughtful", zone: "Green" },
+      "2-6": { emotion: "Hopeful", zone: "Green" },
+      "2-7": { emotion: "Carefree", zone: "Green" },
+      "3-1": { emotion: "Frightened", zone: "Light Red" },
+      "3-2": { emotion: "Worried", zone: "Light Red" },
+      "3-3": { emotion: "Concerned", zone: "Brown" },
+      "3-4": { emotion: "Complacent", zone: "Yellow" },
+      "3-5": { emotion: "Focused", zone: "Green" },
+      "3-6": { emotion: "Peaceful", zone: "Green" },
+      "3-7": { emotion: "Touched", zone: "Green" },
+      "4-1": { emotion: "Disgusted", zone: "Dark Red" },
+      "4-2": { emotion: "Angry", zone: "Dark Red" },
+      "4-3": { emotion: "Disappointed", zone: "Brown" },
+      "4-4": { emotion: "Satisfied", zone: "Yellow" },
+      "4-5": { emotion: "Optimistic", zone: "Blue" },
+      "4-6": { emotion: "Joyful", zone: "Blue" },
+      "4-7": { emotion: "Grateful", zone: "Blue" },
+      "5-1": { emotion: "Fuming", zone: "Dark Red" },
+      "5-2": { emotion: "Frustrated", zone: "Dark Red" },
+      "5-3": { emotion: "Irritated", zone: "Brown" },
+      "5-4": { emotion: "Energized", zone: "Yellow" },
+      "5-5": { emotion: "Cheerful", zone: "Blue" },
+      "5-6": { emotion: "Proud", zone: "Blue" },
+      "5-7": { emotion: "Blissful", zone: "Blue" },
+      "6-1": { emotion: "Furious", zone: "Dark Red" },
+      "6-2": { emotion: "Nervous", zone: "Dark Red" },
+      "6-3": { emotion: "Restless", zone: "Brown" },
+      "6-4": { emotion: "Lively", zone: "Yellow" },
+      "6-5": { emotion: "Enthusiastic", zone: "Blue" },
+      "6-6": { emotion: "Motivated", zone: "Blue" },
+      "6-7": { emotion: "Thrilled", zone: "Blue" },
+      "7-1": { emotion: "Enraged", zone: "Dark Red" },
+      "7-2": { emotion: "Panicked", zone: "Dark Red" },
+      "7-3": { emotion: "Shocked", zone: "Brown" },
+      "7-4": { emotion: "Hyper", zone: "Yellow" },
+      "7-5": { emotion: "Surprised", zone: "Blue" },
+      "7-6": { emotion: "Inspired", zone: "Blue" },
+      "7-7": { emotion: "Exhilarated", zone: "Blue" },
+    };
+
+    const key = `${impact}-${pleasantness}`;
+    const result = emotionZoneLookup[key];
+
+    if (result) {
+      return {
+        calculatedEmotion: result.emotion,
+        calculatedZone: result.zone,
+      };
+    }
+
+    // Default fallback if combination not found
+    return {
+      calculatedEmotion: "Unknown",
+      calculatedZone: "Yellow",
+    };
+  };
+
+  // Update calculated emotion/zone when impact or joyfulness changes
+  useEffect(() => {
+    const { calculatedEmotion, calculatedZone } = calculateEmotionAndZone(
+      formData.impact,
+      formData.pleasantness
+    );
+    setFormData((prev) => ({
+      ...prev,
+      calculatedEmotion,
+      calculatedZone,
+    }));
+  }, [formData.impact, formData.pleasantness]);
 
   const handleSubmit = () => {
     if (!formData.feelingDescription.trim()) {
       alert("Please describe how you feel");
       return;
     }
-    if (!formData.emotion) {
-      alert("Please select an emotion");
+    if (!formData.subCategory && !formData.addNote.trim()) {
+      alert("Please select a sub category or add a note");
       return;
     }
     setShowConfirmModal(true);
   };
 
-  const handleConfirm = () => {
-    // Submit logic here
-    alert("Mood logged successfully!");
-    navigate("/student/mood-history");
+  const handleConfirm = async () => {
+    try {
+      // Check if the feeling description is a custom entry (not in existing moods)
+      const existingMood = moods.find(
+        (mood) =>
+          mood.name?.toLowerCase() ===
+          formData.feelingDescription.trim().toLowerCase()
+      );
+
+      let moodToUse = formData.feelingDescription;
+
+      // If it's a custom mood (not in master data), create it in master data first
+      if (!existingMood && formData.feelingDescription.trim()) {
+        try {
+          // Get a default emotion and zone for the custom mood
+          // You can adjust this logic based on your requirements
+          const defaultEmotion =
+            emotions.find((e) => e.name === formData.calculatedEmotion) ||
+            emotions[0];
+          const defaultZone =
+            zones.find((z) => z.name === formData.calculatedZone) || zones[0];
+
+          // Create new mood in Master Admin's mood data
+          const newMoodData = {
+            name: formData.feelingDescription.trim(),
+            code: `CUSTOM_${Date.now().toString().slice(-8)}`, // Unique code
+            emotionId: defaultEmotion ? defaultEmotion.id : 1, // Use calculated emotion or default
+            zoneId: defaultZone ? defaultZone.id : 1, // Use calculated zone or default
+            status: true, // Set to active so it can be used immediately
+          };
+
+          await axios.post(`${SERVER_URL}`, newMoodData);
+
+          console.log("Custom mood added to master data successfully");
+        } catch (moodError) {
+          console.error("Error creating mood in master data:", moodError);
+          console.log("Error details:", moodError.response?.data);
+          // Continue with mood log submission even if mood creation fails
+        }
+      }
+
+      // Prepare data for submission
+      const moodLogData = {
+        studentId: 1, // TODO: Replace with actual logged-in student ID from auth context
+        date: formData.date,
+        time: formData.time,
+        feelingDescription: moodToUse,
+        categoryId: formData.categoryId || null,
+        subCategoryId: formData.subCategoryId || null,
+        addNote: formData.addNote || "",
+        impact: formData.impact,
+        joyfulness: formData.pleasantness, // Backend uses 'joyfulness' field name
+        calculatedEmotion: formData.calculatedEmotion,
+        calculatedZone: formData.calculatedZone,
+        status: true,
+      };
+
+      console.log("Submitting mood log data:", moodLogData);
+
+      // Submit to backend API
+      const response = await axios.post(
+        `${API_BASE_URL}/student-mood-logs`,
+        moodLogData
+      );
+
+      if (response.status === 201) {
+        if (!existingMood && formData.feelingDescription.trim()) {
+          alert(
+            "Mood logged successfully! Your custom mood has been submitted to admin for review."
+          );
+        } else {
+          alert("Mood logged successfully!");
+        }
+        navigate("/student/mood-history");
+      }
+    } catch (error) {
+      console.error("Error submitting mood log:", error);
+      console.error("Error response:", error.response?.data);
+      console.error("Error status:", error.response?.status);
+
+      // Show detailed error message
+      const errorMessage =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        "Failed to log mood. Please try again.";
+      alert(
+        `Error: ${errorMessage}\n\nPlease make sure the backend server is restarted.`
+      );
+    }
   };
 
   return (
@@ -640,18 +1056,47 @@ const LogMood = () => {
             color: "#222",
           }}
         >
-          How are you feeling today?
+          What are you feeling right now?
         </h2>
+
+        {/* Date and Time Display */}
+        <div
+          style={{
+            display: "flex",
+            gap: "16px",
+            marginBottom: "24px",
+            fontSize: "14px",
+            color: "#666",
+          }}
+        >
+          <div>
+            <strong>Date:</strong> {formData.date}
+          </div>
+          <div>
+            <strong>Time:</strong> {formData.time}
+          </div>
+        </div>
 
         {/* Feeling Description Input */}
         <div
           className="form-group"
           style={{ marginBottom: "28px", position: "relative" }}
         >
+          <label
+            className="form-label"
+            style={{
+              fontSize: "14px",
+              color: "#666",
+              marginBottom: "8px",
+              display: "block",
+            }}
+          >
+            How are you feeling? (Select from suggestions or type your own)
+          </label>
           <textarea
             ref={textareaRef}
             className="form-textarea"
-            placeholder="Type how you feel right now..."
+            placeholder="Type how you feel right now... (e.g., 'Happy - Feeling joyful today' or create your own description)"
             value={formData.feelingDescription}
             onChange={handleFeelingDescriptionChange}
             onKeyDown={handleKeyDown}
@@ -681,9 +1126,21 @@ const LogMood = () => {
                 overflowY: "auto",
               }}
             >
+              <div
+                style={{
+                  padding: "8px 16px",
+                  background: "#f9f9f9",
+                  borderBottom: "1px solid #e0e0e0",
+                  fontSize: "12px",
+                  color: "#666",
+                  fontWeight: "600",
+                }}
+              >
+                Suggested Moods (or keep typing to create your own)
+              </div>
               {autocompleteSuggestions.map((mood, index) => (
                 <div
-                  key={mood.mood}
+                  key={mood.mood || index}
                   onClick={() => handleSuggestionSelect(mood)}
                   style={{
                     padding: "12px 16px",
@@ -704,19 +1161,96 @@ const LogMood = () => {
                       fontSize: "15px",
                       fontWeight: "600",
                       color: "#222",
-                      marginBottom: "4px",
+                      lineHeight: "1.4",
                     }}
                   >
                     {mood.mood}
                   </div>
+                </div>
+              ))}
+            </div>
+          )}
+          {/* Helper text */}
+          <div
+            style={{
+              fontSize: "12px",
+              color: "#888",
+              marginTop: "6px",
+              fontStyle: "italic",
+            }}
+          >
+            💡 Start typing to see suggestions, or create your own custom mood
+            description. Custom moods will be reviewed by admin and added to the
+            system.
+          </div>
+        </div>
+
+        {/* Sub Category Input */}
+        <div
+          className="form-group"
+          style={{ marginBottom: "32px", position: "relative" }}
+        >
+          <label
+            className="form-label"
+            style={{ fontSize: "14px", color: "#666", marginBottom: "8px" }}
+          >
+            Sub category (auto-suggested)
+          </label>
+          <input
+            ref={subCategoryInputRef}
+            type="text"
+            className="form-input"
+            placeholder="e.g., Outing With Family, Play With Family"
+            value={formData.subCategory}
+            onChange={handleSubCategoryChange}
+            onKeyDown={handleSubCategoryKeyDown}
+          />
+          {/* Subcategory Autocomplete Suggestions Dropdown */}
+          {showSubCategorySuggestions && subCategorySuggestions.length > 0 && (
+            <div
+              ref={subCategorySuggestionsRef}
+              style={{
+                position: "absolute",
+                top: "100%",
+                left: 0,
+                right: 0,
+                background: "#fff",
+                border: "1px solid #e0e0e0",
+                borderRadius: "10px",
+                boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                zIndex: 1000,
+                marginTop: "4px",
+                maxHeight: "300px",
+                overflowY: "auto",
+              }}
+            >
+              {subCategorySuggestions.map((subCat, index) => (
+                <div
+                  key={subCat.id || index}
+                  onClick={() => handleSubCategorySelect(subCat)}
+                  style={{
+                    padding: "12px 16px",
+                    cursor: "pointer",
+                    borderBottom:
+                      index < subCategorySuggestions.length - 1
+                        ? "1px solid #f0f0f0"
+                        : "none",
+                    background:
+                      index === selectedSubCategoryIndex ? "#f5f5f5" : "#fff",
+                    transition: "background 0.2s",
+                  }}
+                  onMouseEnter={() => setSelectedSubCategoryIndex(index)}
+                  onMouseLeave={() => setSelectedSubCategoryIndex(-1)}
+                >
                   <div
                     style={{
-                      fontSize: "13px",
-                      color: "#666",
+                      fontSize: "15px",
+                      fontWeight: "600",
+                      color: "#222",
                       lineHeight: "1.4",
                     }}
                   >
-                    {mood.description}
+                    {subCat.name}
                   </div>
                 </div>
               ))}
@@ -724,187 +1258,303 @@ const LogMood = () => {
           )}
         </div>
 
-        {/* Parent Category Input */}
-        <div className="form-group" style={{ marginBottom: "32px" }}>
-          <label
-            className="form-label"
-            style={{ fontSize: "14px", color: "#666", marginBottom: "8px" }}
-          >
-            Parent category (auto-suggested)
-          </label>
-          <input
-            type="text"
-            className="form-input"
-            placeholder="e.g., Health, Friends, Family"
-            value={formData.parentCategory}
-            onChange={(e) =>
-              setFormData({ ...formData, parentCategory: e.target.value })
-            }
-          />
-        </div>
-
-        {/* Pleasantness Slider */}
-        <div className="slider-group" style={{ marginBottom: "32px" }}>
-          <div className="slider-label" style={{ marginBottom: "16px" }}>
+        {/* Category Display/Selection */}
+        {formData.subCategory && formData.category && (
+          <div className="form-group" style={{ marginBottom: "32px" }}>
             <label
               className="form-label"
-              style={{ fontSize: "16px", fontWeight: "600", color: "#444" }}
+              style={{ fontSize: "14px", color: "#666", marginBottom: "8px" }}
             >
-              Pleasantness
+              Category (auto-selected)
             </label>
-            <span
-              style={{
-                fontSize: "16px",
-                fontWeight: "600",
-                color: "#444",
-              }}
-            >
-              {getPleasantnessLabel(formData.pleasantness)} (
-              {formData.pleasantness}/7)
-            </span>
-          </div>
-          <div style={{ position: "relative", marginBottom: "12px" }}>
             <input
-              type="range"
-              min="1"
-              max="7"
-              value={formData.pleasantness}
+              type="text"
+              className="form-input"
+              value={formData.category}
+              readOnly
+              style={{ background: "#f5f5f5", cursor: "not-allowed" }}
+            />
+          </div>
+        )}
+
+        {/* Add Note Field */}
+        {!formData.subCategory && (
+          <div className="form-group" style={{ marginBottom: "32px" }}>
+            <label
+              className="form-label"
+              style={{ fontSize: "14px", color: "#666", marginBottom: "8px" }}
+            >
+              Add note (if sub category doesn't apply)
+            </label>
+            <textarea
+              className="form-textarea"
+              placeholder="Explain your mood in more detail..."
+              value={formData.addNote}
               onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  pleasantness: parseInt(e.target.value),
-                })
+                setFormData({ ...formData, addNote: e.target.value })
               }
-              className="slider-gradient"
+              style={{
+                minHeight: "100px",
+                fontSize: "14px",
+              }}
             />
             <div
               style={{
-                display: "flex",
-                justifyContent: "space-between",
                 fontSize: "12px",
-                color: "#666",
-                marginTop: "8px",
+                color: "#888",
+                marginTop: "4px",
+                fontStyle: "italic",
               }}
             >
-              <span>Very Low</span>
-              <span>Neutral</span>
-              <span>Very High</span>
+              Note: This will be reviewed by Super Admin to create a new sub
+              category if needed.
             </div>
           </div>
-        </div>
+        )}
 
-        {/* Impact Slider */}
-        <div className="slider-group" style={{ marginBottom: "32px" }}>
-          <div className="slider-label" style={{ marginBottom: "16px" }}>
-            <label
-              className="form-label"
-              style={{ fontSize: "16px", fontWeight: "600", color: "#444" }}
-            >
-              Impact
-            </label>
-            <span
-              style={{
-                fontSize: "16px",
-                fontWeight: "600",
-                color: "#444",
-              }}
-            >
-              {getImpactLabel(formData.impact)} ({formData.impact}/7)
-            </span>
-          </div>
-          <div style={{ position: "relative", marginBottom: "12px" }}>
-            <input
-              type="range"
-              min="1"
-              max="7"
-              value={formData.impact}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  impact: parseInt(e.target.value),
-                })
-              }
-              className="slider-gradient"
-            />
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                fontSize: "12px",
-                color: "#666",
-                marginTop: "8px",
-              }}
-            >
-              <span>Very Low</span>
-              <span>Neutral</span>
-              <span>Very High</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Emotion Selection */}
+        {/* Question: Can you explain a little more about why you are experiencing this emotion? */}
         <div style={{ marginBottom: "32px" }}>
-          <label
-            className="form-label"
+          <h3
             style={{
-              fontSize: "16px",
+              fontSize: "18px",
               fontWeight: "600",
               color: "#444",
-              marginBottom: "16px",
-              display: "block",
+              marginBottom: "24px",
             }}
           >
-            Choose the closest emotion
-          </label>
-          <div
-            style={{
-              display: "flex",
-              gap: "16px",
-              flexWrap: "wrap",
-            }}
-          >
-            {emotions.map((emotion) => (
-              <button
-                key={emotion.id}
-                onClick={() => handleEmotionSelect(emotion.id)}
+            Can you explain a little more about why you are experiencing this
+            emotion?
+          </h3>
+
+          {/* Impact Slider */}
+          <div className="slider-group" style={{ marginBottom: "32px" }}>
+            <div className="slider-label" style={{ marginBottom: "16px" }}>
+              <label
+                className="form-label"
+                style={{ fontSize: "16px", fontWeight: "600", color: "#444" }}
+              >
+                Impact
+              </label>
+              <span
                 style={{
-                  width: "80px",
-                  height: "80px",
-                  borderRadius: "50%",
-                  background: emotion.color,
-                  color: "#fff",
-                  border:
-                    formData.emotion === emotion.id ? "3px solid #fff" : "none",
-                  boxShadow:
-                    formData.emotion === emotion.id
-                      ? `0 0 0 3px ${emotion.color}, 0 4px 12px rgba(0,0,0,0.2)`
-                      : "0 2px 8px rgba(0,0,0,0.15)",
-                  cursor: "pointer",
-                  fontSize: "14px",
+                  fontSize: "16px",
                   fontWeight: "600",
-                  transition: "all 0.2s",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  textAlign: "center",
-                  padding: "0",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = "scale(1.1)";
-                  e.currentTarget.style.boxShadow = `0 4px 16px rgba(0,0,0,0.25)`;
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = "scale(1)";
-                  e.currentTarget.style.boxShadow =
-                    formData.emotion === emotion.id
-                      ? `0 0 0 3px ${emotion.color}, 0 4px 12px rgba(0,0,0,0.2)`
-                      : "0 2px 8px rgba(0,0,0,0.15)";
+                  color: "#444",
                 }}
               >
-                {emotion.name}
-              </button>
-            ))}
+                {formData.impact}/7
+              </span>
+            </div>
+            <div
+              style={{
+                background: "#f9f9f9",
+                padding: "16px",
+                borderRadius: "10px",
+                marginBottom: "12px",
+              }}
+            >
+              <div
+                style={{
+                  fontSize: "13px",
+                  color: "#666",
+                  marginBottom: "12px",
+                  lineHeight: "1.5",
+                }}
+              >
+                <strong>Scale:</strong> Rate the impact of the emotion you are
+                currently going through or feeling on a scale from 1 to 7, with
+                1 being a significantly low impact on you and something that can
+                be easily overcome and 7 being the highest impact which can be
+                difficult to overcome and can be long lasting.
+              </div>
+              <input
+                type="range"
+                min="1"
+                max="7"
+                value={formData.impact}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    impact: parseInt(e.target.value),
+                  })
+                }
+                className="slider-gradient"
+              />
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  fontSize: "12px",
+                  color: "#666",
+                  marginTop: "8px",
+                }}
+              >
+                <span>1 - Low Impact (Easily Overcome)</span>
+                <span>4 - Neutral</span>
+                <span>7 - High Impact (Long Lasting)</span>
+              </div>
+            </div>
           </div>
+
+          {/* Pleasantness Slider */}
+          <div className="slider-group" style={{ marginBottom: "32px" }}>
+            <div className="slider-label" style={{ marginBottom: "16px" }}>
+              <label
+                className="form-label"
+                style={{ fontSize: "16px", fontWeight: "600", color: "#444" }}
+              >
+                Pleasantness
+              </label>
+              <span
+                style={{
+                  fontSize: "16px",
+                  fontWeight: "600",
+                  color: "#444",
+                }}
+              >
+                {formData.pleasantness}/7
+              </span>
+            </div>
+            <div
+              style={{
+                background: "#f9f9f9",
+                padding: "16px",
+                borderRadius: "10px",
+                marginBottom: "12px",
+              }}
+            >
+              <div
+                style={{
+                  fontSize: "13px",
+                  color: "#666",
+                  marginBottom: "12px",
+                  lineHeight: "1.5",
+                }}
+              >
+                <strong>Scale:</strong> Rate the pleasantness of the emotion you
+                are currently going through or feeling on a scale from 1 to 7,
+                with 1 being the lowest pleasantness you are feeling and 7 being
+                the highest pleasantness you are feeling right now.
+              </div>
+              <input
+                type="range"
+                min="1"
+                max="7"
+                value={formData.pleasantness}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    pleasantness: parseInt(e.target.value),
+                  })
+                }
+                className="slider-gradient"
+              />
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  fontSize: "12px",
+                  color: "#666",
+                  marginTop: "8px",
+                }}
+              >
+                <span>1 - Lowest Pleasantness</span>
+                <span>4 - Neutral</span>
+                <span>7 - Highest Pleasantness</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Calculated Emotion and Zone Display */}
+          {(formData.calculatedEmotion || formData.calculatedZone) && (
+            <div
+              style={{
+                background: "#e8f5e9",
+                padding: "16px",
+                borderRadius: "10px",
+                marginTop: "16px",
+              }}
+            >
+              <div
+                style={{
+                  fontSize: "14px",
+                  color: "#666",
+                  marginBottom: "12px",
+                }}
+              >
+                Calculated based on your Impact and Pleasantness values:
+              </div>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "16px",
+                  flexWrap: "wrap",
+                }}
+              >
+                {formData.calculatedEmotion && (
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px",
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: "24px",
+                        height: "24px",
+                        borderRadius: "50%",
+                        backgroundColor: getEmotionColor(
+                          formData.calculatedEmotion
+                        ),
+                        border: "2px solid #fff",
+                        boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                      }}
+                    />
+                    <span
+                      style={{
+                        fontSize: "14px",
+                        fontWeight: "600",
+                        color: "#222",
+                      }}
+                    >
+                      {formData.calculatedEmotion}
+                    </span>
+                  </div>
+                )}
+                {formData.calculatedZone && (
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px",
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: "24px",
+                        height: "24px",
+                        borderRadius: "50%",
+                        backgroundColor: getZoneColor(formData.calculatedZone),
+                        border: "2px solid #fff",
+                        boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                      }}
+                    />
+                    <span
+                      style={{
+                        fontSize: "14px",
+                        fontWeight: "600",
+                        color: "#222",
+                      }}
+                    >
+                      {formData.calculatedZone}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Submit Button */}
@@ -928,7 +1578,9 @@ const LogMood = () => {
         <div className="modal-overlay">
           <div className="modal">
             <div className="modal-header">
-              <h3 className="modal-title">Confirm Mood Log</h3>
+              <h3 className="modal-title">
+                Are you want to submit? Please confirm to proceed
+              </h3>
               <button
                 className="modal-close"
                 onClick={() => setShowConfirmModal(false)}
@@ -960,7 +1612,7 @@ const LogMood = () => {
                       {formData.feelingDescription || "N/A"}
                     </div>
                   </div>
-                  {formData.parentCategory && (
+                  {formData.subCategory && (
                     <div>
                       <div
                         style={{
@@ -969,10 +1621,42 @@ const LogMood = () => {
                           marginBottom: "4px",
                         }}
                       >
-                        Parent Category
+                        Sub Category
                       </div>
                       <div style={{ fontWeight: "600" }}>
-                        {formData.parentCategory}
+                        {formData.subCategory}
+                      </div>
+                    </div>
+                  )}
+                  {formData.addNote && (
+                    <div>
+                      <div
+                        style={{
+                          fontSize: "12px",
+                          color: "#888",
+                          marginBottom: "4px",
+                        }}
+                      >
+                        Add Note
+                      </div>
+                      <div style={{ fontWeight: "600" }}>
+                        {formData.addNote}
+                      </div>
+                    </div>
+                  )}
+                  {formData.category && (
+                    <div>
+                      <div
+                        style={{
+                          fontSize: "12px",
+                          color: "#888",
+                          marginBottom: "4px",
+                        }}
+                      >
+                        Category
+                      </div>
+                      <div style={{ fontWeight: "600" }}>
+                        {formData.category}
                       </div>
                     </div>
                   )}
@@ -984,28 +1668,89 @@ const LogMood = () => {
                         marginBottom: "4px",
                       }}
                     >
-                      Emotion
+                      Impact & Pleasantness
                     </div>
                     <div style={{ fontWeight: "600" }}>
-                      {emotions.find((e) => e.id === formData.emotion)?.name ||
-                        "N/A"}
+                      Impact: {formData.impact}/7 | Pleasantness:{" "}
+                      {formData.pleasantness}/7
                     </div>
                   </div>
-                  <div>
-                    <div
-                      style={{
-                        fontSize: "12px",
-                        color: "#888",
-                        marginBottom: "4px",
-                      }}
-                    >
-                      Pleasantness & Impact
+                  {(formData.calculatedEmotion || formData.calculatedZone) && (
+                    <div>
+                      <div
+                        style={{
+                          fontSize: "12px",
+                          color: "#888",
+                          marginBottom: "8px",
+                        }}
+                      >
+                        Calculated Emotion & Zone
+                      </div>
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "16px",
+                          flexWrap: "wrap",
+                        }}
+                      >
+                        {formData.calculatedEmotion && (
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "8px",
+                            }}
+                          >
+                            <div
+                              style={{
+                                width: "24px",
+                                height: "24px",
+                                borderRadius: "50%",
+                                backgroundColor: getEmotionColor(
+                                  formData.calculatedEmotion
+                                ),
+                                border: "2px solid #fff",
+                                boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                              }}
+                            />
+                            <span
+                              style={{ fontWeight: "600", fontSize: "14px" }}
+                            >
+                              {formData.calculatedEmotion}
+                            </span>
+                          </div>
+                        )}
+                        {formData.calculatedZone && (
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "8px",
+                            }}
+                          >
+                            <div
+                              style={{
+                                width: "24px",
+                                height: "24px",
+                                borderRadius: "50%",
+                                backgroundColor: getZoneColor(
+                                  formData.calculatedZone
+                                ),
+                                border: "2px solid #fff",
+                                boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                              }}
+                            />
+                            <span
+                              style={{ fontWeight: "600", fontSize: "14px" }}
+                            >
+                              {formData.calculatedZone}
+                            </span>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                    <div style={{ fontWeight: "600" }}>
-                      Pleasantness: {formData.pleasantness}/7 | Impact:{" "}
-                      {formData.impact}/7
-                    </div>
-                  </div>
+                  )}
                 </div>
               </div>
               <p style={{ color: "#666", fontSize: "14px" }}>
@@ -1017,14 +1762,14 @@ const LogMood = () => {
                 className="btn btn-secondary"
                 onClick={() => setShowConfirmModal(false)}
               >
-                Go Back
+                Cancel
               </button>
               <button
                 className="btn btn-primary"
                 onClick={handleConfirm}
                 style={{ display: "flex", alignItems: "center", gap: "8px" }}
               >
-                <FiCheck /> Confirm & Submit
+                <FiCheck /> Confirm
               </button>
             </div>
           </div>
