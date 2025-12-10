@@ -14,7 +14,6 @@ import API_BASE_URL from "../../config/api";
 
 const PAGE_SIZE_OPTIONS = [10, 25, 50, 100];
 
-
 const defaultForm = {
   instituteCode: "",
   instituteName: "",
@@ -31,179 +30,6 @@ const defaultForm = {
   website: "",
   status: true,
 };
-
-
-
-// const BranchForm = ({
-//   isEdit,
-//   form,
-//   onChange,
-//   onSubmit,
-//   onCancel,
-//   loading,
-//   cities
-// }) => (
-//   <div className="branch-form-container">
-//     <h3 className="branch-form-title">{isEdit ? "Edit" : "Create"} Branch</h3>
-//     <form onSubmit={onSubmit} noValidate>
-//       <fieldset className="form-section">
-//         <legend>Institute Details</legend>
-//         <div className="branch-form-grid">
-//           <div className="branch-form-input">
-//             <label>Institute Code</label>
-//             <input type="text" value={form.instituteCode} disabled />
-//           </div>
-//           <div className="branch-form-input">
-
-//             <label>Institute Name</label>
-//             {/* <input type="text" value={form.instituteName} disabled /> */}
-//             <select
-//                     className="branch-form-input"
-//                     value={form.cityId}
-//                     onChange={(e) => onChange("cityId", e.target.value)}
-//                     disabled={!form.stateId}
-//                   >
-//                     <option value="">Select</option>
-//                     {cities
-//                       .filter((city) => String(city.state) === String(selectedState))
-//                       .map((city) => (
-//                         <option key={city.id} value={city.id}>
-//                           {city.city}
-//                         </option>
-//                       ))}
-//                   </select>
-
-
-//           </div>
-
-//         </div>
-//       </fieldset>
-//       <fieldset className="form-section">
-//         <legend>Branch Details</legend>
-//         <div className="branch-form-grid">
-//           {isEdit && (
-//             <div className="branch-form-input">
-//               <label>Branch Code</label>
-//               <input type="text" value={form.branchCode} disabled />
-//             </div>
-//           )}
-//           <div className="branch-form-input">
-//             <label>Branch Name</label>
-//             <input
-//               type="text"
-//               value={form.branchName}
-//               onChange={(e) => onChange("branchName", e.target.value)}
-//               required
-//             />
-//           </div>
-//           <div className="branch-form-input">
-//             <label>Address Line 1</label>
-//             <input
-//               type="text"
-//               value={form.address1}
-//               onChange={(e) => onChange("address1", e.target.value)}
-//               required
-//             />
-//           </div>
-//           <div className="branch-form-input">
-//             <label>Address Line 2</label>
-//             <input
-//               type="text"
-//               value={form.address2}
-//               onChange={(e) => onChange("address2", e.target.value)}
-//             />
-//           </div>
-//           <div className="branch-form-input">
-//             <label>State</label>
-//             <select
-//               value={form.state}
-//               onChange={(e) => onChange("state", e.target.value)}
-//               required
-//             >
-//               <option value="" disabled>
-//                 Select State
-//               </option>
-//               <option>Tamil Nadu</option>
-//               <option>Kerala</option>
-//             </select>
-//           </div>
-//           <div className="branch-form-input">
-//             <label>City</label>
-//             <select
-//               value={form.city}
-//               onChange={(e) => onChange("city", e.target.value)}
-//               required
-//             >
-//               <option value="" disabled>
-//                 Select City
-//               </option>
-//               <option>Chennai</option>
-//               <option>Coimbatore</option>
-//             </select>
-//           </div>
-//           <div className="branch-form-input">
-//             <label>Pin Code</label>
-//             <input
-//               type="text"
-//               pattern="\d{6}"
-//               value={form.pincode}
-//               onChange={(e) => onChange("pincode", e.target.value)}
-//               required
-//             />
-//           </div>
-//         </div>
-//       </fieldset>
-//       <fieldset className="form-section">
-//         <legend>Contact Details</legend>
-//         <div className="branch-form-grid">
-//           <div className="branch-form-input">
-//             <label>Phone Number</label>
-//             <input
-//               type="tel"
-//               pattern="\d{10}"
-//               value={form.phone}
-//               onChange={(e) => onChange("phone", e.target.value)}
-//               required
-//             />
-//           </div>
-//           <div className="branch-form-input">
-//             <label>Telephone Number</label>
-//             <input
-//               type="tel"
-//               value={form.telephone}
-//               onChange={(e) => onChange("telephone", e.target.value)}
-//             />
-//           </div>
-//           <div className="branch-form-input">
-//             <label>Email ID</label>
-//             <input
-//               type="email"
-//               value={form.email}
-//               onChange={(e) => onChange("email", e.target.value)}
-//               required
-//             />
-//           </div>
-//           <div className="branch-form-input">
-//             <label>Website Link</label>
-//             <input
-//               type="url"
-//               value={form.website}
-//               onChange={(e) => onChange("website", e.target.value)}
-//             />
-//           </div>
-//         </div>
-//       </fieldset>
-//       <div className="branch-form-actions">
-//         <button type="submit" className="submit-btn" disabled={loading}>
-//           {loading ? "Submitting..." : isEdit ? "Update" : "Submit"}
-//         </button>
-//         <button type="button" className="cancel-btn" onClick={onCancel}>
-//           Cancel
-//         </button>
-//       </div>
-//     </form>
-//   </div>
-// );
 
 const BranchOverview = ({ branch, onEdit, onBack }) => {
   const tabs = [
@@ -276,7 +102,7 @@ const BranchOverview = ({ branch, onEdit, onBack }) => {
               marginBottom: 6,
             }}
           >
-            { branch.name}
+            {branch.name}
           </div>
         </div>
         <button
@@ -459,65 +285,56 @@ const Branch = () => {
   const [editId, setEditId] = useState(null);
   const [selectedBranch, setSelectedBranch] = useState([]);
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
-  
-  
+
   const [cities, setCities] = useState([]);
   const [states, setStates] = useState([]);
-  const [institutes, setInstitutes] = useState([]); 
-  
+  const [institutes, setInstitutes] = useState([]);
 
   const [selectedState, setSelectedState] = useState("");
-  const [selectedInstitute, setSelectedInstitute] = useState("");
-  const [selectedCity, setInstituteId] = useState("");
 
-  const SERVER_URL = `${API_BASE_URL}/branches`; 
+  const SERVER_URL = `${API_BASE_URL}/branches`;
   const SERVER_URL_INSTITUTES = `${API_BASE_URL}/institutes`;
   const SERVER_URL_STATES = `${API_BASE_URL}/states`;
   const SERVER_URL_CITIES = `${API_BASE_URL}/cities`;
-  
 
   const [form, setForm] = useState({
-        name: "",
-        code: "", // unique 
-        instituteCode: null,
-        instituteName: "",
-        cityId: null,
-        stateId: null,
-        address1: "",
-        address2: "",
-        pincode: "",
-        phone: "",
-        telephone: "",
-        email: "",
-        website: "",
-        status: true,
+    name: "",
+    code: "", // unique
+    instituteCode: null,
+    instituteName: "",
+    cityId: null,
+    stateId: null,
+    address1: "",
+    address2: "",
+    pincode: "",
+    phone: "",
+    telephone: "",
+    email: "",
+    website: "",
+    status: true,
   });
 
-
   const fetchInstitutes = async () => {
-    try { 
+    try {
       const res = await axios.get(`${SERVER_URL_INSTITUTES}`);
       console.log("Fetched institutes:", res.data);
       setInstitutes(res.data);
-    }
-    catch (error) {
+    } catch (error) {
       console.error("Error fetching institutes:", error);
       setError("Failed to fetch institutes");
     }
-  }
+  };
 
   const fetchCities = async () => {
-    try {  
+    try {
       const res = await axios.get(`${SERVER_URL_CITIES}`);
       console.log("Fetched cities:", res.data);
       setCities(res.data);
-    }
-    catch (error) {
+    } catch (error) {
       console.error("Error fetching cities:", error);
       setError("Failed to fetch cities");
     }
   };
-
 
   const fetchStates = async () => {
     try {
@@ -534,24 +351,22 @@ const Branch = () => {
     const res = await axios.get(`${SERVER_URL}`);
     setBranches(res.data);
     console.log("Fetched branches:", res.data);
-
-  }
-
+  };
 
   useEffect(() => {
     const fetchData = async () => {
-    fetchCities()
-    fetchStates();
-    fetchInstitutes();
-    fetchAllBranches()
-    }
+      fetchCities();
+      fetchStates();
+      fetchInstitutes();
+      fetchAllBranches();
+    };
     fetchData();
   }, []);
 
-  // Fetch initial data 
+  // Fetch initial data
 
   // Toggle status
-  const toggleStatus =  async (id) => {
+  const toggleStatus = async (id) => {
     const res = await axios.patch(`${SERVER_URL}/${id}/toggle-status`, {
       status: !branches.find((branch) => branch.id === id).status,
     });
@@ -578,45 +393,36 @@ const Branch = () => {
       return;
     }
 
-      // form.code = selectedInstitute.code;
-    const payload =  { 
-        name: form.name,
-        code: "1", // form demo purpose 
-        instituteCode: form.instituteCode,
-        instituteName: form.instituteName,
-        cityId: Number (form.cityId),
-        stateId: Number (form.stateId),
-        address1: form.address1,
-        address2: form.address2,
-        pincode: form.pincode,
-        phone: form.phone,
-        telephone: form.telephone,
-        email: form.email,
-        website: form.website,
-        status: true,
-      };
+    const payload = {
+      name: form.name,
+      code: "1", // form demo purpose
+      instituteCode: form.instituteCode,
+      instituteName: form.instituteName,
+      cityId: Number(form.cityId),
+      stateId: Number(form.stateId),
+      address1: form.address1,
+      address2: form.address2,
+      pincode: form.pincode,
+      phone: form.phone,
+      telephone: form.telephone,
+      email: form.email,
+      website: form.website,
+      status: true,
+    };
 
-    
     if (isEdit && editId) {
-      
-      // form.code = selectedInstitute.code;
       console.log("Created branch:", payload);
-      const res = await axios .put(`${SERVER_URL}/${editId}`, payload);
+      const res = await axios.put(`${SERVER_URL}/${editId}`, payload);
       const data = res.data;
-      
     } else {
-      
-      
       const res = await axios.post(`${SERVER_URL}`, payload);
       const data = res.data;
       console.log("Created branch:", data);
-      
-      
     }
 
     // Reset form and state
     fetchAllBranches();
-    
+
     setViewMode("list");
     setForm(defaultForm);
     setIsEdit(false);
@@ -668,13 +474,12 @@ const Branch = () => {
       console.error("Error deleting branch:", error);
       setError("Failed to delete branch");
     }
-    
+
     fetchAllBranches();
     setDeleteConfirmId(null);
     // Reset form and state
     setForm(defaultForm);
     setViewMode("list");
-    
   };
 
   // Filter and paginate
@@ -699,96 +504,91 @@ const Branch = () => {
           <span style={{ color: "#888" }}>&gt;</span>
           <span>{isEdit ? "Edit" : "Create"}</span>
         </div>
-        
-        {/* <BranchForm
-          isEdit={isEdit}
-          form={form}
-          onChange={handleChange}
-          onSubmit={handleFormSubmit}
-          onCancel={handleCancel}
-          loading={loading}
-          cities={cities}
-        /> */}
 
+        <div className="branch-form-container">
+          <h3 className="branch-form-title">
+            {isEdit ? "Edit" : "Create"} Branch
+          </h3>
+          <form onSubmit={handleFormSubmit} noValidate>
+            <fieldset className="form-section">
+              <legend>Institute Details</legend>
+              <div className="branch-form-grid">
+                <div className="branch-form-input">
+                  <label>Institute Code</label>
+                  <input
+                    type="text"
+                    value={form.instituteCode}
+                    onChange={(e) =>
+                      handleChange("instituteCode", e.target.value)
+                    }
+                  />
+                </div>
+                <div className="branch-form-input">
+                  <label>Institute Name</label>
+                  {/* <input type="text" value={form.instituteName} disabled /> */}
+                  <input
+                    type="text"
+                    value={form.instituteName}
+                    onChange={(e) =>
+                      handleChange("instituteName", e.target.value)
+                    }
+                    required
+                  />
+                </div>
+              </div>
+            </fieldset>
+            <fieldset className="form-section">
+              <legend>Branch Details</legend>
+              <div className="branch-form-grid">
+                {isEdit && (
+                  <div className="branch-form-input">
+                    <label>Branch Code</label>
+                    <input type="text" value={form.code} />
+                  </div>
+                )}
+                <div className="branch-form-input">
+                  <label>Branch Name</label>
+                  <input
+                    type="text"
+                    value={form.name}
+                    onChange={(e) => handleChange("name", e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="branch-form-input">
+                  <label>Address Line 1</label>
+                  <input
+                    type="text"
+                    value={form.address1}
+                    onChange={(e) => handleChange("address1", e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="branch-form-input">
+                  <label>Address Line 2</label>
+                  <input
+                    type="text"
+                    value={form.address2}
+                    onChange={(e) => handleChange("address2", e.target.value)}
+                  />
+                </div>
+                <div className="branch-form-input">
+                  <label>State</label>
 
-         {/* BranchForm component */}
-         <div className="branch-form-container">
-    <h3 className="branch-form-title">{isEdit ? "Edit" : "Create"} Branch</h3>
-    <form onSubmit={handleFormSubmit} noValidate>
-      <fieldset className="form-section">
-        <legend>Institute Details</legend>
-        <div className="branch-form-grid">
-          <div className="branch-form-input">
-            <label>Institute Code</label>
-            <input type="text" value={form.instituteCode} 
-              onChange={(e) => handleChange("instituteCode", e.target.value)}
-            
-            />
-          </div>
-          <div className="branch-form-input">
-
-            <label>Institute Name</label>
-            {/* <input type="text" value={form.instituteName} disabled /> */}
-            <input
-              type="text"
-              value={form.instituteName}
-              onChange={(e) => handleChange("instituteName", e.target.value)}
-              required
-            />
-
-
-          </div>
-
-        </div>
-      </fieldset>
-      <fieldset className="form-section">
-        <legend>Branch Details</legend>
-        <div className="branch-form-grid">
-          {isEdit && (
-            <div className="branch-form-input">
-              <label>Branch Code</label>
-              <input type="text" value={form.code}  />
-            </div>
-          )}
-          <div className="branch-form-input">
-            <label>Branch Name</label>
-            <input
-              type="text"
-              value={form.name}
-              onChange={(e) => handleChange("name", e.target.value)}
-              required
-            />
-          </div>
-          <div className="branch-form-input">
-            <label>Address Line 1</label>
-            <input
-              type="text"
-              value={form.address1}
-              onChange={(e) => handleChange("address1", e.target.value)}
-              required
-            />
-          </div>
-          <div className="branch-form-input">
-            <label>Address Line 2</label>
-            <input
-              type="text"
-              value={form.address2}
-              onChange={(e) => handleChange("address2", e.target.value)}
-            />
-          </div>
-          <div className="branch-form-input">
-            <label>State</label>
-
-               <select
+                  <select
                     className="branch-form-input"
                     value={form.stateId}
-                    onChange={(e) =>  {
-                    handleChange("stateId", e.target.value);
-                  const selected = states.find((state) => String(state.id) === String(e.target.value));
-                  setSelectedState(selected ? selected.state : null);
-                  console.log("Selected state:", selected ? selected.state : "");
+                    onChange={(e) => {
+                      handleChange("stateId", e.target.value);
+                      const selected = states.find(
+                        (state) => String(state.id) === String(e.target.value)
+                      );
+                      setSelectedState(selected ? selected.state : null);
+                      console.log(
+                        "Selected state:",
+                        selected ? selected.state : ""
+                      );
                     }}
-                    
                   >
                     <option value="">Select</option>
                     {states.map((state) => (
@@ -797,10 +597,10 @@ const Branch = () => {
                       </option>
                     ))}
                   </select>
-          </div>
-          <div className="branch-form-input">
-            <label>City</label>
-            <select
+                </div>
+                <div className="branch-form-input">
+                  <label>City</label>
+                  <select
                     className="branch-form-input"
                     value={form.cityId}
                     onChange={(e) => handleChange("cityId", e.target.value)}
@@ -808,81 +608,86 @@ const Branch = () => {
                   >
                     <option value="">Select</option>
                     {cities
-                      .filter((city) => String(city.state) === String(selectedState))
+                      .filter(
+                        (city) => String(city.state) === String(selectedState)
+                      )
                       .map((city) => (
                         <option key={city.id} value={city.id}>
                           {city.city}
                         </option>
                       ))}
                   </select>
-          </div>
-          <div className="branch-form-input">
-            <label>Pin Code</label>
-            <input
-              type="text"
-              pattern="\d{6}"
-              value={form.pincode}
-              maxLength={6}
-                     onChange={(e) => {
+                </div>
+                <div className="branch-form-input">
+                  <label>Pin Code</label>
+                  <input
+                    type="text"
+                    pattern="\d{6}"
+                    value={form.pincode}
+                    maxLength={6}
+                    onChange={(e) => {
                       const onlyNums = e.target.value.replace(/\D/g, ""); // remove non-digits
                       handleChange("pincode", onlyNums);
                     }}
-              required
-            />
-          </div>
+                    required
+                  />
+                </div>
+              </div>
+            </fieldset>
+            <fieldset className="form-section">
+              <legend>Contact Details</legend>
+              <div className="branch-form-grid">
+                <div className="branch-form-input">
+                  <label>Phone Number</label>
+                  <input
+                    type="tel"
+                    pattern="\d{10}"
+                    value={form.phone}
+                    onChange={(e) => handleChange("phone", e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="branch-form-input">
+                  <label>Telephone Number</label>
+                  <input
+                    type="tel"
+                    value={form.telephone}
+                    onChange={(e) => handleChange("telephone", e.target.value)}
+                  />
+                </div>
+                <div className="branch-form-input">
+                  <label>Email ID</label>
+                  <input
+                    type="email"
+                    value={form.email}
+                    onChange={(e) => handleChange("email", e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="branch-form-input">
+                  <label>Website Link</label>
+                  <input
+                    type="url"
+                    value={form.website}
+                    onChange={(e) => handleChange("website", e.target.value)}
+                  />
+                </div>
+              </div>
+            </fieldset>
+            <div className="branch-form-actions">
+              <button type="submit" className="submit-btn" disabled={loading}>
+                {loading ? "Submitting..." : isEdit ? "Update" : "Submit"}
+              </button>
+              <button
+                type="button"
+                className="cancel-btn"
+                onClick={handleCancel}
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
         </div>
-      </fieldset>
-      <fieldset className="form-section">
-        <legend>Contact Details</legend>
-        <div className="branch-form-grid">
-          <div className="branch-form-input">
-            <label>Phone Number</label>
-            <input
-              type="tel"
-              pattern="\d{10}"
-              value={form.phone}
-              onChange={(e) => handleChange("phone", e.target.value)}
-              required
-            />
-          </div>
-          <div className="branch-form-input">
-            <label>Telephone Number</label>
-            <input
-              type="tel"
-              value={form.telephone}
-              onChange={(e) => handleChange("telephone", e.target.value)}
-            />
-          </div>
-          <div className="branch-form-input">
-            <label>Email ID</label>
-            <input
-              type="email"
-              value={form.email}
-              onChange={(e) => handleChange("email", e.target.value)}
-              required
-            />
-          </div>
-          <div className="branch-form-input">
-            <label>Website Link</label>
-            <input
-              type="url"
-              value={form.website}
-              onChange={(e) => handleChange("website", e.target.value)}
-            />
-          </div>
-        </div>
-      </fieldset>
-      <div className="branch-form-actions">
-        <button type="submit" className="submit-btn" disabled={loading}>
-          {loading ? "Submitting..." : isEdit ? "Update" : "Submit"}
-        </button>
-        <button type="button" className="cancel-btn" onClick={handleCancel}>
-          Cancel
-        </button>
-      </div>
-    </form>
-  </div>
-
 
         {error && <div className="error">{error}</div>}
       </div>
