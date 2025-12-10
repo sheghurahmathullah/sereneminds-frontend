@@ -24,8 +24,11 @@ const ProtectedRoute = ({ children }) => {
   }
 
   if (!isAuthenticated) {
-    // Redirect to login page with the return url
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    // Redirect to appropriate login page based on route
+    // Student routes should redirect to student login, others to admin login
+    const isStudentRoute = location.pathname.startsWith("/student");
+    const redirectTo = isStudentRoute ? "/student/login" : "/login";
+    return <Navigate to={redirectTo} state={{ from: location }} replace />;
   }
 
   return children;

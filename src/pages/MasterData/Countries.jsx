@@ -251,13 +251,13 @@ const Countries = () => {
                 <tr key={country.id}>
                   <td className="country-name">{country.countryName}</td>
                   <td>
-                    <label className="switch">
+                    <label className="country-switch">
                       <input
                         type="checkbox"
                         checked={country.status}
                         onChange={() => toggleStatus(country)}
                       />
-                      <span className="slider round"></span>
+                      <span className="country-slider round"></span>
                     </label>
                   </td>
                   <td>

@@ -297,13 +297,13 @@ const States = () => {
                   <td className="state-name">{state.state}</td>
                   <td className="country-name">{state.country}</td>
                   <td>
-                    <label className="switch">
+                    <label className="state-switch">
                       <input
                         type="checkbox"
                         checked={state.status}
                         onChange={() => toggleStatus(state.id)}
                       />
-                      <span className="slider round"></span>
+                      <span className="state-slider round"></span>
                     </label>
                   </td>
                   <td>

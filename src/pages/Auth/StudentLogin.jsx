@@ -4,7 +4,7 @@ import { useAuth } from "../../context/AuthContext";
 import "./Auth.css";
 import API_BASE_URL from "../../config/api";
 
-const Login = () => {
+const StudentLogin = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { login } = useAuth();
@@ -16,8 +16,7 @@ const Login = () => {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
 
-  const SERVER_URL = `${API_BASE_URL}/auth/login`
-  
+  const SERVER_URL = `${API_BASE_URL}/auth/login`;
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -60,19 +59,16 @@ const Login = () => {
 
     setLoading(true);
     try {
-      const response = await fetch(
-        `${SERVER_URL}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email: formData.email,
-            password: formData.password,
-          }),
-        }
-      );
+      const response = await fetch(`${SERVER_URL}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
 
       const data = await response.json();
 
@@ -80,8 +76,8 @@ const Login = () => {
         // Use the login function from AuthContext
         login(data.data.user, data.data.token);
 
-        // Redirect to the intended page or dashboard
-        const from = location.state?.from?.pathname || "/dashboard";
+        // Redirect to student dashboard instead of regular dashboard
+        const from = location.state?.from?.pathname || "/student/dashboard";
         navigate(from, { replace: true });
       } else {
         setErrors({ submit: data.message || "Login failed" });
@@ -97,7 +93,7 @@ const Login = () => {
   return (
     <div className="auth-container">
       <div className="auth-illustration">
-        <img src="/login.jpg" alt="Login Illustration" />
+        <img src="/student-login.png" alt="Login Illustration" />
       </div>
       <div className="auth-form-section">
         <div className="auth-logo">
@@ -108,19 +104,19 @@ const Login = () => {
           />
         </div>
         <h2>
-          Welcome to Serene Minds!{" "}
+          Welcome Back, Student!{" "}
           <span role="img" aria-label="wave">
-            👋🏻
+            🎓
           </span>
         </h2>
-        <p>Please sign-in to your account and start the adventure</p>
+        <p>Sign in to track your mood and continue your journey</p>
 
         <form className="auth-form" onSubmit={handleSubmit}>
           <label>Email</label>
           <input
             type="email"
             name="email"
-            placeholder="Example@gmail.com"
+            placeholder="student@example.com"
             value={formData.email}
             onChange={handleChange}
             className={errors.email ? "error" : ""}
@@ -166,25 +162,20 @@ const Login = () => {
           )}
 
           <button type="submit" className="auth-btn" disabled={loading}>
-            {loading ? "Signing In..." : "Login"}
+            {loading ? "Signing In..." : "Student Login"}
           </button>
         </form>
 
-         <div className="auth-footer">
-          <span>New on our platform?</span>
-          <Link to="/register" className="auth-link">
-            Create an account
+        <div className="auth-footer">
+          <span>Not a student?</span>
+          <Link to="/login" className="auth-link">
+            Admin Login
           </Link>
         </div>
-        <div className="auth-footer" style={{ marginTop: "0.5rem" }}>
-          <span>Student?</span>
-          <Link to="/student/login" className="auth-link">
-            Student Login
-          </Link>
-        </div> 
       </div>
     </div>
   );
 };
 
-export default Login;
+export default StudentLogin;
+

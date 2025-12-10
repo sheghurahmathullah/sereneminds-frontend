@@ -623,7 +623,6 @@ const LogMood = () => {
   const getPleasantnessLabel = (value) => {
     if (value <= 2) return "Very Low";
     if (value <= 3) return "Low";
-    if (value <= 4) return "Neutral";
     if (value <= 5) return "Moderate";
     if (value <= 6) return "High";
     return "Very High";
@@ -633,7 +632,6 @@ const LogMood = () => {
   const getImpactLabel = (value) => {
     if (value <= 2) return "Very Low";
     if (value <= 3) return "Low";
-    if (value <= 4) return "Neutral";
     if (value <= 5) return "Moderate";
     if (value <= 6) return "High";
     return "Very High";
@@ -825,7 +823,6 @@ const LogMood = () => {
       Angry: "#ef4444",
       Joy: "#10b981",
       Complacent: "#f59e0b",
-      Neutral: "#f59e0b",
       Happy: "#10b981",
       Anxious: "#f59e0b",
       Stressed: "#f97316",
@@ -1390,7 +1387,6 @@ const LogMood = () => {
                 }}
               >
                 <span>1 - Low Impact (Easily Overcome)</span>
-                <span>4 - Neutral</span>
                 <span>7 - High Impact (Long Lasting)</span>
               </div>
             </div>
@@ -1459,7 +1455,6 @@ const LogMood = () => {
                 }}
               >
                 <span>1 - Lowest Pleasantness</span>
-                <span>4 - Neutral</span>
                 <span>7 - Highest Pleasantness</span>
               </div>
             </div>

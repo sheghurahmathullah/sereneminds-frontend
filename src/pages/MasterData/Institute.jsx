@@ -7,6 +7,11 @@ import {
   FiMaximize2,
   FiTrash2,
   FiEye,
+  FiMail,
+  FiPhone,
+  FiGlobe,
+  FiHome,
+  FiClock,
 } from "react-icons/fi";
 import axios from "axios";
 import Cities from "./City";
@@ -51,6 +56,7 @@ const Institute = () => {
   const [editId, setEditId] = useState(null);
   const [selectedInstitute, setSelectedInstitute] = useState(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
+  const [activeTab, setActiveTab] = useState("Overview");
 
   const [formErrors, setFormErrors] = useState({});
   
@@ -532,16 +538,34 @@ const Institute = () => {
   // --- OVERVIEW VIEW ---
   if (viewMode === "overview" && selectedInstitute) {
     const inst = selectedInstitute;
+    const tabs = [
+      { label: "Overview", icon: FiClock },
+      { label: "Security", icon: FiClock },
+      { label: "Statics", icon: FiClock },
+      { label: "Branch", icon: FiClock },
+      { label: "Plans", icon: FiClock },
+      { label: "Invoice", icon: FiClock },
+      { label: "Bill", icon: FiClock },
+      { label: "History", icon: FiClock },
+    ];
+
     return (
       <div
         className="institute-container"
         style={{ background: "#f7f7f7", minHeight: "100vh" }}
       >
+        {/* Breadcrumb */}
         <div className="breadcrumb">
+          <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+            <FiHome size={17} /> Home
+          </span>
+          <span style={{ color: "#888" }}>&gt;</span>
           <span>Institute</span>
           <span style={{ color: "#888" }}>&gt;</span>
-          <span>Overview</span>
+          <span style={{ color: "#1ecab8", fontWeight: 500 }}>Overview</span>
         </div>
+
+        {/* Institute Summary Card */}
         <div
           className="institute-overview-header"
           style={{
@@ -592,35 +616,93 @@ const Institute = () => {
               }}
             >
               <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                <FiEdit /> {inst.email}
+                <FiMail size={16} /> {inst.email}
               </span>
               <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                <FiEdit /> {inst.phoneNumber || inst.phone}
+                <FiPhone size={16} /> {inst.phoneNumber || inst.phone}
               </span>
               <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                <FiEdit /> {inst.website}
+                <FiGlobe size={16} /> {inst.website}
               </span>
             </div>
           </div>
           <button
             style={{
-              background: "#f5f5f5",
+              background: "#1ecab8",
               border: "none",
               borderRadius: 8,
               padding: "8px 18px",
-              color: "#555",
+              color: "#fff",
               fontWeight: 500,
               fontSize: 15,
               display: "flex",
               alignItems: "center",
               gap: 6,
               cursor: "pointer",
+              transition: "all 0.2s ease",
             }}
             onClick={() => handleEdit(inst)}
+            onMouseEnter={(e) => {
+              e.target.style.background = "#1bb8a6";
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.background = "#1ecab8";
+            }}
           >
-            <FiEdit /> Edit
+            <FiEdit size={16} /> Edit
           </button>
         </div>
+
+        {/* Sub-navigation Tabs */}
+        <div
+          style={{
+            display: "flex",
+            gap: 8,
+            marginBottom: 24,
+            overflowX: "auto",
+          }}
+        >
+          {tabs.map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeTab === tab.label;
+            return (
+              <button
+                key={tab.label}
+                onClick={() => setActiveTab(tab.label)}
+                style={{
+                  background: isActive ? "#eaeaea" : "transparent",
+                  color: isActive ? "#555" : "#888",
+                  border: "none",
+                  borderRadius: 8,
+                  padding: "8px 22px",
+                  fontWeight: 500,
+                  fontSize: 15,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  cursor: "pointer",
+                  transition: "all 0.2s ease",
+                  whiteSpace: "nowrap",
+                  boxShadow: isActive ? "0 1px 2px rgba(0,0,0,0.03)" : "none",
+                }}
+                onMouseEnter={(e) => {
+                  if (!isActive) {
+                    e.target.style.background = "#f5f5f5";
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!isActive) {
+                    e.target.style.background = "transparent";
+                  }
+                }}
+              >
+                <Icon size={16} /> {tab.label}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Details Section */}
         <div
           className="institute-overview-details"
           style={{
@@ -702,11 +784,6 @@ const Institute = () => {
                 </span>
               </div>
             </div>
-          </div>
-          <div className="institute-form-actions" style={{ marginTop: 32 }}>
-            <button className="cancel-btn" onClick={handleCancel}>
-              Back
-            </button>
           </div>
         </div>
       </div>
@@ -805,13 +882,13 @@ const Institute = () => {
                     .join(", ")}
                 </td>
                 <td>
-                  <label className="switch">
+                  <label className="institute-switch">
                     <input
                       type="checkbox"
                       checked={inst.status}
                       onChange={() => toggleStatus(inst.id)}
                     />
-                    <span className="slider round"></span>
+                    <span className="institute-slider round"></span>
                   </label>
                 </td>
                 <td style={{ display: "flex", gap: 8 }}>

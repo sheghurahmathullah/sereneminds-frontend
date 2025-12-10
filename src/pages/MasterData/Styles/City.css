@@ -112,21 +112,21 @@
   transform: scale(1.1);
 }
 
-/* Toggle Switch */
-.switch {
+/* Toggle Switch - Matching Division Style */
+.city-switch {
   position: relative;
   display: inline-block;
   width: 36px;
   height: 20px;
 }
 
-.switch input {
+.city-switch input {
   opacity: 0;
   width: 0;
   height: 0;
 }
 
-.slider {
+.city-slider {
   position: absolute;
   cursor: pointer;
   background-color: #ccc;
@@ -138,7 +138,7 @@
   bottom: 0;
 }
 
-.slider:before {
+.city-slider:before {
   position: absolute;
   content: "";
   height: 14px;
@@ -150,11 +150,11 @@
   border-radius: 50%;
 }
 
-input:checked + .slider {
+input:checked + .city-slider {
   background-color: #1ecab8;
 }
 
-input:checked + .slider:before {
+input:checked + .city-slider:before {
   transform: translateX(16px);
 }
 

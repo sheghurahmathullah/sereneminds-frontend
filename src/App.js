@@ -45,6 +45,7 @@ import Pleasantness from "./pages/MasterData/Pleasantness";
 import InstituteEdit from "./pages/MasterData/InstituteEdit";
 // Import Auth pages
 import Login from "./pages/Auth/Login";
+import StudentLogin from "./pages/Auth/StudentLogin";
 import Register from "./pages/Auth/Register";
 import ForgotPassword from "./pages/Auth/ForgotPassword";
 import ResetPassword from "./pages/Auth/ResetPassword";
@@ -70,6 +71,7 @@ function AppContent() {
   const { isAuthenticated } = useAuth();
   const authRoutes = [
     "/login",
+    "/student/login",
     "/register",
     "/forgot-password",
     "/reset-password",
@@ -80,8 +82,11 @@ function AppContent() {
   // Check if current path is a student route
   const isStudentRoute = location.pathname.startsWith("/student");
 
-  // Redirect to dashboard if user is already authenticated and trying to access auth pages
+  // Redirect to appropriate dashboard if user is already authenticated and trying to access auth pages
   if (isAuthenticated && authRoutes.includes(location.pathname)) {
+    if (location.pathname === "/student/login") {
+      return <Navigate to="/student/dashboard" replace />;
+    }
     return <Navigate to="/dashboard" replace />;
   }
 
@@ -89,6 +94,7 @@ function AppContent() {
     return (
       <Routes>
         <Route path="/login" element={<Login />} />
+        <Route path="/student/login" element={<StudentLogin />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
@@ -177,7 +183,10 @@ function AppContent() {
             <Route path="/student/referrals" element={<Referrals />} />
             <Route path="/student/community" element={<Community />} />
             <Route path="/student/notifications" element={<Notifications />} />
-            <Route path="/student/predefined-list" element={<PredefinedList />} />
+            <Route
+              path="/student/predefined-list"
+              element={<PredefinedList />}
+            />
 
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>

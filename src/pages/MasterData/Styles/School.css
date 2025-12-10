@@ -95,20 +95,21 @@
   margin-top: 0px;
 }
 
-.switch {
+/* Toggle Switch - Matching City Style */
+.school-switch {
   position: relative;
   display: inline-block;
   width: 36px;
   height: 20px;
 }
 
-.switch input {
+.school-switch input {
   opacity: 0;
   width: 0;
   height: 0;
 }
 
-.slider {
+.school-slider {
   position: absolute;
   cursor: pointer;
   background-color: #ccc;
@@ -120,7 +121,7 @@
   bottom: 0;
 }
 
-.slider:before {
+.school-slider:before {
   position: absolute;
   content: "";
   height: 14px;
@@ -132,11 +133,11 @@
   border-radius: 50%;
 }
 
-input:checked + .slider {
-  background-color: #00c7b7;
+input:checked + .school-slider {
+  background-color: #1ecab8;
 }
 
-input:checked + .slider:before {
+input:checked + .school-slider:before {
   transform: translateX(16px);
 }
 

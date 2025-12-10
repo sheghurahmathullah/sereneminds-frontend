@@ -87,30 +87,27 @@ const School = () => {
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
 
   const [selectedInstitute, setSelectedInstitute] = useState(null);
-  
-  const [states, setStates] =useState([]);
+
+  const [states, setStates] = useState([]);
   const [selectedState, setSelectedState] = useState("");
   const [cities, setCities] = useState([]);
 
-  const SERVER_URL = `${API_BASE_URL}/schools`; 
+  const SERVER_URL = `${API_BASE_URL}/schools`;
   const SERVER_URL_INSTITUTES = `${API_BASE_URL}/institutes`;
   const SERVER_URL_STATES = `${API_BASE_URL}/states`;
   const SERVER_URL_CITIES = `${API_BASE_URL}/cities`;
-  
 
-    const fetchStates = async () => {
-    try { 
-    const response = await axios.get(`${SERVER_URL_STATES}`);
-    const data = await response.data;
-    console.log("Fetched states:", data);
-    setStates(data);
-    }
-    catch (error) {
+  const fetchStates = async () => {
+    try {
+      const response = await axios.get(`${SERVER_URL_STATES}`);
+      const data = await response.data;
+      console.log("Fetched states:", data);
+      setStates(data);
+    } catch (error) {
       console.error("Error fetching states:", error);
       // setError("Failed to fetch states");
     }
-  }
-
+  };
 
   const fetchCities = async () => {
     try {
@@ -118,25 +115,23 @@ const School = () => {
       const data = await response.data;
       setCities(data);
       console.log("Fetched cities:", data);
-    } catch (error) { 
+    } catch (error) {
       console.error("Error fetching cities:", error);
       // setError("Failed to fetch cities");
     }
-  }
-
+  };
 
   // Fetch schools from API
   const fetchSchools = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${SERVER_URL}`);  
-      console.log(response.data)
-      
+      const response = await axios.get(`${SERVER_URL}`);
+      console.log(response.data);
+
       if (!response.status) throw new Error("Failed to fetch schools");
 
       const data = await response.data;
       setSchools(data);
-
     } catch (err) {
       setError(err.message);
       console.error("Error fetching schools:", err);
@@ -144,8 +139,6 @@ const School = () => {
       setLoading(false);
     }
   };
-
- 
 
   useEffect(() => {
     fetchSchools();
@@ -160,14 +153,15 @@ const School = () => {
 
       const data = response.data;
 
-      setSchools((prev) => // for smooth update
-        prev.map((p) => (p.id === id ? data : p))
+      setSchools(
+        (
+          prev // for smooth update
+        ) => prev.map((p) => (p.id === id ? data : p))
       );
       console.log(data);
 
       if (!response.status) throw new Error("Failed to toggle status");
       // fetchSchools(); // revert
-      
     } catch (err) {
       setError(err.message);
     }
@@ -186,37 +180,29 @@ const School = () => {
   const endIdx = Math.min(startIdx + pageSize, total);
   const paginated = filteredSchools.slice(startIdx, endIdx);
 
-
-
   const handleFormChange = (field, value) => {
-  setForm({ ...form, [field]: value });
-}
-
-
+    setForm({ ...form, [field]: value });
+  };
 
   // Create or Edit
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setLoading(true);
-        
-    form.stateId = Number (form.stateId);
-    form.cityId = Number (form.cityId);
+
+    form.stateId = Number(form.stateId);
+    form.cityId = Number(form.cityId);
 
     try {
       if (isEdit && editId) {
-        const response = await axios.put(`${SERVER_URL}/${editId}`, form);       
+        const response = await axios.put(`${SERVER_URL}/${editId}`, form);
         if (!response.status) throw new Error("Failed to update school");
-        fetchSchools(); 
-
+        fetchSchools();
       } else {
-
         const response = await axios.post(`${SERVER_URL}`, form);
         if (!response.status) throw new Error("Failed to create school");
         const data = await response.data;
-        fetchSchools(); 
-
-
+        fetchSchools();
       }
       setForm(initialFormState);
       setIsEdit(false);
@@ -249,8 +235,7 @@ const School = () => {
     setError("");
     try {
       const response = await axios.delete(`${SERVER_URL}/${id}`);
-          setViewMode("list");
-
+      setViewMode("list");
 
       // if (!response.status) throw new Error("Failed to delete school");
 
@@ -258,8 +243,6 @@ const School = () => {
       setViewMode("list");
       setSelectedSchool(null);
       fetchSchools();
-      
-      
     } catch (err) {
       setError(err.message);
     } finally {
@@ -294,8 +277,17 @@ const School = () => {
           }}
         >
           <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
-            <span style={{ fontSize: 16 }}>🏠</span> School{" "}
-            <span style={{ color: "#888" }}>&gt;</span>{" "}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              x="0px"
+              y="0px"
+              width="17"
+              height="17"
+              viewBox="0 0 24 24"
+            >
+              <path d="M 12 2.0996094 L 1 12 L 4 12 L 4 21 L 11 21 L 11 15 L 13 15 L 13 21 L 20 21 L 20 12 L 23 12 L 12 2.0996094 z M 12 4.7910156 L 18 10.191406 L 18 11 L 18 19 L 15 19 L 15 13 L 9 13 L 9 19 L 6 19 L 6 10.191406 L 12 4.7910156 z"></path>
+            </svg>{" "}
+            School <span style={{ color: "#888" }}>&gt;</span>{" "}
             {isEdit ? "Edit" : "Create"}
           </span>
         </div>
@@ -338,8 +330,10 @@ const School = () => {
                     style={inputStyle}
                     placeholder="School Name"
                     name="name"
-                    value={form.name} 
-                    onChange={ (e) =>  handleFormChange(e.target.name, e.target.value)}
+                    value={form.name}
+                    onChange={(e) =>
+                      handleFormChange(e.target.name, e.target.value)
+                    }
                     required
                   />
                 </div>
@@ -350,7 +344,9 @@ const School = () => {
                     placeholder="Institute Code"
                     name="instituteCode"
                     value={form.instituteCode}
-                    onChange={(e)  => handleFormChange(e.target.name, e.target.value)}
+                    onChange={(e) =>
+                      handleFormChange(e.target.name, e.target.value)
+                    }
                     required
                   />
                 </div>
@@ -361,8 +357,9 @@ const School = () => {
                     placeholder="Branch Code"
                     name="branchCode"
                     value={form.branchCode}
-                    onChange={(e)  => handleFormChange(e.target.name, e.target.value)}
-
+                    onChange={(e) =>
+                      handleFormChange(e.target.name, e.target.value)
+                    }
                     required
                   />
                 </div>
@@ -373,7 +370,9 @@ const School = () => {
                     placeholder="Address Line 1"
                     name="address1"
                     value={form.address1}
-                    onChange={ (e) =>  handleFormChange(e.target.name, e.target.value)}
+                    onChange={(e) =>
+                      handleFormChange(e.target.name, e.target.value)
+                    }
                     required
                   />
                 </div>
@@ -383,20 +382,23 @@ const School = () => {
                     // className="institute-input"
                     style={inputStyle}
                     name="cityId"
-                    value={ Number (form.cityId)}
-                    onChange={ (e) =>  handleFormChange(e.target.name, e.target.value)}
+                    value={Number(form.cityId)}
+                    onChange={(e) =>
+                      handleFormChange(e.target.name, e.target.value)
+                    }
                     disabled={!form.stateId}
                   >
                     <option value="">Select</option>
                     {cities
-                      .filter((city) => String(city.state) === String(selectedState))
+                      .filter(
+                        (city) => String(city.state) === String(selectedState)
+                      )
                       .map((city) => (
                         <option key={city.id} value={city.id}>
                           {city.city}
                         </option>
                       ))}
                   </select>
-                  
                 </div>
                 <div style={fieldWrapper}>
                   <label style={labelStyle}>Pin Code</label>
@@ -406,11 +408,10 @@ const School = () => {
                     name="pincode"
                     value={form.pincode}
                     maxLength={6}
-                     onChange={(e) => {
+                    onChange={(e) => {
                       const onlyNums = e.target.value.replace(/\D/g, ""); // remove non-digits
                       handleFormChange(e.target.name, onlyNums);
                     }}
-
                     // onChange={ (e) =>  handleFormChange(e.target.name, e.target.value)}
 
                     required
@@ -426,23 +427,24 @@ const School = () => {
                     placeholder="School Code"
                     name="code"
                     value={form.code}
-                    onChange={ (e) =>  handleFormChange(e.target.name, e.target.value)}
+                    onChange={(e) =>
+                      handleFormChange(e.target.name, e.target.value)
+                    }
                     required
                   />
                 </div>
                 <div style={fieldWrapper}>
                   <label style={labelStyle}>Institute Name</label>
-                   <input
+                  <input
                     style={inputStyle}
                     placeholder="Institute Name"
                     name="instituteName"
                     value={form.instituteName}
-                    onChange={ (e) =>  handleFormChange(e.target.name, e.target.value)}
+                    onChange={(e) =>
+                      handleFormChange(e.target.name, e.target.value)
+                    }
                     required
                   />
-
-
-                  
                 </div>
                 <div style={fieldWrapper}>
                   <label style={labelStyle}>Branch Name</label>
@@ -451,11 +453,11 @@ const School = () => {
                     placeholder="Branch Name"
                     name="branchName"
                     value={form.branchName}
-                    onChange={ (e) =>  handleFormChange(e.target.name, e.target.value)}
-
+                    onChange={(e) =>
+                      handleFormChange(e.target.name, e.target.value)
+                    }
                     required
                   />
-
                 </div>
                 <div style={fieldWrapper}>
                   <label style={labelStyle}>Address Line 2</label>
@@ -464,23 +466,28 @@ const School = () => {
                     placeholder="Address Line 2"
                     name="address2"
                     value={form.address2}
-                    onChange={ (e) =>  handleFormChange(e.target.name, e.target.value)}
-
+                    onChange={(e) =>
+                      handleFormChange(e.target.name, e.target.value)
+                    }
                   />
                 </div>
                 <div style={fieldWrapper}>
                   <label style={labelStyle}>State</label>
-                   <select
-                   style={inputStyle}
-                    value={Number (form.stateId)}
+                  <select
+                    style={inputStyle}
+                    value={Number(form.stateId)}
                     name="stateId"
-                    onChange={(e) =>  {
-                    handleFormChange("stateId", e.target.value);
-                  const selected = states.find((state) => String(state.id) === String(e.target.value));
-                  setSelectedState(selected ? selected.state : null);
-                  console.log("Selected state:", selected ? selected.state : "");
+                    onChange={(e) => {
+                      handleFormChange("stateId", e.target.value);
+                      const selected = states.find(
+                        (state) => String(state.id) === String(e.target.value)
+                      );
+                      setSelectedState(selected ? selected.state : null);
+                      console.log(
+                        "Selected state:",
+                        selected ? selected.state : ""
+                      );
                     }}
-                    
                   >
                     <option value="">Select</option>
                     {states.map((state) => (
@@ -489,23 +496,23 @@ const School = () => {
                       </option>
                     ))}
                   </select>
-                  
                 </div>
                 <div style={fieldWrapper}>
                   <label style={labelStyle}>School Type</label>
-                    <select
-                      style={inputStyle}
-                      name="schoolType"
-                      value={form.schoolType}
-                      onChange={(e) => handleFormChange(e.target.name, e.target.value)}
-                      required
-                    >
-                      <option value="">Select School Type</option>
-                      <option value="Primary">Primary</option>
-                      <option value="Secondary">Secondary</option>
-                      <option value="HigherSecondary">Higher Secondary</option>
-                    </select>
-
+                  <select
+                    style={inputStyle}
+                    name="schoolType"
+                    value={form.schoolType}
+                    onChange={(e) =>
+                      handleFormChange(e.target.name, e.target.value)
+                    }
+                    required
+                  >
+                    <option value="">Select School Type</option>
+                    <option value="Primary">Primary</option>
+                    <option value="Secondary">Secondary</option>
+                    <option value="HigherSecondary">Higher Secondary</option>
+                  </select>
                 </div>
               </div>
             </div>
@@ -548,8 +555,9 @@ const School = () => {
                     placeholder="Phone Number"
                     name="phone"
                     value={form.phone}
-                    onChange={ (e) =>  handleFormChange(e.target.name, e.target.value)}
-
+                    onChange={(e) =>
+                      handleFormChange(e.target.name, e.target.value)
+                    }
                     required
                   />
                 </div>
@@ -560,8 +568,9 @@ const School = () => {
                     placeholder="Email ID"
                     name="email"
                     value={form.email}
-                    onChange={ (e) =>  handleFormChange(e.target.name, e.target.value)}
-
+                    onChange={(e) =>
+                      handleFormChange(e.target.name, e.target.value)
+                    }
                     required
                   />
                 </div>
@@ -574,8 +583,9 @@ const School = () => {
                     placeholder="Telephone Number"
                     name="telephone"
                     value={form.telephone}
-                    onChange={ (e) =>  handleFormChange(e.target.name, e.target.value)}
-
+                    onChange={(e) =>
+                      handleFormChange(e.target.name, e.target.value)
+                    }
                   />
                 </div>
                 <div style={fieldWrapper}>
@@ -585,8 +595,9 @@ const School = () => {
                     placeholder="Website Link"
                     name="website"
                     value={form.website}
-                    onChange={ (e) =>  handleFormChange(e.target.name, e.target.value)}
-
+                    onChange={(e) =>
+                      handleFormChange(e.target.name, e.target.value)
+                    }
                   />
                 </div>
               </div>
@@ -664,8 +675,17 @@ const School = () => {
           }}
         >
           <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
-            <span style={{ fontSize: 16 }}>🏠</span> School{" "}
-            <FiChevronRight size={14} /> Overview
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              x="0px"
+              y="0px"
+              width="17"
+              height="17"
+              viewBox="0 0 24 24"
+            >
+              <path d="M 12 2.0996094 L 1 12 L 4 12 L 4 21 L 11 21 L 11 15 L 13 15 L 13 21 L 20 21 L 20 12 L 23 12 L 12 2.0996094 z M 12 4.7910156 L 18 10.191406 L 18 11 L 18 19 L 15 19 L 15 13 L 9 13 L 9 19 L 6 19 L 6 10.191406 L 12 4.7910156 z"></path>
+            </svg>{" "}
+            School <FiChevronRight size={14} /> Overview
           </span>
         </div>
         <div
@@ -968,13 +988,13 @@ const School = () => {
                     <div className="branch-name">{school.schoolType}</div>
                   </td>
                   <td>
-                    <label className="switch">
+                    <label className="school-switch">
                       <input
                         type="checkbox"
                         checked={school.status}
                         onChange={() => toggleStatus(school.id)}
                       />
-                      <span className="slider round"></span>
+                      <span className="school-slider round"></span>
                     </label>
                   </td>
                   <td style={{ display: "flex", gap: 8 }}>

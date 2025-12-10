@@ -165,20 +165,21 @@
   color: #009e8e;
 }
 
-.switch {
+/* Toggle Switch - Matching City Style */
+.institute-switch {
   position: relative;
   display: inline-block;
   width: 36px;
   height: 20px;
 }
 
-.switch input {
+.institute-switch input {
   opacity: 0;
   width: 0;
   height: 0;
 }
 
-.slider {
+.institute-slider {
   position: absolute;
   cursor: pointer;
   background-color: #ccc;
@@ -190,7 +191,7 @@
   bottom: 0;
 }
 
-.slider:before {
+.institute-slider:before {
   position: absolute;
   content: "";
   height: 14px;
@@ -202,11 +203,11 @@
   border-radius: 50%;
 }
 
-input:checked + .slider {
-  background-color: #00c7b7;
+input:checked + .institute-slider {
+  background-color: #1ecab8;
 }
 
-input:checked + .slider:before {
+input:checked + .institute-slider:before {
   transform: translateX(16px);
 }
 
@@ -509,6 +510,12 @@ input:checked + .slider:before {
   display: flex;
   align-items: center;
   gap: 6px;
+}
+
+.breadcrumb span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 
