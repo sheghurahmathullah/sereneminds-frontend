@@ -10,6 +10,13 @@ import {
   FiChevronRight,
   FiTrash2,
   FiEye,
+  FiUpload,
+  FiX,
+  FiClock,
+  FiDollarSign,
+  FiFileText,
+  FiCreditCard,
+  FiBell,
 } from "react-icons/fi";
 import "./Styles/School.css";
 import axios from "axios";
@@ -40,15 +47,15 @@ const fieldWrapper = {
   marginBottom: 18,
 };
 
-const tabs = [
-  { label: "Overview" },
-  { label: "Security" },
-  { label: "Statics" },
-  { label: "Students" },
-  { label: "Plans" },
-  { label: "Invoice" },
-  { label: "Bill" },
-  { label: "History" },
+const overviewTabs = [
+  { label: "Overview", icon: FiClock },
+  { label: "Security", icon: FiClock },
+  { label: "Statics", icon: FiClock },
+  { label: "Students", icon: FiClock },
+  { label: "Plans", icon: FiDollarSign },
+  { label: "Invoice", icon: FiFileText },
+  { label: "Bill", icon: FiCreditCard },
+  { label: "History", icon: FiClock },
 ];
 
 const initialFormState = {
@@ -64,10 +71,12 @@ const initialFormState = {
   stateId: null,
   pincode: "",
   schoolType: "",
+  boardId: null,
   phone: "",
   email: "",
   telephone: "",
   website: "",
+  logo: null,
   status: true,
 };
 
@@ -87,15 +96,64 @@ const School = () => {
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
 
   const [selectedInstitute, setSelectedInstitute] = useState(null);
+  const [institutes, setInstitutes] = useState([]);
+  const [branches, setBranches] = useState([]);
+  const [boards, setBoards] = useState([]);
 
   const [states, setStates] = useState([]);
   const [selectedState, setSelectedState] = useState("");
   const [cities, setCities] = useState([]);
 
+  // Filter states
+  const [showFilters, setShowFilters] = useState(false);
+  const [filters, setFilters] = useState({
+    instituteCode: "",
+    instituteName: "",
+    branchCode: "",
+    branchName: "",
+    boardId: "",
+    schoolType: "",
+    schoolCode: "",
+    schoolName: "",
+    status: "",
+  });
+
+  // Overview tab state
+  const [activeTab, setActiveTab] = useState("Overview");
+
   const SERVER_URL = `${API_BASE_URL}/schools`;
   const SERVER_URL_INSTITUTES = `${API_BASE_URL}/institutes`;
+  const SERVER_URL_BRANCHES = `${API_BASE_URL}/branches`;
+  const SERVER_URL_BOARDS = `${API_BASE_URL}/boards`;
   const SERVER_URL_STATES = `${API_BASE_URL}/states`;
   const SERVER_URL_CITIES = `${API_BASE_URL}/cities`;
+
+  const fetchInstitutes = async () => {
+    try {
+      const response = await axios.get(`${SERVER_URL_INSTITUTES}`);
+      setInstitutes(response.data);
+    } catch (error) {
+      console.error("Error fetching institutes:", error);
+    }
+  };
+
+  const fetchBranches = async () => {
+    try {
+      const response = await axios.get(`${SERVER_URL_BRANCHES}`);
+      setBranches(response.data);
+    } catch (error) {
+      console.error("Error fetching branches:", error);
+    }
+  };
+
+  const fetchBoards = async () => {
+    try {
+      const response = await axios.get(`${SERVER_URL_BOARDS}`);
+      setBoards(response.data);
+    } catch (error) {
+      console.error("Error fetching boards:", error);
+    }
+  };
 
   const fetchStates = async () => {
     try {
@@ -144,6 +202,9 @@ const School = () => {
     fetchSchools();
     fetchCities();
     fetchStates();
+    fetchInstitutes();
+    fetchBranches();
+    fetchBoards();
   }, []);
 
   // Toggle status (optimistic)
@@ -167,13 +228,54 @@ const School = () => {
     }
   };
 
-  // Filtered and paginated
-  const filteredSchools = schools.filter(
-    (school) =>
+  // Advanced filtering
+  const filteredSchools = schools.filter((school) => {
+    // Basic search
+    const matchesSearch =
+      !searchTerm ||
       school.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      school.code?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       school.instituteName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      school.branchName?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+      school.instituteCode?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      school.branchName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      school.branchCode?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      school.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      school.phone?.includes(searchTerm);
+
+    // Advanced filters
+    const matchesFilters =
+      (!filters.instituteCode ||
+        school.instituteCode
+          ?.toLowerCase()
+          .includes(filters.instituteCode.toLowerCase())) &&
+      (!filters.instituteName ||
+        school.instituteName
+          ?.toLowerCase()
+          .includes(filters.instituteName.toLowerCase())) &&
+      (!filters.branchCode ||
+        school.branchCode
+          ?.toLowerCase()
+          .includes(filters.branchCode.toLowerCase())) &&
+      (!filters.branchName ||
+        school.branchName
+          ?.toLowerCase()
+          .includes(filters.branchName.toLowerCase())) &&
+      (!filters.boardId || school.boardId === Number(filters.boardId)) &&
+      (!filters.schoolType || school.schoolType === filters.schoolType) &&
+      (!filters.schoolCode ||
+        school.code
+          ?.toLowerCase()
+          .includes(filters.schoolCode.toLowerCase())) &&
+      (!filters.schoolName ||
+        school.name
+          ?.toLowerCase()
+          .includes(filters.schoolName.toLowerCase())) &&
+      (filters.status === "" ||
+        (filters.status === "active" && school.status) ||
+        (filters.status === "inactive" && !school.status));
+
+    return matchesSearch && matchesFilters;
+  });
   const total = filteredSchools.length;
   const totalPages = Math.ceil(total / pageSize);
   const startIdx = (page - 1) * pageSize;
@@ -184,22 +286,198 @@ const School = () => {
     setForm({ ...form, [field]: value });
   };
 
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 800 * 1024) {
+        setError("Logo size must be less than 800KB");
+        return;
+      }
+      if (!file.type.startsWith("image/")) {
+        setError("Please upload an image file");
+        return;
+      }
+      setForm({ ...form, logo: file });
+      setError("");
+    }
+  };
+
+  // Validation
+  const validateForm = () => {
+    if (!form.code || form.code.trim() === "") {
+      setError("School Code is required");
+      return false;
+    }
+    if (!form.email || form.email.trim() === "") {
+      setError("Email is required");
+      return false;
+    }
+    // Email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(form.email)) {
+      setError("Please enter a valid email address");
+      return false;
+    }
+    // Phone validation
+    if (form.phone && !/^\d{10}$/.test(form.phone.replace(/\D/g, ""))) {
+      setError("Please enter a valid 10-digit phone number");
+      return false;
+    }
+    // Check for duplicate school code (if creating new)
+    if (!isEdit) {
+      const duplicateCode = schools.find(
+        (s) => s.code.toLowerCase() === form.code.toLowerCase()
+      );
+      if (duplicateCode) {
+        setError("School Code already exists. Please use a unique code.");
+        return false;
+      }
+      // Check for duplicate email
+      const duplicateEmail = schools.find(
+        (s) => s.email.toLowerCase() === form.email.toLowerCase()
+      );
+      if (duplicateEmail) {
+        setError("Email already exists. Please use a unique email.");
+        return false;
+      }
+    }
+    return true;
+  };
+
+  // Export functionality
+  const handleExport = () => {
+    const csvContent = [
+      [
+        "School Code",
+        "School Name",
+        "Institute Code",
+        "Institute Name",
+        "Branch Code",
+        "Branch Name",
+        "Board",
+        "School Type",
+        "Email",
+        "Phone",
+        "Address",
+        "City",
+        "State",
+        "Pincode",
+        "Status",
+      ],
+      ...filteredSchools.map((school) => [
+        school.code || "",
+        school.name || "",
+        school.instituteCode || "",
+        school.instituteName || "",
+        school.branchCode || "",
+        school.branchName || "",
+        school.board?.name || "",
+        school.schoolType || "",
+        school.email || "",
+        school.phone || "",
+        school.address1 || "",
+        school.city?.city || "",
+        school.state?.state || "",
+        school.pincode || "",
+        school.status ? "Active" : "Inactive",
+      ]),
+    ]
+      .map((row) => row.map((cell) => `"${cell}"`).join(","))
+      .join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", `schools_export_${new Date().getTime()}.csv`);
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  // Import functionality
+  const handleImport = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      try {
+        const text = event.target.result;
+        // Simple CSV parsing (you may want to use a library like papaparse)
+        const lines = text.split("\n");
+        const headers = lines[0]
+          .split(",")
+          .map((h) => h.trim().replace(/"/g, ""));
+
+        // This is a basic implementation - you'd need proper CSV parsing
+        setError(
+          "Import functionality requires CSV parsing library. Please implement using papaparse or similar."
+        );
+      } catch (err) {
+        setError("Failed to import file: " + err.message);
+      }
+    };
+    reader.readAsText(file);
+  };
+
   // Create or Edit
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     setError("");
+
+    // Validate form
+    if (!validateForm()) {
+      return;
+    }
+
     setLoading(true);
 
-    form.stateId = Number(form.stateId);
-    form.cityId = Number(form.cityId);
+    const submitForm = { ...form };
+    submitForm.stateId = Number(submitForm.stateId);
+    submitForm.cityId = Number(submitForm.cityId);
+    if (submitForm.boardId) {
+      submitForm.boardId = Number(submitForm.boardId);
+    }
+
+    // Create FormData if logo is present
+    const formData = new FormData();
+    Object.keys(submitForm).forEach((key) => {
+      if (key === "logo" && submitForm[key]) {
+        formData.append("logo", submitForm[key]);
+      } else if (submitForm[key] !== null && submitForm[key] !== undefined) {
+        formData.append(key, submitForm[key]);
+      }
+    });
 
     try {
       if (isEdit && editId) {
-        const response = await axios.put(`${SERVER_URL}/${editId}`, form);
+        const response = await axios.put(
+          `${SERVER_URL}/${editId}`,
+          submitForm.logo ? formData : submitForm,
+          submitForm.logo
+            ? {
+                headers: {
+                  "Content-Type": "multipart/form-data",
+                },
+              }
+            : {}
+        );
         if (!response.status) throw new Error("Failed to update school");
         fetchSchools();
       } else {
-        const response = await axios.post(`${SERVER_URL}`, form);
+        const response = await axios.post(
+          `${SERVER_URL}`,
+          submitForm.logo ? formData : submitForm,
+          submitForm.logo
+            ? {
+                headers: {
+                  "Content-Type": "multipart/form-data",
+                },
+              }
+            : {}
+        );
         if (!response.status) throw new Error("Failed to create school");
         const data = await response.data;
         fetchSchools();
@@ -209,7 +487,9 @@ const School = () => {
       setEditId(null);
       setViewMode("list");
     } catch (err) {
-      setError(err.message);
+      setError(
+        err.response?.data?.error || err.message || "Failed to save school"
+      );
     } finally {
       setLoading(false);
     }
@@ -217,7 +497,10 @@ const School = () => {
 
   // Edit
   const handleEdit = (school) => {
-    setForm(school);
+    setForm({
+      ...school,
+      boardId: school.boardId || school.board?.id || null,
+    });
     setIsEdit(true);
     setEditId(school.id);
     setViewMode("form");
@@ -314,6 +597,101 @@ const School = () => {
             >
               School Details
             </div>
+            {/* Logo Upload Section */}
+            <div
+              style={{
+                marginBottom: 24,
+                padding: 20,
+                border: "2px dashed #e0e0e0",
+                borderRadius: 8,
+                textAlign: "center",
+              }}
+            >
+              <div style={{ marginBottom: 12 }}>
+                {form.logo ? (
+                  <div
+                    style={{ position: "relative", display: "inline-block" }}
+                  >
+                    <img
+                      src={
+                        typeof form.logo === "string"
+                          ? form.logo
+                          : URL.createObjectURL(form.logo)
+                      }
+                      alt="School Logo"
+                      style={{
+                        maxWidth: 120,
+                        maxHeight: 120,
+                        borderRadius: 8,
+                        objectFit: "cover",
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setForm({ ...form, logo: null })}
+                      style={{
+                        position: "absolute",
+                        top: -8,
+                        right: -8,
+                        background: "#e74c3c",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "50%",
+                        width: 24,
+                        height: 24,
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <FiX size={14} />
+                    </button>
+                  </div>
+                ) : (
+                  <div
+                    style={{
+                      width: 120,
+                      height: 120,
+                      margin: "0 auto",
+                      background: "#f5f5f5",
+                      borderRadius: 8,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      color: "#888",
+                    }}
+                  >
+                    <FiUpload size={32} />
+                  </div>
+                )}
+              </div>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                style={{ display: "none" }}
+                id="logo-upload"
+              />
+              <label
+                htmlFor="logo-upload"
+                style={{
+                  display: "inline-block",
+                  padding: "8px 16px",
+                  background: "#1ecab8",
+                  color: "white",
+                  borderRadius: 6,
+                  cursor: "pointer",
+                  fontSize: 14,
+                  fontWeight: 500,
+                }}
+              >
+                {form.logo ? "Change Logo" : "Upload Logo"}
+              </label>
+              <p style={{ fontSize: 12, color: "#888", marginTop: 8 }}>
+                Allowed JPG, GIF or PNG. Max size of 800kB
+              </p>
+            </div>
             <div
               style={{
                 display: "flex",
@@ -338,28 +716,58 @@ const School = () => {
                   />
                 </div>
                 <div style={fieldWrapper}>
-                  <label style={labelStyle}>Institute Code</label>
+                  <label style={labelStyle}>
+                    Institute Code
+                    {isEdit && (
+                      <span
+                        style={{ color: "#888", fontSize: 11, marginLeft: 4 }}
+                      >
+                        (Read Only)
+                      </span>
+                    )}
+                  </label>
                   <input
-                    style={inputStyle}
+                    style={{
+                      ...inputStyle,
+                      ...(isEdit
+                        ? { background: "#f5f5f5", cursor: "not-allowed" }
+                        : {}),
+                    }}
                     placeholder="Institute Code"
                     name="instituteCode"
                     value={form.instituteCode}
                     onChange={(e) =>
                       handleFormChange(e.target.name, e.target.value)
                     }
+                    disabled={isEdit}
                     required
                   />
                 </div>
                 <div style={fieldWrapper}>
-                  <label style={labelStyle}>Branch Code</label>
+                  <label style={labelStyle}>
+                    Branch Code
+                    {isEdit && (
+                      <span
+                        style={{ color: "#888", fontSize: 11, marginLeft: 4 }}
+                      >
+                        (Read Only)
+                      </span>
+                    )}
+                  </label>
                   <input
-                    style={inputStyle}
+                    style={{
+                      ...inputStyle,
+                      ...(isEdit
+                        ? { background: "#f5f5f5", cursor: "not-allowed" }
+                        : {}),
+                    }}
                     placeholder="Branch Code"
                     name="branchCode"
                     value={form.branchCode}
                     onChange={(e) =>
                       handleFormChange(e.target.name, e.target.value)
                     }
+                    disabled={isEdit}
                     required
                   />
                 </div>
@@ -421,41 +829,86 @@ const School = () => {
               <div style={{ flex: 1, minWidth: 260 }}>
                 {/* Right column fields */}
                 <div style={fieldWrapper}>
-                  <label style={labelStyle}>School Code</label>
+                  <label style={labelStyle}>
+                    School Code
+                    {isEdit && (
+                      <span
+                        style={{ color: "#888", fontSize: 11, marginLeft: 4 }}
+                      >
+                        (Read Only)
+                      </span>
+                    )}
+                  </label>
                   <input
-                    style={inputStyle}
+                    style={{
+                      ...inputStyle,
+                      ...(isEdit
+                        ? { background: "#f5f5f5", cursor: "not-allowed" }
+                        : {}),
+                    }}
                     placeholder="School Code"
                     name="code"
                     value={form.code}
                     onChange={(e) =>
                       handleFormChange(e.target.name, e.target.value)
                     }
+                    disabled={isEdit}
                     required
                   />
                 </div>
                 <div style={fieldWrapper}>
-                  <label style={labelStyle}>Institute Name</label>
+                  <label style={labelStyle}>
+                    Institute Name
+                    {isEdit && (
+                      <span
+                        style={{ color: "#888", fontSize: 11, marginLeft: 4 }}
+                      >
+                        (Read Only)
+                      </span>
+                    )}
+                  </label>
                   <input
-                    style={inputStyle}
+                    style={{
+                      ...inputStyle,
+                      ...(isEdit
+                        ? { background: "#f5f5f5", cursor: "not-allowed" }
+                        : {}),
+                    }}
                     placeholder="Institute Name"
                     name="instituteName"
                     value={form.instituteName}
                     onChange={(e) =>
                       handleFormChange(e.target.name, e.target.value)
                     }
+                    disabled={isEdit}
                     required
                   />
                 </div>
                 <div style={fieldWrapper}>
-                  <label style={labelStyle}>Branch Name</label>
+                  <label style={labelStyle}>
+                    Branch Name
+                    {isEdit && (
+                      <span
+                        style={{ color: "#888", fontSize: 11, marginLeft: 4 }}
+                      >
+                        (Read Only)
+                      </span>
+                    )}
+                  </label>
                   <input
-                    style={inputStyle}
+                    style={{
+                      ...inputStyle,
+                      ...(isEdit
+                        ? { background: "#f5f5f5", cursor: "not-allowed" }
+                        : {}),
+                    }}
                     placeholder="Branch Name"
                     name="branchName"
                     value={form.branchName}
                     onChange={(e) =>
                       handleFormChange(e.target.name, e.target.value)
                     }
+                    disabled={isEdit}
                     required
                   />
                 </div>
@@ -498,20 +951,71 @@ const School = () => {
                   </select>
                 </div>
                 <div style={fieldWrapper}>
-                  <label style={labelStyle}>School Type</label>
+                  <label style={labelStyle}>
+                    Board
+                    {isEdit && (
+                      <span
+                        style={{ color: "#888", fontSize: 11, marginLeft: 4 }}
+                      >
+                        (Read Only)
+                      </span>
+                    )}
+                  </label>
                   <select
-                    style={inputStyle}
+                    style={{
+                      ...inputStyle,
+                      ...(isEdit
+                        ? { background: "#f5f5f5", cursor: "not-allowed" }
+                        : {}),
+                    }}
+                    name="boardId"
+                    value={form.boardId || ""}
+                    onChange={(e) =>
+                      handleFormChange("boardId", e.target.value)
+                    }
+                    disabled={isEdit}
+                    required
+                  >
+                    <option value="">Select Board</option>
+                    {boards.map((board) => (
+                      <option key={board.id} value={board.id}>
+                        {board.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div style={fieldWrapper}>
+                  <label style={labelStyle}>
+                    School Type
+                    {isEdit && (
+                      <span
+                        style={{ color: "#888", fontSize: 11, marginLeft: 4 }}
+                      >
+                        (Read Only)
+                      </span>
+                    )}
+                  </label>
+                  <select
+                    style={{
+                      ...inputStyle,
+                      ...(isEdit
+                        ? { background: "#f5f5f5", cursor: "not-allowed" }
+                        : {}),
+                    }}
                     name="schoolType"
                     value={form.schoolType}
                     onChange={(e) =>
                       handleFormChange(e.target.name, e.target.value)
                     }
+                    disabled={isEdit}
                     required
                   >
                     <option value="">Select School Type</option>
                     <option value="Primary">Primary</option>
                     <option value="Secondary">Secondary</option>
                     <option value="HigherSecondary">Higher Secondary</option>
+                    <option value="Private">Private</option>
+                    <option value="Government">Government</option>
                   </select>
                 </div>
               </div>
@@ -659,6 +1163,83 @@ const School = () => {
   // --- OVERVIEW VIEW ---
   if (viewMode === "overview" && selectedSchool) {
     const s = selectedSchool;
+    // Mock data for financial/admin features
+    const subscriptionData = {
+      planName: "Premium Plan",
+      startDate: "2024-01-01",
+      expiryDate: "2024-12-31",
+      renewalDate: "2024-12-15",
+      cost: "$999/year",
+      status: "Active",
+    };
+
+    const invoices = [
+      {
+        id: 1,
+        invoiceDate: "2024-01-01",
+        totalAmount: 999,
+        taxes: 99,
+        paymentStatus: "Paid",
+      },
+      {
+        id: 2,
+        invoiceDate: "2023-01-01",
+        totalAmount: 999,
+        taxes: 99,
+        paymentStatus: "Paid",
+      },
+    ];
+
+    const payments = [
+      {
+        id: 1,
+        transactionId: "TXN123456",
+        amount: 999,
+        paymentMethod: "Credit Card",
+        status: "Completed",
+        date: "2024-01-01",
+      },
+    ];
+
+    const notifications = [
+      {
+        id: 1,
+        message: "Subscription renewal due in 15 days",
+        date: "2024-12-01",
+        read: false,
+      },
+      {
+        id: 2,
+        message: "Payment received successfully",
+        date: "2024-01-02",
+        read: true,
+      },
+    ];
+
+    const activityLogs = [
+      {
+        id: 1,
+        action: "Created",
+        user: "Admin User",
+        timestamp: "2024-01-01 10:00:00",
+        details: "School created successfully",
+      },
+      {
+        id: 2,
+        action: "Updated",
+        user: "Admin User",
+        timestamp: "2024-01-15 14:30:00",
+        details: "School profile updated",
+      },
+      {
+        id: 3,
+        action: "Viewed",
+        user: "Admin User",
+        timestamp: "2024-01-20 09:15:00",
+        details: "School overview accessed",
+      },
+    ];
+
     return (
       <div
         className="school-container"
@@ -765,133 +1346,658 @@ const School = () => {
             <FiEdit /> Edit
           </button>
         </div>
-        {/* Details Card */}
+
+        {/* Sub-navigation Tabs */}
         <div
           style={{
-            background: "#fff",
-            borderRadius: 12,
-            padding: 32,
-            boxShadow: "0 2px 8px rgba(0,0,0,0.03)",
+            display: "flex",
+            gap: 8,
+            marginBottom: 24,
+            overflowX: "auto",
           }}
         >
+          {overviewTabs.map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeTab === tab.label;
+            return (
+              <button
+                key={tab.label}
+                onClick={() => setActiveTab(tab.label)}
+                style={{
+                  background: isActive ? "#eaeaea" : "transparent",
+                  color: isActive ? "#555" : "#888",
+                  border: "none",
+                  borderRadius: 8,
+                  padding: "8px 22px",
+                  fontWeight: 500,
+                  fontSize: 15,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  cursor: "pointer",
+                  transition: "all 0.2s ease",
+                  whiteSpace: "nowrap",
+                  boxShadow: isActive ? "0 1px 2px rgba(0,0,0,0.03)" : "none",
+                }}
+                onMouseEnter={(e) => {
+                  if (!isActive) {
+                    e.target.style.background = "#f5f5f5";
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!isActive) {
+                    e.target.style.background = "transparent";
+                  }
+                }}
+              >
+                <Icon size={16} /> {tab.label}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Tab Content */}
+        {activeTab === "Overview" && (
           <div
             style={{
-              fontWeight: 600,
-              fontSize: 18,
-              color: "#444",
-              marginBottom: 18,
+              background: "#fff",
+              borderRadius: 12,
+              padding: 32,
+              boxShadow: "0 2px 8px rgba(0,0,0,0.03)",
             }}
           >
-            Details
-          </div>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 0 }}>
-            <div style={{ flex: 1, minWidth: 260 }}>
-              <div style={{ marginBottom: 12, color: "#888", fontSize: 15 }}>
-                School Name{" "}
-                <span style={{ color: "#222", fontWeight: 500 }}>
-                  : {s.name}
-                </span>
+            <div
+              style={{
+                fontWeight: 600,
+                fontSize: 18,
+                color: "#444",
+                marginBottom: 18,
+              }}
+            >
+              Details
+            </div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 0 }}>
+              <div style={{ flex: 1, minWidth: 260 }}>
+                <div style={{ marginBottom: 12, color: "#888", fontSize: 15 }}>
+                  School Name{" "}
+                  <span style={{ color: "#222", fontWeight: 500 }}>
+                    : {s.name}
+                  </span>
+                </div>
+                <div style={{ marginBottom: 12, color: "#888", fontSize: 15 }}>
+                  Institute Name{" "}
+                  <span style={{ color: "#222", fontWeight: 500 }}>
+                    : {s.instituteName}
+                  </span>
+                </div>
+                <div style={{ marginBottom: 12, color: "#888", fontSize: 15 }}>
+                  Branch Name{" "}
+                  <span style={{ color: "#222", fontWeight: 500 }}>
+                    : {s.branchName}
+                  </span>
+                </div>
+                <div style={{ marginBottom: 12, color: "#888", fontSize: 15 }}>
+                  Phone Number{" "}
+                  <span style={{ color: "#222", fontWeight: 500 }}>
+                    : {s.phone}
+                  </span>
+                </div>
+                <div style={{ marginBottom: 12, color: "#888", fontSize: 15 }}>
+                  Address Line 1{" "}
+                  <span style={{ color: "#222", fontWeight: 500 }}>
+                    : {s.address1}
+                  </span>
+                </div>
+                <div style={{ marginBottom: 12, color: "#888", fontSize: 15 }}>
+                  City{" "}
+                  <span style={{ color: "#222", fontWeight: 500 }}>
+                    : {s.city.city}
+                  </span>
+                </div>
+                <div style={{ marginBottom: 12, color: "#888", fontSize: 15 }}>
+                  Pin Code{" "}
+                  <span style={{ color: "#222", fontWeight: 500 }}>
+                    : {s.pincode}
+                  </span>
+                </div>
               </div>
-              <div style={{ marginBottom: 12, color: "#888", fontSize: 15 }}>
-                Institute Name{" "}
-                <span style={{ color: "#222", fontWeight: 500 }}>
-                  : {s.instituteName}
-                </span>
-              </div>
-              <div style={{ marginBottom: 12, color: "#888", fontSize: 15 }}>
-                Branch Name{" "}
-                <span style={{ color: "#222", fontWeight: 500 }}>
-                  : {s.branchName}
-                </span>
-              </div>
-              <div style={{ marginBottom: 12, color: "#888", fontSize: 15 }}>
-                Phone Number{" "}
-                <span style={{ color: "#222", fontWeight: 500 }}>
-                  : {s.phone}
-                </span>
-              </div>
-              <div style={{ marginBottom: 12, color: "#888", fontSize: 15 }}>
-                Address Line 1{" "}
-                <span style={{ color: "#222", fontWeight: 500 }}>
-                  : {s.address1}
-                </span>
-              </div>
-              <div style={{ marginBottom: 12, color: "#888", fontSize: 15 }}>
-                City{" "}
-                <span style={{ color: "#222", fontWeight: 500 }}>
-                  : {s.city.city}
-                </span>
-              </div>
-              <div style={{ marginBottom: 12, color: "#888", fontSize: 15 }}>
-                Pin Code{" "}
-                <span style={{ color: "#222", fontWeight: 500 }}>
-                  : {s.pincode}
-                </span>
+              <div style={{ flex: 1, minWidth: 260 }}>
+                <div style={{ marginBottom: 12, color: "#888", fontSize: 15 }}>
+                  School Code{" "}
+                  <span style={{ color: "#222", fontWeight: 500 }}>
+                    : {s.code}
+                  </span>
+                </div>
+                <div style={{ marginBottom: 12, color: "#888", fontSize: 15 }}>
+                  Institute Code{" "}
+                  <span style={{ color: "#222", fontWeight: 500 }}>
+                    : {s.instituteCode}
+                  </span>
+                </div>
+                <div style={{ marginBottom: 12, color: "#888", fontSize: 15 }}>
+                  Branch Code{" "}
+                  <span style={{ color: "#222", fontWeight: 500 }}>
+                    : {s.branchCode}
+                  </span>
+                </div>
+                <div style={{ marginBottom: 12, color: "#888", fontSize: 15 }}>
+                  Email Address{" "}
+                  <span style={{ color: "#222", fontWeight: 500 }}>
+                    : {s.email}
+                  </span>
+                </div>
+                <div style={{ marginBottom: 12, color: "#888", fontSize: 15 }}>
+                  Address Line 2{" "}
+                  <span style={{ color: "#222", fontWeight: 500 }}>
+                    : {s.address2}
+                  </span>
+                </div>
+                <div style={{ marginBottom: 12, color: "#888", fontSize: 15 }}>
+                  State{" "}
+                  <span style={{ color: "#222", fontWeight: 500 }}>
+                    : {s.state?.state}
+                  </span>
+                </div>
+                <div style={{ marginBottom: 12, color: "#888", fontSize: 15 }}>
+                  Board{" "}
+                  <span style={{ color: "#222", fontWeight: 500 }}>
+                    : {s.board?.name || "N/A"}
+                  </span>
+                </div>
+                <div style={{ marginBottom: 12, color: "#888", fontSize: 15 }}>
+                  Website{" "}
+                  <span style={{ color: "#b0b0b0", fontWeight: 400 }}>
+                    {s.website}
+                  </span>
+                </div>
               </div>
             </div>
-            <div style={{ flex: 1, minWidth: 260 }}>
-              <div style={{ marginBottom: 12, color: "#888", fontSize: 15 }}>
-                School Code{" "}
-                <span style={{ color: "#222", fontWeight: 500 }}>
-                  : {s.code}
-                </span>
-              </div>
-              <div style={{ marginBottom: 12, color: "#888", fontSize: 15 }}>
-                Institute Code{" "}
-                <span style={{ color: "#222", fontWeight: 500 }}>
-                  : {s.instituteCode}
-                </span>
-              </div>
-              <div style={{ marginBottom: 12, color: "#888", fontSize: 15 }}>
-                Branch Code{" "}
-                <span style={{ color: "#222", fontWeight: 500 }}>
-                  : {s.branchCode}
-                </span>
-              </div>
-              <div style={{ marginBottom: 12, color: "#888", fontSize: 15 }}>
-                Email Address{" "}
-                <span style={{ color: "#222", fontWeight: 500 }}>
-                  : {s.email}
-                </span>
-              </div>
-              <div style={{ marginBottom: 12, color: "#888", fontSize: 15 }}>
-                Address Line 2{" "}
-                <span style={{ color: "#222", fontWeight: 500 }}>
-                  : {s.address2}
-                </span>
-              </div>
-              <div style={{ marginBottom: 12, color: "#888", fontSize: 15 }}>
-                State{" "}
-                <span style={{ color: "#222", fontWeight: 500 }}>
-                  : {s.state.state}
-                </span>
-              </div>
-              <div style={{ marginBottom: 12, color: "#888", fontSize: 15 }}>
-                Website{" "}
-                <span style={{ color: "#b0b0b0", fontWeight: 400 }}>
-                  {s.website}
-                </span>
-              </div>
-            </div>
           </div>
-        </div>
-        <div style={{ marginTop: 24, textAlign: "center" }}>
-          <button
+        )}
+
+        {/* Plans/Subscription Tab */}
+        {activeTab === "Plans" && (
+          <div
             style={{
-              background: "#f0f0f0",
-              color: "#888",
-              border: "none",
-              borderRadius: 6,
-              padding: "10px 36px",
-              fontWeight: 500,
-              fontSize: 16,
-              cursor: "pointer",
+              background: "#fff",
+              borderRadius: 12,
+              padding: 32,
+              boxShadow: "0 2px 8px rgba(0,0,0,0.03)",
             }}
-            onClick={handleCancel}
           >
-            Back to List
-          </button>
-        </div>
+            <div
+              style={{
+                fontWeight: 600,
+                fontSize: 18,
+                color: "#444",
+                marginBottom: 18,
+              }}
+            >
+              Subscription Plan
+            </div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 0 }}>
+              <div style={{ flex: 1, minWidth: 260 }}>
+                <div style={{ marginBottom: 12, color: "#888", fontSize: 15 }}>
+                  Plan Name{" "}
+                  <span style={{ color: "#222", fontWeight: 500 }}>
+                    : {subscriptionData.planName}
+                  </span>
+                </div>
+                <div style={{ marginBottom: 12, color: "#888", fontSize: 15 }}>
+                  Start Date{" "}
+                  <span style={{ color: "#222", fontWeight: 500 }}>
+                    : {subscriptionData.startDate}
+                  </span>
+                </div>
+                <div style={{ marginBottom: 12, color: "#888", fontSize: 15 }}>
+                  Renewal Date{" "}
+                  <span style={{ color: "#222", fontWeight: 500 }}>
+                    : {subscriptionData.renewalDate}
+                  </span>
+                </div>
+              </div>
+              <div style={{ flex: 1, minWidth: 260 }}>
+                <div style={{ marginBottom: 12, color: "#888", fontSize: 15 }}>
+                  Expiry Date{" "}
+                  <span style={{ color: "#222", fontWeight: 500 }}>
+                    : {subscriptionData.expiryDate}
+                  </span>
+                </div>
+                <div style={{ marginBottom: 12, color: "#888", fontSize: 15 }}>
+                  Cost{" "}
+                  <span style={{ color: "#222", fontWeight: 500 }}>
+                    : {subscriptionData.cost}
+                  </span>
+                </div>
+                <div style={{ marginBottom: 12, color: "#888", fontSize: 15 }}>
+                  Status{" "}
+                  <span style={{ color: "#222", fontWeight: 500 }}>
+                    : {subscriptionData.status}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Invoice Tab */}
+        {activeTab === "Invoice" && (
+          <div
+            style={{
+              background: "#fff",
+              borderRadius: 12,
+              padding: 32,
+              boxShadow: "0 2px 8px rgba(0,0,0,0.03)",
+            }}
+          >
+            <div
+              style={{
+                fontWeight: 600,
+                fontSize: 18,
+                color: "#444",
+                marginBottom: 18,
+              }}
+            >
+              Billing History
+            </div>
+            <table
+              style={{
+                width: "100%",
+                borderCollapse: "collapse",
+              }}
+            >
+              <thead>
+                <tr style={{ borderBottom: "2px solid #f0f0f0" }}>
+                  <th
+                    style={{
+                      padding: "12px",
+                      textAlign: "left",
+                      color: "#888",
+                    }}
+                  >
+                    Invoice Date
+                  </th>
+                  <th
+                    style={{
+                      padding: "12px",
+                      textAlign: "left",
+                      color: "#888",
+                    }}
+                  >
+                    Total Amount
+                  </th>
+                  <th
+                    style={{
+                      padding: "12px",
+                      textAlign: "left",
+                      color: "#888",
+                    }}
+                  >
+                    Taxes
+                  </th>
+                  <th
+                    style={{
+                      padding: "12px",
+                      textAlign: "left",
+                      color: "#888",
+                    }}
+                  >
+                    Payment Status
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {invoices.map((invoice) => (
+                  <tr
+                    key={invoice.id}
+                    style={{ borderBottom: "1px solid #f0f0f0" }}
+                  >
+                    <td style={{ padding: "12px" }}>{invoice.invoiceDate}</td>
+                    <td style={{ padding: "12px" }}>${invoice.totalAmount}</td>
+                    <td style={{ padding: "12px" }}>${invoice.taxes}</td>
+                    <td style={{ padding: "12px" }}>
+                      <span
+                        style={{
+                          padding: "4px 12px",
+                          borderRadius: 12,
+                          background:
+                            invoice.paymentStatus === "Paid"
+                              ? "#d4edda"
+                              : "#f8d7da",
+                          color:
+                            invoice.paymentStatus === "Paid"
+                              ? "#155724"
+                              : "#721c24",
+                          fontSize: 13,
+                        }}
+                      >
+                        {invoice.paymentStatus}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {/* Payments Tab */}
+        {activeTab === "Bill" && (
+          <div
+            style={{
+              background: "#fff",
+              borderRadius: 12,
+              padding: 32,
+              boxShadow: "0 2px 8px rgba(0,0,0,0.03)",
+            }}
+          >
+            <div
+              style={{
+                fontWeight: 600,
+                fontSize: 18,
+                color: "#444",
+                marginBottom: 18,
+              }}
+            >
+              Payment Transactions
+            </div>
+            <table
+              style={{
+                width: "100%",
+                borderCollapse: "collapse",
+              }}
+            >
+              <thead>
+                <tr style={{ borderBottom: "2px solid #f0f0f0" }}>
+                  <th
+                    style={{
+                      padding: "12px",
+                      textAlign: "left",
+                      color: "#888",
+                    }}
+                  >
+                    Transaction ID
+                  </th>
+                  <th
+                    style={{
+                      padding: "12px",
+                      textAlign: "left",
+                      color: "#888",
+                    }}
+                  >
+                    Amount
+                  </th>
+                  <th
+                    style={{
+                      padding: "12px",
+                      textAlign: "left",
+                      color: "#888",
+                    }}
+                  >
+                    Payment Method
+                  </th>
+                  <th
+                    style={{
+                      padding: "12px",
+                      textAlign: "left",
+                      color: "#888",
+                    }}
+                  >
+                    Status
+                  </th>
+                  <th
+                    style={{
+                      padding: "12px",
+                      textAlign: "left",
+                      color: "#888",
+                    }}
+                  >
+                    Date
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {payments.map((payment) => (
+                  <tr
+                    key={payment.id}
+                    style={{ borderBottom: "1px solid #f0f0f0" }}
+                  >
+                    <td style={{ padding: "12px" }}>{payment.transactionId}</td>
+                    <td style={{ padding: "12px" }}>${payment.amount}</td>
+                    <td style={{ padding: "12px" }}>{payment.paymentMethod}</td>
+                    <td style={{ padding: "12px" }}>
+                      <span
+                        style={{
+                          padding: "4px 12px",
+                          borderRadius: 12,
+                          background: "#d4edda",
+                          color: "#155724",
+                          fontSize: 13,
+                        }}
+                      >
+                        {payment.status}
+                      </span>
+                    </td>
+                    <td style={{ padding: "12px" }}>{payment.date}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {/* Notifications Tab */}
+        {activeTab === "Security" && (
+          <div
+            style={{
+              background: "#fff",
+              borderRadius: 12,
+              padding: 32,
+              boxShadow: "0 2px 8px rgba(0,0,0,0.03)",
+            }}
+          >
+            <div
+              style={{
+                fontWeight: 600,
+                fontSize: 18,
+                color: "#444",
+                marginBottom: 18,
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+              }}
+            >
+              <FiBell /> Notifications
+              {notifications.filter((n) => !n.read).length > 0 && (
+                <span
+                  style={{
+                    background: "#e74c3c",
+                    color: "white",
+                    borderRadius: "50%",
+                    width: 20,
+                    height: 20,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: 12,
+                    fontWeight: 600,
+                  }}
+                >
+                  {notifications.filter((n) => !n.read).length}
+                </span>
+              )}
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              {notifications.map((notification) => (
+                <div
+                  key={notification.id}
+                  style={{
+                    padding: 16,
+                    background: notification.read ? "#fff" : "#f8f9fa",
+                    borderRadius: 8,
+                    borderLeft: notification.read
+                      ? "none"
+                      : "3px solid #1ecab8",
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "start",
+                    }}
+                  >
+                    <div style={{ flex: 1 }}>
+                      <div
+                        style={{
+                          fontWeight: notification.read ? 400 : 600,
+                          color: "#222",
+                          marginBottom: 4,
+                        }}
+                      >
+                        {notification.message}
+                      </div>
+                      <div style={{ fontSize: 13, color: "#888" }}>
+                        {notification.date}
+                      </div>
+                    </div>
+                    {!notification.read && (
+                      <span
+                        style={{
+                          width: 8,
+                          height: 8,
+                          borderRadius: "50%",
+                          background: "#1ecab8",
+                        }}
+                      />
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Activity Logs/History Tab */}
+        {activeTab === "History" && (
+          <div
+            style={{
+              background: "#fff",
+              borderRadius: 12,
+              padding: 32,
+              boxShadow: "0 2px 8px rgba(0,0,0,0.03)",
+            }}
+          >
+            <div
+              style={{
+                fontWeight: 600,
+                fontSize: 18,
+                color: "#444",
+                marginBottom: 18,
+              }}
+            >
+              Activity Logs (Audit Trail)
+            </div>
+            <table
+              style={{
+                width: "100%",
+                borderCollapse: "collapse",
+              }}
+            >
+              <thead>
+                <tr style={{ borderBottom: "2px solid #f0f0f0" }}>
+                  <th
+                    style={{
+                      padding: "12px",
+                      textAlign: "left",
+                      color: "#888",
+                    }}
+                  >
+                    Action
+                  </th>
+                  <th
+                    style={{
+                      padding: "12px",
+                      textAlign: "left",
+                      color: "#888",
+                    }}
+                  >
+                    User
+                  </th>
+                  <th
+                    style={{
+                      padding: "12px",
+                      textAlign: "left",
+                      color: "#888",
+                    }}
+                  >
+                    Timestamp
+                  </th>
+                  <th
+                    style={{
+                      padding: "12px",
+                      textAlign: "left",
+                      color: "#888",
+                    }}
+                  >
+                    Details
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {activityLogs.map((log) => (
+                  <tr
+                    key={log.id}
+                    style={{ borderBottom: "1px solid #f0f0f0" }}
+                  >
+                    <td style={{ padding: "12px" }}>
+                      <span
+                        style={{
+                          padding: "4px 12px",
+                          borderRadius: 12,
+                          background: "#e3f2fd",
+                          color: "#1976d2",
+                          fontSize: 13,
+                          fontWeight: 500,
+                        }}
+                      >
+                        {log.action}
+                      </span>
+                    </td>
+                    <td style={{ padding: "12px" }}>{log.user}</td>
+                    <td style={{ padding: "12px", color: "#888" }}>
+                      {log.timestamp}
+                    </td>
+                    <td style={{ padding: "12px", color: "#666" }}>
+                      {log.details}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {/* Placeholder tabs */}
+        {(activeTab === "Statics" || activeTab === "Students") && (
+          <div
+            style={{
+              background: "#fff",
+              borderRadius: 12,
+              padding: 32,
+              boxShadow: "0 2px 8px rgba(0,0,0,0.03)",
+              textAlign: "center",
+              color: "#888",
+            }}
+          >
+            <div style={{ fontSize: 16, marginBottom: 8 }}>
+              {activeTab} feature coming soon
+            </div>
+            <div style={{ fontSize: 14 }}>
+              This section will display {activeTab.toLowerCase()} information
+            </div>
+          </div>
+        )}
       </div>
     );
   }
@@ -936,17 +2042,232 @@ const School = () => {
           >
             + Create
           </button>
-          <button className="icon-btn">
+          <button className="icon-btn" onClick={handleExport} title="Export">
             <FiDownload />
           </button>
-          <button className="icon-btn">
-            <FiMaximize2 />
-          </button>
-          <button className="icon-btn">
+          <label
+            className="icon-btn"
+            title="Import"
+            style={{ position: "relative", cursor: "pointer" }}
+          >
+            <FiUpload />
+            <input
+              type="file"
+              accept=".csv"
+              onChange={handleImport}
+              style={{
+                position: "absolute",
+                width: "100%",
+                height: "100%",
+                top: 0,
+                left: 0,
+                opacity: 0,
+                cursor: "pointer",
+              }}
+            />
+          </label>
+          <button
+            className="icon-btn"
+            onClick={() => setShowFilters(!showFilters)}
+            title="Filter"
+            style={{
+              background: showFilters ? "#1ecab8" : "white",
+              color: showFilters ? "white" : "#555",
+            }}
+          >
             <FiFilter />
           </button>
         </div>
       </div>
+
+      {/* Advanced Filters Panel */}
+      {showFilters && (
+        <div
+          style={{
+            background: "#fff",
+            borderRadius: 12,
+            padding: 20,
+            marginBottom: 20,
+            boxShadow: "0 2px 8px rgba(0,0,0,0.03)",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: 16,
+            }}
+          >
+            <h3 style={{ fontSize: 16, fontWeight: 600, color: "#222" }}>
+              Advanced Filters
+            </h3>
+            <button
+              onClick={() => {
+                setFilters({
+                  instituteCode: "",
+                  instituteName: "",
+                  branchCode: "",
+                  branchName: "",
+                  boardId: "",
+                  schoolType: "",
+                  schoolCode: "",
+                  schoolName: "",
+                  status: "",
+                });
+              }}
+              style={{
+                background: "transparent",
+                border: "1px solid #e0e0e0",
+                borderRadius: 6,
+                padding: "6px 12px",
+                fontSize: 13,
+                cursor: "pointer",
+                color: "#888",
+              }}
+            >
+              Clear All
+            </button>
+          </div>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+              gap: 16,
+            }}
+          >
+            <div>
+              <label style={{ ...labelStyle, marginBottom: 6 }}>
+                Institute Code
+              </label>
+              <input
+                style={inputStyle}
+                placeholder="Institute Code"
+                value={filters.instituteCode}
+                onChange={(e) =>
+                  setFilters({ ...filters, instituteCode: e.target.value })
+                }
+              />
+            </div>
+            <div>
+              <label style={{ ...labelStyle, marginBottom: 6 }}>
+                Institute Name
+              </label>
+              <input
+                style={inputStyle}
+                placeholder="Institute Name"
+                value={filters.instituteName}
+                onChange={(e) =>
+                  setFilters({ ...filters, instituteName: e.target.value })
+                }
+              />
+            </div>
+            <div>
+              <label style={{ ...labelStyle, marginBottom: 6 }}>
+                Branch Code
+              </label>
+              <input
+                style={inputStyle}
+                placeholder="Branch Code"
+                value={filters.branchCode}
+                onChange={(e) =>
+                  setFilters({ ...filters, branchCode: e.target.value })
+                }
+              />
+            </div>
+            <div>
+              <label style={{ ...labelStyle, marginBottom: 6 }}>
+                Branch Name
+              </label>
+              <input
+                style={inputStyle}
+                placeholder="Branch Name"
+                value={filters.branchName}
+                onChange={(e) =>
+                  setFilters({ ...filters, branchName: e.target.value })
+                }
+              />
+            </div>
+            <div>
+              <label style={{ ...labelStyle, marginBottom: 6 }}>Board</label>
+              <select
+                style={inputStyle}
+                value={filters.boardId}
+                onChange={(e) =>
+                  setFilters({ ...filters, boardId: e.target.value })
+                }
+              >
+                <option value="">All Boards</option>
+                {boards.map((board) => (
+                  <option key={board.id} value={board.id}>
+                    {board.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label style={{ ...labelStyle, marginBottom: 6 }}>
+                School Type
+              </label>
+              <select
+                style={inputStyle}
+                value={filters.schoolType}
+                onChange={(e) =>
+                  setFilters({ ...filters, schoolType: e.target.value })
+                }
+              >
+                <option value="">All Types</option>
+                <option value="Primary">Primary</option>
+                <option value="Secondary">Secondary</option>
+                <option value="HigherSecondary">Higher Secondary</option>
+                <option value="Private">Private</option>
+                <option value="Government">Government</option>
+              </select>
+            </div>
+            <div>
+              <label style={{ ...labelStyle, marginBottom: 6 }}>
+                School Code
+              </label>
+              <input
+                style={inputStyle}
+                placeholder="School Code"
+                value={filters.schoolCode}
+                onChange={(e) =>
+                  setFilters({ ...filters, schoolCode: e.target.value })
+                }
+              />
+            </div>
+            <div>
+              <label style={{ ...labelStyle, marginBottom: 6 }}>
+                School Name
+              </label>
+              <input
+                style={inputStyle}
+                placeholder="School Name"
+                value={filters.schoolName}
+                onChange={(e) =>
+                  setFilters({ ...filters, schoolName: e.target.value })
+                }
+              />
+            </div>
+            <div>
+              <label style={{ ...labelStyle, marginBottom: 6 }}>Status</label>
+              <select
+                style={inputStyle}
+                value={filters.status}
+                onChange={(e) =>
+                  setFilters({ ...filters, status: e.target.value })
+                }
+              >
+                <option value="">All Status</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      )}
+
       {error && (
         <div style={{ color: "red", textAlign: "center", marginBottom: 16 }}>
           {error}
@@ -964,6 +2285,7 @@ const School = () => {
                 <th>School Name</th>
                 <th>Institute</th>
                 <th>Branch</th>
+                <th>Board</th>
                 <th>School Type</th>
                 <th>Status</th>
                 <th>Action</th>
@@ -983,6 +2305,11 @@ const School = () => {
                   <td>
                     <div className="branch-name">{school.branchName}</div>
                     <div className="branch-code">{school.branchCode}</div>
+                  </td>
+                  <td>
+                    <div className="branch-name">
+                      {school.board?.name || "N/A"}
+                    </div>
                   </td>
                   <td>
                     <div className="branch-name">{school.schoolType}</div>
