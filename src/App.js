@@ -7,32 +7,66 @@ import Sidebar from "./components/Sidebar.jsx";
 import MobileSidebar from "./components/MobileSidebar.jsx";
 import StudentSidebar from "./components/StudentSidebar.jsx";
 import StudentMobileSidebar from "./components/StudentMobileSidebar.jsx";
-import Dashboard from "./pages/Dashboard.jsx";
-import Reports from "./pages/Reports.jsx";
-import Graph from "./pages/Graph.jsx";
-import Cities from "./pages/MasterData/City.jsx";
-import States from "./pages/MasterData/State.jsx";
-import Institute from "./pages/MasterData/Institute.jsx";
-import Branch from "./pages/MasterData/Branch.jsx";
-import School from "./pages/MasterData/School.jsx";
-import Board from "./pages/MasterData/Board.jsx";
-import ClassPage from "./pages/MasterData/Class.jsx";
-import Division from "./pages/MasterData/Division";
-import Academicyear from "./pages/MasterData/Academicyear";
-import Emotion from "./pages/MasterData/Emotion";
-import Zone from "./pages/MasterData/Zone";
-import LogMoodMaster from "./pages/MasterData/LogMood";
-import Category from "./pages/MasterData/Category";
-import SubCategory from "./pages/MasterData/SubCategory";
-import Impact from "./pages/MasterData/Impact";
-import Pleasantness from "./pages/MasterData/Pleasantness";
+import SchoolSidebar from "./components/SchoolSidebar.tsx";
+import SchoolMobileSidebar from "./components/SchoolMobileSidebar.tsx";
+import Dashboard from "./pages/Dashboard.tsx";
+import Reports from "./pages/Reports.tsx";
+import Graph from "./pages/Graph.tsx";
+import Cities from "./pages/MasterData/City.tsx";
+import States from "./pages/MasterData/State.tsx";
+import Institute from "./pages/MasterData/Institute.tsx";
+import Branch from "./pages/MasterData/Branch.tsx";
+import School from "./pages/MasterData/School.tsx";
+import Board from "./pages/MasterData/Board.tsx";
+import ClassPage from "./pages/MasterData/Class.tsx";
+import Division from "./pages/MasterData/Division.tsx";
+import Academicyear from "./pages/MasterData/Academicyear.tsx";
+import Emotion from "./pages/MasterData/Emotion.tsx";
+import Zone from "./pages/MasterData/Zone.tsx";
+import LogMoodMaster from "./pages/MasterData/LogMood.tsx";
+import Category from "./pages/MasterData/Category.tsx";
+import SubCategory from "./pages/MasterData/SubCategory.tsx";
+import Impact from "./pages/MasterData/Impact.tsx";
+import Pleasantness from "./pages/MasterData/Pleasantness.tsx";
 // Import Auth pages
-import Login from "./pages/Auth/Login";
-import StudentLogin from "./pages/Auth/StudentLogin";
-import Register from "./pages/Auth/Register";
-import ForgotPassword from "./pages/Auth/ForgotPassword";
-import ResetPassword from "./pages/Auth/ResetPassword";
-import Countries from "./pages/MasterData/Countries.jsx";
+import Login from "./pages/Auth/Login.tsx";
+import StudentLogin from "./pages/Auth/StudentLogin.tsx";
+import Register from "./pages/Auth/Register.tsx";
+import ForgotPassword from "./pages/Auth/ForgotPassword.tsx";
+import ResetPassword from "./pages/Auth/ResetPassword.tsx";
+import Countries from "./pages/MasterData/Countries.tsx";
+// Import School pages
+import SchoolDashboard from "./pages/School/SchoolDashboard.tsx";
+import SchoolOverview from "./pages/School/Overview.tsx";
+import AllStudents from "./pages/School/Students/AllStudents.tsx";
+import StudentProfiles from "./pages/School/Students/StudentProfiles.tsx";
+import StudentAttendance from "./pages/School/Students/StudentAttendance.tsx";
+import StudentPerformance from "./pages/School/Students/StudentPerformance.tsx";
+import Classes from "./pages/School/Academics/Classes.tsx";
+import Divisions from "./pages/School/Academics/Divisions.tsx";
+import Subjects from "./pages/School/Academics/Subjects.tsx";
+import Timetable from "./pages/School/Academics/Timetable.tsx";
+import AcademicYear from "./pages/School/Academics/AcademicYear.tsx";
+import Examinations from "./pages/School/Academics/Examinations.tsx";
+import Teachers from "./pages/School/Teachers.tsx";
+import Assignments from "./pages/School/Assignments.tsx";
+import Grades from "./pages/School/Grades.tsx";
+import StudentReports from "./pages/School/Reports/StudentReports.tsx";
+import MoodAnalytics from "./pages/School/Reports/MoodAnalytics.tsx";
+import AttendanceReports from "./pages/School/Reports/AttendanceReports.tsx";
+import PerformanceReports from "./pages/School/Reports/PerformanceReports.tsx";
+import CustomReports from "./pages/School/Reports/CustomReports.tsx";
+import SchoolCalendar from "./pages/School/Calendar.tsx";
+import SchoolNotifications from "./pages/School/Notifications.tsx";
+import Communications from "./pages/School/Communications.tsx";
+import Documents from "./pages/School/Documents.tsx";
+import Security from "./pages/School/Security.tsx";
+import Billing from "./pages/School/Billing.tsx";
+import SchoolProfile from "./pages/School/Settings/Profile.tsx";
+import Users from "./pages/School/Settings/Users.tsx";
+import Permissions from "./pages/School/Settings/Permissions.tsx";
+import SettingsNotifications from "./pages/School/Settings/SettingsNotifications.tsx";
+import BillingSettings from "./pages/School/Settings/BillingSettings.tsx";
 // Import Student pages
 import {
   StudentDashboard,
@@ -63,6 +97,8 @@ function AppContent() {
 
   // Check if current path is a student route
   const isStudentRoute = location.pathname.startsWith("/student");
+  // Check if current path is a school route
+  const isSchoolRoute = location.pathname.startsWith("/school");
 
   // Redirect to appropriate dashboard if user is already authenticated and trying to access auth pages
   if (isAuthenticated && authRoutes.includes(location.pathname)) {
@@ -90,11 +126,22 @@ function AppContent() {
       <div style={{ display: "flex", position: "relative" }}>
         {/* Desktop Sidebar - Conditional based on route */}
         <div className="sidebar-desktop">
-          {isStudentRoute ? <StudentSidebar /> : <Sidebar />}
+          {isStudentRoute ? (
+            <StudentSidebar />
+          ) : isSchoolRoute ? (
+            <SchoolSidebar />
+          ) : (
+            <Sidebar />
+          )}
         </div>
         {/* Mobile Sidebar - Conditional based on route */}
         {isStudentRoute ? (
           <StudentMobileSidebar
+            isOpen={sidebarOpen}
+            onClose={() => setSidebarOpen(false)}
+          />
+        ) : isSchoolRoute ? (
+          <SchoolMobileSidebar
             isOpen={sidebarOpen}
             onClose={() => setSidebarOpen(false)}
           />
@@ -128,6 +175,39 @@ function AppContent() {
             <Route path="/master/subcategory" element={<SubCategory />} />
             <Route path="/master/impact" element={<Impact />} />
             <Route path="/master/pleasantness" element={<Pleasantness />} />
+
+            {/* School Pages */}
+            <Route path="/school/dashboard" element={<SchoolDashboard />} />
+            <Route path="/school/overview" element={<SchoolOverview />} />
+            <Route path="/school/students" element={<AllStudents />} />
+            <Route path="/school/students/profiles" element={<StudentProfiles />} />
+            <Route path="/school/students/attendance" element={<StudentAttendance />} />
+            <Route path="/school/students/performance" element={<StudentPerformance />} />
+            <Route path="/school/academics/classes" element={<Classes />} />
+            <Route path="/school/academics/divisions" element={<Divisions />} />
+            <Route path="/school/academics/subjects" element={<Subjects />} />
+            <Route path="/school/academics/timetable" element={<Timetable />} />
+            <Route path="/school/academics/academic-year" element={<AcademicYear />} />
+            <Route path="/school/academics/examinations" element={<Examinations />} />
+            <Route path="/school/teachers" element={<Teachers />} />
+            <Route path="/school/assignments" element={<Assignments />} />
+            <Route path="/school/grades" element={<Grades />} />
+            <Route path="/school/reports/students" element={<StudentReports />} />
+            <Route path="/school/reports/mood-analytics" element={<MoodAnalytics />} />
+            <Route path="/school/reports/attendance" element={<AttendanceReports />} />
+            <Route path="/school/reports/performance" element={<PerformanceReports />} />
+            <Route path="/school/reports/custom" element={<CustomReports />} />
+            <Route path="/school/calendar" element={<SchoolCalendar />} />
+            <Route path="/school/notifications" element={<SchoolNotifications />} />
+            <Route path="/school/communications" element={<Communications />} />
+            <Route path="/school/documents" element={<Documents />} />
+            <Route path="/school/security" element={<Security />} />
+            <Route path="/school/billing" element={<Billing />} />
+            <Route path="/school/settings/profile" element={<SchoolProfile />} />
+            <Route path="/school/settings/users" element={<Users />} />
+            <Route path="/school/settings/permissions" element={<Permissions />} />
+            <Route path="/school/settings/notifications" element={<SettingsNotifications />} />
+            <Route path="/school/settings/billing" element={<BillingSettings />} />
 
             {/* Student Pages */}
             <Route path="/student/dashboard" element={<StudentDashboard />} />
